@@ -1,4 +1,4 @@
-use owo_colors::prelude::*;
+use owo_colors::{OwoColorize, colors::*};
 
 fn main() {
     println!("{}", "green".fg::<Green>());
@@ -9,4 +9,25 @@ fn main() {
     println!("{}", "magenta".fg::<Magenta>());
     println!("{}", "white".fg::<White>());
     println!("{}", "cyan".fg::<Cyan>());
+
+    println!("\nBrights\n-------");
+    println!("{}", "green".fg::<BrightGreen>());
+    println!("{}", "yellow".fg::<BrightYellow>());
+    println!("{}", "blue".fg::<BrightBlue>());
+    println!("{}", "black".fg::<BrightBlack>());
+    println!("{}", "red".fg::<BrightRed>());
+    println!("{}", "magenta".fg::<BrightMagenta>());
+    println!("{}", "white".fg::<BrightWhite>());
+    println!("{}", "cyan".fg::<BrightCyan>());
+
+
+    println!("\nStyles\n-------");
+    println!("{}", "underline".underline());
+    println!("{}", "bold".bold());
+    println!("{}", "italic".italic());
+    println!("{}", "strikethrough".strikethrough());
+    println!("{}", "reverse".reversed());
+    println!("1{}3", "2".hidden());
+    println!("{}", "blink".blink());
+    println!("{}", "blink fast".blink_fast());
 }
