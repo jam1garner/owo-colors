@@ -16,6 +16,13 @@ A zero-allocation no_std-compatible zero-cost way to add color to your Rust term
 * [x] [LowerExp](https://doc.rust-lang.org/std/fmt/trait.LowerExp.html)
 * [x] [UpperExp](https://doc.rust-lang.org/std/fmt/trait.UpperExp.html)
 
+owo-colors is also more-or-less a drop-in replacement for [colored](https://crates.io/crates/colored), allowing colored to work in a no_std environment. No allocations, unsafe, or dependencies required because embedded systems deserve to be pretty too uwu.
+
+To add to your Cargo.toml:
+```toml
+owo-colors = "1"
+```
+
 ## Example
 ```rust
 use owo_colors::OwoColorize;
