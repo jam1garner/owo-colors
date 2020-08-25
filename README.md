@@ -1,6 +1,6 @@
 # <img src="https://jam1.re/img/rust_owo.svg" height="100"> Colors
 
-A zero-allocation no_std-compatible zero-cost way to add color to your Rust terminal.
+A zero-allocation no_std-compatible zero-cost way to add color to your Rust terminal to make people go owo.
 
 **Supports:**
 
