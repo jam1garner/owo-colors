@@ -1,9 +1,10 @@
 [package]
 name = "owo-colors"
-version = "1.0.0"
+version = "1.0.1"
 authors = ["jam1garner <8260240+jam1garner@users.noreply.github.com>"]
 edition = "2018"
 documentation = "https://docs.rs/owo-colors"
 repository = "https://github.com/jam1garner/owo-colors"
-description = "Zero-allocation terminal colors that'll make your people go owo"
+description = "Zero-allocation terminal colors that'll make people go owo"
 license = "MIT"
+readme = "README.md"
