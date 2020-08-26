@@ -8,3 +8,6 @@ repository = "https://github.com/jam1garner/owo-colors"
 description = "Zero-allocation terminal colors that'll make people go owo"
 license = "MIT"
 readme = "README.md"
+
+[features]
+custom = []

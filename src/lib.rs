@@ -34,6 +34,7 @@
 //! println!("{}", "strikethrough".strikethrough());
 //! ```
 #![cfg_attr(not(test), no_std)]
+#![cfg_attr(feature = "custom", feature(min_const_generics))]
 #![doc(html_logo_url = "https://jam1.re/img/rust_owo.svg")]
 use core::marker::PhantomData;
 
