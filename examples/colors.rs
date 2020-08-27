@@ -1,4 +1,4 @@
-use owo_colors::{OwoColorize, colors::*};
+use owo_colors::{colors::*, OwoColorize};
 
 fn main() {
     println!("{}", "green".fg::<Green>());
@@ -19,7 +19,6 @@ fn main() {
     println!("{}", "magenta".fg::<BrightMagenta>());
     println!("{}", "white".fg::<BrightWhite>());
     println!("{}", "cyan".fg::<BrightCyan>());
-
 
     println!("\nStyles\n-------");
     println!("{}", "underline".underline());
