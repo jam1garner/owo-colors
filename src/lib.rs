@@ -5,7 +5,7 @@
 //!
 //! ```rust
 //! use owo_colors::OwoColorize;
-//! 
+//!
 //! fn main() {
 //!     // Foreground colors
 //!     println!("My number is {:#x}!", 10.green());
@@ -19,7 +19,7 @@
 //! ```rust
 //! use owo_colors::OwoColorize;
 //! use owo_colors::colors::*;
-//! 
+//!
 //! fn main() {
 //!     // Generically color
 //!     println!("My number might be {}!", 4.fg::<Black>().bg::<Yellow>());
@@ -67,7 +67,7 @@ macro_rules! color_methods {
             fn $fg_method<'a>(&'a self) -> FgColorDisplay<'a, colors::$color, Self> {
                 FgColorDisplay(self, PhantomData)
             }
-            
+
             /// Change the background color
             #[inline(always)]
             fn $bg_method<'a>(&'a self) -> BgColorDisplay<'a, colors::$color, Self> {
@@ -96,7 +96,7 @@ macro_rules! style_methods {
 ///
 /// ```rust
 /// use owo_colors::OwoColorize;
-/// 
+///
 /// fn main() {
 ///     println!("My number is {:#x}!", 10.green());
 ///     println!("My number is not {}!", 4.on_red());
@@ -108,14 +108,28 @@ pub trait OwoColorize: Sized {
     fn fg<'a, C: Color>(&'a self) -> FgColorDisplay<'a, C, Self> {
         FgColorDisplay(self, PhantomData)
     }
- 
+
     /// Set the background color generically
     #[inline(always)]
     fn bg<'a, C: Color>(&'a self) -> BgColorDisplay<'a, C, Self> {
         BgColorDisplay(self, PhantomData)
     }
 
-    style_methods!{
+    #[cfg(feature = "custom")]
+    fn fg_rgb<'a, const R: u8, const G: u8, const B: u8>(&'a self)
+        -> FgColorDisplay<'a, colors::CustomColor<R, G, B>, Self>
+    {
+        FgColorDisplay(self, PhantomData)
+    }
+
+    #[cfg(feature = "custom")]
+    fn bg_rgb<'a, const R: u8, const G: u8, const B: u8>(&'a self)
+        -> BgColorDisplay<'a, colors::CustomColor<R, G, B>, Self>
+    {
+        BgColorDisplay(self, PhantomData)
+    }
+
+    style_methods! {
         /// Make the text bold
         bold BoldDisplay,
         /// Make the text dim
@@ -136,7 +150,7 @@ pub trait OwoColorize: Sized {
         strikethrough StrikeThroughDisplay,
     }
 
-    color_methods!{
+    color_methods! {
         Black    black    on_black,
         Red      red      on_red,
         Green    green    on_green,
@@ -161,7 +175,6 @@ pub trait OwoColorize: Sized {
 
 // TODO: figure out some wait to only implement for fmt::Display | fmt::Debug | ...
 impl<D: Sized> OwoColorize for D {}
-
 
 /// Color types for used for being generic over the color
 pub mod colors;
