@@ -36,6 +36,8 @@
 #![cfg_attr(not(test), no_std)]
 #![cfg_attr(feature = "custom", feature(min_const_generics))]
 #![doc(html_logo_url = "https://jam1.re/img/rust_owo.svg")]
+
+use core::fmt;
 use core::marker::PhantomData;
 
 /// A trait for describing a type which can be used with [`FgColorDisplay`](FgColorDisplay) or
@@ -43,6 +45,14 @@ use core::marker::PhantomData;
 pub trait Color {
     const ANSI_FG: &'static str;
     const ANSI_BG: &'static str;
+}
+
+/// A trait describing a runtime-configurable color which can displayed using [`FgDynColorDisplay`](FgDynColorDisplay)
+/// or [`BgDynColorDisplay`](BgDynColorDisplay). If your color will be known at compile time it
+/// is recommended you avoid this.
+pub trait DynColor {
+    fn fmt_ansi_fg(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result;
+    fn fmt_ansi_bg(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result;
 }
 
 /// Transparent wrapper around a type which implements all the formatters the wrapped type does,
@@ -56,6 +66,16 @@ pub struct FgColorDisplay<'a, C: Color, T>(&'a T, PhantomData<C>);
 /// [`OwoColorize`](OwoColorize).
 #[repr(transparent)]
 pub struct BgColorDisplay<'a, C: Color, T>(&'a T, PhantomData<C>);
+
+/// Wrapper around a type which implements all the formatters the wrapped type does,
+/// with the addition of changing the foreground color. Is not recommended unless compile-time
+/// coloring is not an option.
+pub struct FgDynColorDisplay<'a, Color: DynColor, T>(&'a T, Color);
+
+/// Wrapper around a type which implements all the formatters the wrapped type does,
+/// with the addition of changing the background color. Is not recommended unless compile-time
+/// coloring is not an option.
+pub struct BgDynColorDisplay<'a, Color: DynColor, T>(&'a T, Color);
 
 macro_rules! color_methods {
     ($(
@@ -115,17 +135,29 @@ pub trait OwoColorize: Sized {
         BgColorDisplay(self, PhantomData)
     }
 
+    /// Set the foreground color at runtime
+    #[inline(always)]
+    fn dyn_fg<'a, Color: DynColor>(&'a self, color: Color) -> FgDynColorDisplay<'a, Color, Self> {
+        FgDynColorDisplay(self, color)
+    }
+
+    /// Set the background color at runtime
+    #[inline(always)]
+    fn dyn_bg<'a, Color: DynColor>(&'a self, color: Color) -> BgDynColorDisplay<'a, Color, Self> {
+        BgDynColorDisplay(self, color)
+    }
+
     #[cfg(feature = "custom")]
-    fn fg_rgb<'a, const R: u8, const G: u8, const B: u8>(&'a self)
-        -> FgColorDisplay<'a, colors::CustomColor<R, G, B>, Self>
-    {
+    fn fg_rgb<'a, const R: u8, const G: u8, const B: u8>(
+        &'a self,
+    ) -> FgColorDisplay<'a, colors::CustomColor<R, G, B>, Self> {
         FgColorDisplay(self, PhantomData)
     }
 
     #[cfg(feature = "custom")]
-    fn bg_rgb<'a, const R: u8, const G: u8, const B: u8>(&'a self)
-        -> BgColorDisplay<'a, colors::CustomColor<R, G, B>, Self>
-    {
+    fn bg_rgb<'a, const R: u8, const G: u8, const B: u8>(
+        &'a self,
+    ) -> BgColorDisplay<'a, colors::CustomColor<R, G, B>, Self> {
         BgColorDisplay(self, PhantomData)
     }
 
@@ -173,11 +205,14 @@ pub trait OwoColorize: Sized {
     }
 }
 
+pub use colors::{xterm::XtermColors, AnsiColors, Rgb};
+
 // TODO: figure out some wait to only implement for fmt::Display | fmt::Debug | ...
 impl<D: Sized> OwoColorize for D {}
 
 /// Color types for used for being generic over the color
 pub mod colors;
+
 /// Different display styles (strikethrough, bold, etc.)
 pub mod styles;
 

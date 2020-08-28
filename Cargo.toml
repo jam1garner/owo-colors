@@ -9,5 +9,9 @@ description = "Zero-allocation terminal colors that'll make people go owo"
 license = "MIT"
 readme = "README.md"
 
+[[example]]
+name = "custom_colors"
+required-features = ["custom"]
+
 [features]
 custom = []
