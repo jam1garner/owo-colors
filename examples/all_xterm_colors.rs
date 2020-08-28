@@ -16,6 +16,11 @@ macro_rules! xterm_colors {
 }
 
 fn main() {
+    // This example is intended as a quick way to view all the available xterm colors
+    //
+    // ```
+    // cargo run --example all_xterm_colors
+    // ```
     xterm_colors! {
         0 UserBlack              (0,0,0)
         1 UserRed                (128,0,0)

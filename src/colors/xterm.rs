@@ -1,5 +1,3 @@
-use core::fmt;
-
 macro_rules! xterm_colors {
     ($(
         $xterm_num:literal $name:ident ($r:literal, $g:literal, $b:literal)
@@ -13,35 +11,43 @@ macro_rules! xterm_colors {
             }
         )*
 
-        #[derive(Copy, Clone, Debug, PartialEq)]
-        pub enum XtermColors {
-            $(
-                $name,
-            )*
-        }
+        pub(crate) mod dynamic {
+            use core::fmt;
 
-        impl crate::DynColor for XtermColors {
-            fn fmt_ansi_fg(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-                let color = match self {
-                    $(
-                        XtermColors::$name => concat!("\x1b[38;5;", stringify!($xterm_num), "m"),
-                    )*
-                };
+            #[allow(unused_imports)]
+            use crate::OwoColorize;
 
-                write!(f, "{}", color)
+            /// Available Xterm colors for use with [`OwoColorize::color`](OwoColorize::color)
+            /// or [`OwoColorize::on_color`](OwoColorize::on_color)
+            #[derive(Copy, Clone, Debug, PartialEq)]
+            pub enum XtermColors {
+                $(
+                    $name,
+                )*
             }
 
-            fn fmt_ansi_bg(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-                let color = match self {
-                    $(
-                        XtermColors::$name => concat!("\x1b[48;5;", stringify!($xterm_num), "m"),
-                    )*
-                };
+            impl crate::DynColor for XtermColors {
+                fn fmt_ansi_fg(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+                    let color = match self {
+                        $(
+                            XtermColors::$name => concat!("\x1b[38;5;", stringify!($xterm_num), "m"),
+                        )*
+                    };
 
-                write!(f, "{}", color)
+                    write!(f, "{}", color)
+                }
+
+                fn fmt_ansi_bg(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+                    let color = match self {
+                        $(
+                            XtermColors::$name => concat!("\x1b[48;5;", stringify!($xterm_num), "m"),
+                        )*
+                    };
+
+                    write!(f, "{}", color)
+                }
             }
         }
-
     };
 }
 

@@ -16,32 +16,41 @@ macro_rules! colors {
             }
         )*
 
-        #[derive(Copy, Clone, Debug, PartialEq)]
-        pub enum AnsiColors {
-            $(
-                $color,
-            )*
-        }
+        pub(crate) mod ansi_colors {
+            use core::fmt;
 
-        impl crate::DynColor for AnsiColors {
-            fn fmt_ansi_fg(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-                let color = match self {
-                    $(
-                        AnsiColors::$color => concat!("\x1b[", stringify!($fg), "m"),
-                    )*
-                };
+            #[allow(unused_imports)]
+            use crate::OwoColorize;
 
-                write!(f, "{}", color)
+            /// Available standard ANSI colors for use with [`OwoColorize::color`](OwoColorize::color)
+            /// or [`OwoColorize::on_color`](OwoColorize::on_color)
+            #[derive(Copy, Clone, Debug, PartialEq)]
+            pub enum AnsiColors {
+                $(
+                    $color,
+                )*
             }
 
-            fn fmt_ansi_bg(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-                let color = match self {
-                    $(
-                        AnsiColors::$color => concat!("\x1b[", stringify!($bg), "m"),
-                    )*
-                };
+            impl crate::DynColor for AnsiColors {
+                fn fmt_ansi_fg(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+                    let color = match self {
+                        $(
+                            AnsiColors::$color => concat!("\x1b[", stringify!($fg), "m"),
+                        )*
+                    };
 
-                write!(f, "{}", color)
+                    write!(f, "{}", color)
+                }
+
+                fn fmt_ansi_bg(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+                    let color = match self {
+                        $(
+                            AnsiColors::$color => concat!("\x1b[", stringify!($bg), "m"),
+                        )*
+                    };
+
+                    write!(f, "{}", color)
+                }
             }
         }
     };
@@ -145,6 +154,7 @@ impl_fmt_for_dyn! {
     (BgDynColorDisplay, fmt::Pointer,  fmt_ansi_bg),
 }
 
+/// XTerm 256-bit colors. Not as widely supported as standard ANSI but contains 240 more colors.
 pub mod xterm;
 
 #[cfg(feature = "custom")]
@@ -153,17 +163,4 @@ mod custom;
 #[cfg(feature = "custom")]
 pub use custom::CustomColor;
 
-#[derive(Copy, Clone, Debug, PartialEq)]
-pub struct Rgb(pub u8, pub u8, pub u8);
-
-impl crate::DynColor for Rgb {
-    fn fmt_ansi_fg(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let Rgb(r, g, b) = self;
-        write!(f, "\x1b[38;2;{};{};{}m", r, g, b)
-    }
-
-    fn fmt_ansi_bg(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let Rgb(r, g, b) = self;
-        write!(f, "\x1b[48;2;{};{};{}m", r, g, b)
-    }
-}
+pub(crate) mod dynamic;
