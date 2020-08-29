@@ -121,7 +121,7 @@ macro_rules! impl_fmt_for_dyn {
             impl<'a, Color: crate::DynColor, T: $trait> $trait for $ty<'a, Color, T> {
                 #[inline(always)]
                 fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-                    self.1.$fmt(f)?;
+                    (self.1).$fmt(f)?;
                     <T as $trait>::fmt(&self.0, f)?;
                     f.write_str("\x1b[0m")
                 }
