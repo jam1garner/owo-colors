@@ -1,4 +1,4 @@
-use super::Color;
+use crate::Color;
 
 const U8_TO_STR: [[u8; 3]; 256] = [
     [48, 48, 48],
