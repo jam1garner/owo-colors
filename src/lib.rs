@@ -331,6 +331,9 @@ pub use colors::{xterm::dynamic::XtermColors, ansi_colors::AnsiColors, dynamic::
 // TODO: figure out some wait to only implement for fmt::Display | fmt::Debug | ...
 impl<D: Sized> OwoColorize for D {}
 
+mod dyn_colors;
+pub use dyn_colors::*;
+
 /// Color types for used for being generic over the color
 pub mod colors;
 

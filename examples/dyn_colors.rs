@@ -1,4 +1,8 @@
-use owo_colors::{AnsiColors, OwoColorize, Rgb, XtermColors};
+use owo_colors::{AnsiColors, OwoColorize, Rgb, XtermColors, DynColors};
+
+fn random_number() -> u32 {
+    2
+}
 
 fn main() {
     let mut color = AnsiColors::Red;
@@ -12,4 +16,13 @@ fn main() {
 
     let color = Rgb(141, 59, 212);
     println!("{}", "custom purple".color(color));
+
+    let color = match random_number() {
+        1 => DynColors::Rgb(141, 59, 212),
+        2 => DynColors::Ansi(AnsiColors::BrightGreen),
+        3 => "#F3F3F3".parse().unwrap(),
+        _ => DynColors::Xterm(XtermColors::Aqua),
+    };
+
+    println!("{}", "mystery color".color(color));
 }
