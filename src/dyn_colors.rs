@@ -1,6 +1,6 @@
 #[allow(unused_imports)]
 use crate::{AnsiColors, XtermColors, FgDynColorDisplay, BgDynColorDisplay, DynColor, Rgb};
-use core::fmt;
+use crate::DynStylesColor;
 
 /// An enum describing runtime-configurable colors which can be displayed using [`FgDynColorDisplay`](FgDynColorDisplay)
 /// or [`BgDynColorDisplay`](BgDynColorDisplay), allowing for multiple types of colors to be used
@@ -13,19 +13,19 @@ pub enum DynColors {
 }
 
 impl DynColor for DynColors {
-    fn fmt_ansi_fg(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+    fn get_fg(&self) -> DynStylesColor {
         match self {
-            DynColors::Ansi(ansi) => ansi.fmt_ansi_fg(f),
-            DynColors::Xterm(xterm) => xterm.fmt_ansi_fg(f),
-            &DynColors::Rgb(r, g, b) => Rgb(r, g, b).fmt_ansi_fg(f),
+            DynColors::Ansi(ansi) => ansi.get_fg(),
+            DynColors::Xterm(xterm) => xterm.get_fg(),
+            &DynColors::Rgb(r, g, b) => Rgb(r, g, b).get_fg(),
         }
     }
 
-    fn fmt_ansi_bg(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+    fn get_bg(&self) -> DynStylesColor {
         match self {
-            DynColors::Ansi(ansi) => ansi.fmt_ansi_bg(f),
-            DynColors::Xterm(xterm) => xterm.fmt_ansi_bg(f),
-            &DynColors::Rgb(r, g, b) => Rgb(r, g, b).fmt_ansi_bg(f),
+            DynColors::Ansi(ansi) => ansi.get_bg(),
+            DynColors::Xterm(xterm) => xterm.get_bg(),
+            &DynColors::Rgb(r, g, b) => Rgb(r, g, b).get_bg(),
         }
     }
 }

@@ -12,10 +12,9 @@ macro_rules! xterm_colors {
         )*
 
         pub(crate) mod dynamic {
-            use core::fmt;
 
             #[allow(unused_imports)]
-            use crate::OwoColorize;
+            use crate::{OwoColorize, DynStylesColor};
 
             /// Available Xterm colors for use with [`OwoColorize::color`](OwoColorize::color)
             /// or [`OwoColorize::on_color`](OwoColorize::on_color)
@@ -27,24 +26,24 @@ macro_rules! xterm_colors {
             }
 
             impl crate::DynColor for XtermColors {
-                fn fmt_ansi_fg(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-                    let color = match self {
+                fn get_fg(&self) -> DynStylesColor {
+                    match self {
                         $(
-                            XtermColors::$name => concat!("\x1b[38;5;", stringify!($xterm_num), "m"),
+                            XtermColors::$name => DynStylesColor::Ansi(
+                                concat!("\x1b[38;5;", stringify!($xterm_num), "m")
+                            ),
                         )*
-                    };
-
-                    write!(f, "{}", color)
+                    }
                 }
 
-                fn fmt_ansi_bg(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-                    let color = match self {
+                fn get_bg(&self) -> DynStylesColor {
+                    match self {
                         $(
-                            XtermColors::$name => concat!("\x1b[48;5;", stringify!($xterm_num), "m"),
+                            XtermColors::$name => DynStylesColor::Ansi(
+                                concat!("\x1b[48;5;", stringify!($xterm_num), "m")
+                            ),
                         )*
-                    };
-
-                    write!(f, "{}", color)
+                    }
                 }
             }
         }
