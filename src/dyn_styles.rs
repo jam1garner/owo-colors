@@ -6,7 +6,7 @@
 */
 
 use core::fmt;
-use crate::{Color, colors, DynColor, DynStylesColor/*, OwoColorize*/};
+use crate::{Color, colors, DynColor, DynStylesColor, OwoColorize};
 
 const CLOSINGS: [&str; 12] = [
     "",
@@ -35,6 +35,7 @@ pub enum Effect {
     Hidden,
     Strikethrough,
 
+    // XXX would a `unset_effects` method that accepts the above variants and removing the variants below (and the "unset" functionality in `effects`) be a nicer API?
     BoldOff,
     DimmedOff,
     ItalicOff,
@@ -86,7 +87,7 @@ pub struct Styled<T> {
     style: Style,
 }
 
-impl<'a, T> Styled<T> {
+impl<T> Styled<T> {
     fn new(target: T, style: Style) -> Self {
         Self {target, style}
     }
@@ -472,6 +473,31 @@ mod tests {
             .on_truecolor(0, 0, 0);
 
         let s = style.apply_to("TEST");
+        let s2 = format!("{}", &s);
+        println!("{}", &s2);
+        assert_eq!(&s2, "TEST");
+    }
+
+    #[test]
+    fn test_string_reference() {
+        let style = Style::new()
+            .truecolor(255, 255, 255)
+            .on_truecolor(0, 0, 0);
+
+        let string = String::from("TEST");
+        let s = style.apply_to(&string);
+        let s2 = format!("{}", &s);
+        println!("{}", &s2);
+        assert_eq!(&s2, "TEST");
+    }
+
+    #[test]
+    fn test_owocolorize() {
+        let style = Style::new()
+            .bright_white()
+            .on_blue();
+
+        let s = "TEST".style(&style);
         let s2 = format!("{}", &s);
         println!("{}", &s2);
         assert_eq!(&s2, "TEST");

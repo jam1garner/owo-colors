@@ -351,6 +351,11 @@ pub trait OwoColorize: Sized {
     fn on_truecolor<'a>(&'a self, r: u8, g: u8, b: u8) -> BgDynColorDisplay<'a, Rgb, Self> {
         BgDynColorDisplay(self, Rgb(r, g, b))
     }
+
+    /// 
+    fn style(&self, style: &Style) -> Styled<&Self> {
+        style.apply_to(self)
+    }
 }
 
 pub use colors::{xterm::dynamic::XtermColors, ansi_colors::AnsiColors, dynamic::Rgb};
