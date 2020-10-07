@@ -6,24 +6,10 @@
 */
 
 use core::fmt;
-use crate::{Color, colors, DynColor, DynStylesColor, OwoColorize};
-
-const CLOSINGS: [&str; 12] = [
-    "",
-    "\x1b[0m",
-    "\x1b[0m\x1b[0m",
-    "\x1b[0m\x1b[0m\x1b[0m",
-    "\x1b[0m\x1b[0m\x1b[0m\x1b[0m",
-    "\x1b[0m\x1b[0m\x1b[0m\x1b[0m\x1b[0m",
-    "\x1b[0m\x1b[0m\x1b[0m\x1b[0m\x1b[0m\x1b[0m",
-    "\x1b[0m\x1b[0m\x1b[0m\x1b[0m\x1b[0m\x1b[0m\x1b[0m",
-    "\x1b[0m\x1b[0m\x1b[0m\x1b[0m\x1b[0m\x1b[0m\x1b[0m\x1b[0m",
-    "\x1b[0m\x1b[0m\x1b[0m\x1b[0m\x1b[0m\x1b[0m\x1b[0m\x1b[0m\x1b[0m",
-    "\x1b[0m\x1b[0m\x1b[0m\x1b[0m\x1b[0m\x1b[0m\x1b[0m\x1b[0m\x1b[0m\x1b[0m",
-    "\x1b[0m\x1b[0m\x1b[0m\x1b[0m\x1b[0m\x1b[0m\x1b[0m\x1b[0m\x1b[0m\x1b[0m\x1b[0m",
-];
+use crate::{Color, colors, DynColor, DynColors, AnsiColors};
 
 // XXX Should we better use the plural `Effects`? I prefer `Effect` but I think you used the plural versions so far (for example `DynColors`)
+#[derive(Debug, Copy, Clone)]
 pub enum Effect {
     Bold,
     Dimmed,
@@ -35,7 +21,7 @@ pub enum Effect {
     Hidden,
     Strikethrough,
 
-    // XXX would a `unset_effects` method that accepts the above variants and removing the variants below (and the "unset" functionality in `effects`) be a nicer API?
+    // XXX would a `unset_effects` method that accepts the above variants and removing the variants below (and the "unset" functionality in `effects`) be a nicer API? In this case a `All` variant would probably make sense (mostly to unset all)
     BoldOff,
     DimmedOff,
     ItalicOff,
@@ -55,14 +41,14 @@ macro_rules! color_methods {
             #[$fg_meta]
             #[inline(always)]
             pub fn $fg_method(mut self) -> Self {
-                self.fg = Some(DynStylesColor::Ansi(colors::$color::ANSI_FG));
+                self.fg = Some(DynColors::Ansi(AnsiColors::$color));
                 self
             }
 
             #[$fg_meta]
             #[inline(always)]
             pub fn $bg_method(mut self) -> Self {
-                self.bg = Some(DynStylesColor::Ansi(colors::$color::ANSI_BG));
+                self.bg = Some(DynColors::Ansi(AnsiColors::$color));
                 self
             }
          )*
@@ -70,7 +56,7 @@ macro_rules! color_methods {
 }
 
 macro_rules! style_methods {
-    ($(#[$meta:meta] $name:ident $ty:ident),* $(,)?) => {
+    ($(#[$meta:meta] $name:ident),* $(,)?) => {
         $(
             #[$meta]
             #[inline(always)]
@@ -87,17 +73,11 @@ pub struct Styled<T> {
     style: Style,
 }
 
-impl<T> Styled<T> {
-    fn new(target: T, style: Style) -> Self {
-        Self {target, style}
-    }
-}
-
 // XXX Is it correct here to derive `Copy` (because it only contains `&static str` and `bool` values), or would it still make sense to work with references, instead of `copy`ing `Style`?
-#[derive(Default, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct Style {
-    fg: Option<DynStylesColor>,
-    bg: Option<DynStylesColor>,
+    fg: Option<DynColors>,
+    bg: Option<DynColors>,
     bold: bool,
     dimmed: bool,
     italic: bool,
@@ -114,8 +94,8 @@ impl Style {
         Self::default()
     }
 
-    pub fn apply_to<T>(&self, target: T) -> Styled<T> {
-        Styled::new(target, *self)
+    pub fn style<T>(&self, target: T) -> Styled<T> {
+        Styled {target, style: *self}
     }
 
     /// Set the foreground color generically
@@ -127,7 +107,7 @@ impl Style {
     /// ```
     #[inline(always)]
     pub fn fg<C: Color>(mut self) -> Self {
-        self.fg = Some(DynStylesColor::Ansi(C::ANSI_FG));
+        self.fg = Some(DynColors::Ansi(C::ANSI_FG));
         self
     }
 
@@ -204,23 +184,23 @@ impl Style {
 
     style_methods! {
         /// Make the text bold
-        bold BOLD,
+        bold,
         /// Make the text dim
-        dimmed DIMMED,
+        dimmed,
         /// Make the text italicized
-        italic ITALIC,
+        italic,
         /// Make the text italicized
-        underline UNDERLINED,
+        underline,
         /// Make the text blink
-        blink BLINK,
+        blink,
         /// Make the text blink (but fast!)
-        blink_fast BLINK_FAST,
+        blink_fast,
         /// Swap the foreground and background colors
-        reversed REVERSED,
+        reversed,
         /// Hide the text
-        hidden HIDDEN,
+        hidden,
         /// Cross out the text
-        strikethrough STRIKETHROUGH,
+        strikethrough,
     }
 
     #[inline(always)]
@@ -317,24 +297,28 @@ impl Style {
     /// Sets the foreground color to an RGB value.
     #[inline(always)]
     pub fn truecolor(mut self, r: u8, g: u8, b: u8) -> Self {
-        self.fg = Some(DynStylesColor::Rgb(r, g, b));
+        self.fg = Some(DynColors::Rgb(r, g, b));
         self
     }
 
     /// Sets the background color to an RGB value.
     #[inline(always)]
     pub fn on_truecolor(mut self, r: u8, g: u8, b: u8) -> Self {
-        self.bg = Some(DynStylesColor::Rgb(r, g, b));
+        self.bg = Some(DynColors::Rgb(r, g, b));
         self
     }
 
 }
 
+/// Small helper to create new style a bit more ergonomically
+pub fn style() -> Style {
+    Style::new()
+}
+
 macro_rules! text_effect_fmt {
-    ($closings:ident, $style:ident, $formatter:ident, $(($attr:ident, $value:literal)),* $(,)?) => {
+    ($style:ident, $formatter:ident, $(($attr:ident, $value:literal)),* $(,)?) => {
         $(if $style.$attr {
             $formatter.write_str($value)?;
-            $closings += 1;
         })+
     }
 }
@@ -345,31 +329,21 @@ macro_rules! impl_fmt {
             impl<T: $trait> $trait for Styled<T> {
                 #[inline(always)]
                 fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+
                     let s = &self.style;
-                    let mut closings = 0;
 
                     // XXX Is my assumption correct, that it doesn't matter in what order ANSI escape sequences are applied? Because otherwise we need to store the order in which the user applies them (which would make the code more complex)
 
                     if let Some(fg) = s.fg {
-                        match fg {
-                            DynStylesColor::Ansi(ansi) => f.write_str(ansi)?,
-                            DynStylesColor::Rgb(r, g, b) => 
-                                f.write_fmt(format_args!("\x1b[38;2;{};{};{}m", r, g, b))?,
-                        }
-                        closings += 1;
+                        <DynColors as $trait>::fmt(&fg, f)?;
                     }
 
                     if let Some(bg) = s.bg {
-                        match bg {
-                            DynStylesColor::Ansi(ansi) => f.write_str(ansi)?,
-                            DynStylesColor::Rgb(r, g, b) => 
-                                f.write_fmt(format_args!("\x1b[48;2;{};{};{}m", r, g, b))?,
-                        }
-                        closings += 1;
+                        <DynColors as $trait>::fmt(&bg, f)?;
                     }
 
                     text_effect_fmt!{
-                        closings, s, f,
+                        s, f,
                         (bold,          "\x1b[1m"),
                         (dimmed,        "\x1b[2m"),
                         (italic,        "\x1b[3m"),
@@ -378,24 +352,10 @@ macro_rules! impl_fmt {
                         (blink_fast,    "\x1b[6m"),
                         (reversed,      "\x1b[7m"),
                         (hidden,        "\x1b[8m"),
-                        (strikethrough, "\x1b[9m")
+                        (strikethrough, "\x1b[9m"),
                     }
 
-                    <T as $trait>::fmt(&self.target, f)?;
-
-                    if closings > 0 {
-                        f.write_str(CLOSINGS[closings])?;
-                    }
-
-                    /* XXX
-                    Let me know if the above optimization is silly, and we should use a for loop:
-
-                    for _ in 0..closing {
-                        f.write_str("\x1b[0m")
-                    }
-                    */
-
-                    Ok(())
+                    <T as $trait>::fmt(&self.target, f)
                 }
             }
         )*
@@ -417,7 +377,7 @@ impl_fmt! {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::AnsiColors;
+    use crate::{AnsiColors, OwoColorize};
 
     #[test]
     fn test_it() {
