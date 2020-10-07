@@ -28,6 +28,14 @@ impl DynColor for DynColors {
             &DynColors::Rgb(r, g, b) => Rgb(r, g, b).fmt_ansi_bg(f),
         }
     }
+
+    fn get_dyncolors_fg(&self) -> crate::DynColors {
+        *self
+    }
+
+    fn get_dyncolors_bg(&self) -> crate::DynColors {
+        *self
+    }
 }
 
 #[derive(Debug)]

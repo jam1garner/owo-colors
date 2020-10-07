@@ -1,12 +1,11 @@
 
 /*  XXX
-    You know, naming is hard :)
     Fell free to re-name or re-locate this as you see fit (or just tell me, and I wil do it)
     The name this module "kind of" clashes with the `styles` module, but I don't know a better name.
 */
 
 use core::fmt;
-use crate::{Color, colors, DynColor, DynColors, AnsiColors};
+use crate::{Color, DynColor, DynColors, AnsiColors};
 
 // XXX Should we better use the plural `Effects`? I prefer `Effect` but I think you used the plural versions so far (for example `DynColors`)
 #[derive(Debug, Copy, Clone)]
@@ -20,17 +19,6 @@ pub enum Effect {
     Reversed,
     Hidden,
     Strikethrough,
-
-    // XXX would a `unset_effects` method that accepts the above variants and removing the variants below (and the "unset" functionality in `effects`) be a nicer API? In this case a `All` variant would probably make sense (mostly to unset all)
-    BoldOff,
-    DimmedOff,
-    ItalicOff,
-    UnderlineOff,
-    BlinkOff,
-    BlinkFastOff,
-    ReversedOff,
-    HiddenOff,
-    StrikethroughOff,
 }
 
 macro_rules! color_methods {
@@ -39,14 +27,12 @@ macro_rules! color_methods {
     ),* $(,)?) => {
         $(
             #[$fg_meta]
-            #[inline(always)]
             pub fn $fg_method(mut self) -> Self {
                 self.fg = Some(DynColors::Ansi(AnsiColors::$color));
                 self
             }
 
             #[$fg_meta]
-            #[inline(always)]
             pub fn $bg_method(mut self) -> Self {
                 self.bg = Some(DynColors::Ansi(AnsiColors::$color));
                 self
@@ -59,7 +45,6 @@ macro_rules! style_methods {
     ($(#[$meta:meta] $name:ident),* $(,)?) => {
         $(
             #[$meta]
-            #[inline(always)]
             pub fn $name(mut self) -> Self {
                 self.$name = true;
                 self
@@ -73,7 +58,6 @@ pub struct Styled<T> {
     style: Style,
 }
 
-// XXX Is it correct here to derive `Copy` (because it only contains `&static str` and `bool` values), or would it still make sense to work with references, instead of `copy`ing `Style`?
 #[derive(Debug, Default, Copy, Clone)]
 pub struct Style {
     fg: Option<DynColors>,
@@ -105,9 +89,8 @@ impl Style {
     ///
     /// println!("{}", "red foreground".fg::<Red>());
     /// ```
-    #[inline(always)]
     pub fn fg<C: Color>(mut self) -> Self {
-        self.fg = Some(DynColors::Ansi(C::ANSI_FG));
+        self.fg = Some(C::into_dyncolors());
         self
     }
 
@@ -118,14 +101,13 @@ impl Style {
     ///
     /// println!("{}", "black background".bg::<Black>());
     /// ```
-    #[inline(always)]
     pub fn bg<C: Color>(mut self) -> Self {
-        self.fg = Some(DynStylesColor::Ansi(C::ANSI_BG));
+        self.bg = Some(C::into_dyncolors());
         self
     }
 
     color_methods! {
-        /// Change the foreground color to black 
+        /// Change the foreground color to black
         /// Change the background color to black
         Black    black    on_black,
         /// Change the foreground color to red
@@ -153,7 +135,7 @@ impl Style {
         /// Change the background color to white
         White    white    on_white,
 
-        /// Change the foreground color to bright black 
+        /// Change the foreground color to bright black
         /// Change the background color to bright black
         BrightBlack    bright_black    on_bright_black,
         /// Change the foreground color to bright red
@@ -203,32 +185,42 @@ impl Style {
         strikethrough,
     }
 
-    #[inline(always)]
-    pub fn effects(mut self, effects: &[Effect]) -> Self {
+    fn set_effects(mut self, effects: &[Effect], to: bool) -> Self {
         use Effect::*;
         for e in effects {
             match e {
-                Bold                => self.bold           = true,
-                Dimmed              => self.dimmed         = true,
-                Italic              => self.italic         = true,
-                Underline           => self.underline      = true,
-                Blink               => self.blink          = true,
-                BlinkFast           => self.blink_fast     = true,
-                Reversed            => self.reversed       = true,
-                Hidden              => self.hidden         = true,
-                Strikethrough       => self.strikethrough  = true,
-
-                BoldOff             => self.bold           = false,
-                DimmedOff           => self.dimmed         = false,
-                ItalicOff           => self.italic         = false,
-                UnderlineOff        => self.underline      = false,
-                BlinkOff            => self.blink          = false,
-                BlinkFastOff        => self.blink_fast     = false,
-                ReversedOff         => self.reversed       = false,
-                HiddenOff           => self.hidden         = false,
-                StrikethroughOff    => self.strikethrough  = false,
+                Bold                => self.bold           = to,
+                Dimmed              => self.dimmed         = to,
+                Italic              => self.italic         = to,
+                Underline           => self.underline      = to,
+                Blink               => self.blink          = to,
+                BlinkFast           => self.blink_fast     = to,
+                Reversed            => self.reversed       = to,
+                Hidden              => self.hidden         = to,
+                Strikethrough       => self.strikethrough  = to,
             }
         }
+        self
+    }
+
+    pub fn effects(self, effects: &[Effect]) -> Self {
+        self.set_effects(effects, true)
+    }
+
+    pub fn unset_effects(self, effects: &[Effect]) -> Self {
+        self.set_effects(effects, false)
+    }
+
+    pub fn unset_all_effects(mut self) -> Self {
+        self.bold           = false;
+        self.dimmed         = false;
+        self.italic         = false;
+        self.underline      = false;
+        self.blink          = false;
+        self.blink_fast     = false;
+        self.reversed       = false;
+        self.hidden         = false;
+        self.strikethrough  = false;
         self
     }
 
@@ -243,9 +235,8 @@ impl Style {
     ///     println!("{}", "green".color(AnsiColors::Green));
     /// }
     /// ```
-    #[inline(always)]
     pub fn color<Color: DynColor>(mut self, color: Color) -> Self {
-        self.fg = Some(color.get_fg());
+        self.fg = Some(color.get_dyncolors_fg());
         self
     }
 
@@ -260,9 +251,8 @@ impl Style {
     ///     println!("{}", "yellow background".on_color(AnsiColors::BrightYellow));
     /// }
     /// ```
-    #[inline(always)]
     pub fn on_color<Color: DynColor>(mut self, color: Color) -> Self {
-        self.bg = Some(color.get_bg());
+        self.bg = Some(color.get_dyncolors_bg());
         self
     }
 
@@ -295,14 +285,12 @@ impl Style {
     */
 
     /// Sets the foreground color to an RGB value.
-    #[inline(always)]
     pub fn truecolor(mut self, r: u8, g: u8, b: u8) -> Self {
         self.fg = Some(DynColors::Rgb(r, g, b));
         self
     }
 
     /// Sets the background color to an RGB value.
-    #[inline(always)]
     pub fn on_truecolor(mut self, r: u8, g: u8, b: u8) -> Self {
         self.bg = Some(DynColors::Rgb(r, g, b));
         self
@@ -327,7 +315,6 @@ macro_rules! impl_fmt {
     ($($trait:path),* $(,)?) => {
         $(
             impl<T: $trait> $trait for Styled<T> {
-                #[inline(always)]
                 fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
 
                     let s = &self.style;
@@ -335,11 +322,11 @@ macro_rules! impl_fmt {
                     // XXX Is my assumption correct, that it doesn't matter in what order ANSI escape sequences are applied? Because otherwise we need to store the order in which the user applies them (which would make the code more complex)
 
                     if let Some(fg) = s.fg {
-                        <DynColors as $trait>::fmt(&fg, f)?;
+                        <DynColors as DynColor>::fmt_ansi_fg(&fg, f)?;
                     }
 
                     if let Some(bg) = s.bg {
-                        <DynColors as $trait>::fmt(&bg, f)?;
+                        <DynColors as DynColor>::fmt_ansi_bg(&bg, f)?;
                     }
 
                     text_effect_fmt!{
@@ -355,7 +342,9 @@ macro_rules! impl_fmt {
                         (strikethrough, "\x1b[9m"),
                     }
 
-                    <T as $trait>::fmt(&self.target, f)
+                    <T as $trait>::fmt(&self.target, f)?;
+
+                    f.write_str("\x1b[0m")
                 }
             }
         )*
@@ -394,7 +383,7 @@ mod tests {
             //.hidden()
             .strikethrough()
         ;
-        let s = style.apply_to("TEST");
+        let s = style.style("TEST");
         let s2 = format!("{}", &s);
         println!("{}", &s2);
         assert_eq!(&s2, "TEST");
@@ -408,7 +397,7 @@ mod tests {
             Underline,
         ]);
 
-        let s = style.apply_to("TEST");
+        let s = style.style("TEST");
         let s2 = format!("{}", &s);
         println!("{}", &s2);
         assert_eq!(&s2, "TEST");
@@ -420,7 +409,7 @@ mod tests {
             .color(AnsiColors::White)
             .on_color(AnsiColors::Black);
 
-        let s = style.apply_to("TEST");
+        let s = style.style("TEST");
         let s2 = format!("{}", &s);
         println!("{}", &s2);
         assert_eq!(&s2, "TEST");
@@ -432,7 +421,7 @@ mod tests {
             .truecolor(255, 255, 255)
             .on_truecolor(0, 0, 0);
 
-        let s = style.apply_to("TEST");
+        let s = style.style("TEST");
         let s2 = format!("{}", &s);
         println!("{}", &s2);
         assert_eq!(&s2, "TEST");
@@ -445,7 +434,7 @@ mod tests {
             .on_truecolor(0, 0, 0);
 
         let string = String::from("TEST");
-        let s = style.apply_to(&string);
+        let s = style.style(&string);
         let s2 = format!("{}", &s);
         println!("{}", &s2);
         assert_eq!(&s2, "TEST");

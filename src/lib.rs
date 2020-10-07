@@ -45,6 +45,7 @@ use core::marker::PhantomData;
 pub trait Color {
     const ANSI_FG: &'static str;
     const ANSI_BG: &'static str;
+    fn into_dyncolors() -> DynColors;
 }
 
 /// A trait describing a runtime-configurable color which can displayed using [`FgDynColorDisplay`](FgDynColorDisplay)
@@ -53,6 +54,8 @@ pub trait Color {
 pub trait DynColor {
     fn fmt_ansi_fg(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result;
     fn fmt_ansi_bg(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result;
+    fn get_dyncolors_fg(&self) -> DynColors;
+    fn get_dyncolors_bg(&self) -> DynColors;
 }
 
 /// Transparent wrapper around a type which implements all the formatters the wrapped type does,
@@ -324,6 +327,10 @@ pub trait OwoColorize: Sized {
     fn on_truecolor<'a>(&'a self, r: u8, g: u8, b: u8) -> BgDynColorDisplay<'a, Rgb, Self> {
         BgDynColorDisplay(self, Rgb(r, g, b))
     }
+
+    fn style(&self, style: &Style) -> Styled<&Self> {
+        style.style(self)
+    }
 }
 
 pub use colors::{xterm::dynamic::XtermColors, ansi_colors::AnsiColors, dynamic::Rgb};
@@ -333,6 +340,9 @@ impl<D: Sized> OwoColorize for D {}
 
 mod dyn_colors;
 pub use dyn_colors::*;
+
+mod dyn_styles;
+pub use dyn_styles::*;
 
 /// Color types for used for being generic over the color
 pub mod colors;

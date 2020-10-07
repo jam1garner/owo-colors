@@ -19,6 +19,15 @@ impl DynColor for Rgb {
         let Rgb(r, g, b) = self;
         write!(f, "\x1b[48;2;{};{};{}m", r, g, b)
     }
+
+    fn get_dyncolors_fg(&self) -> crate::DynColors {
+        let Rgb(r, g, b) = self;
+        crate::DynColors::Rgb(*r, *g, *b)
+    }
+
+    fn get_dyncolors_bg(&self) -> crate::DynColors {
+        self.get_dyncolors_fg()
+    }
 }
 
 impl DynColor for str {
@@ -30,6 +39,14 @@ impl DynColor for str {
     fn fmt_ansi_bg(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let color: AnsiColors = self.into();
         color.fmt_ansi_bg(f)
+    }
+
+    fn get_dyncolors_fg(&self) -> crate::DynColors {
+        crate::DynColors::Ansi(self.into())
+    }
+
+    fn get_dyncolors_bg(&self) -> crate::DynColors {
+        crate::DynColors::Ansi(self.into())
     }
 }
 
