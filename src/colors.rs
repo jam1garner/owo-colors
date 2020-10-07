@@ -42,10 +42,12 @@ macro_rules! colors {
                     write!(f, "{}", color)
                 }
 
+                #[doc(hidden)]
                 fn get_dyncolors_fg(&self) -> crate::DynColors {
                     crate::DynColors::Ansi(*self)
                 }
 
+                #[doc(hidden)]
                 fn get_dyncolors_bg(&self) -> crate::DynColors {
                     crate::DynColors::Ansi(*self)
                 }
@@ -60,6 +62,7 @@ macro_rules! colors {
                 const ANSI_FG: &'static str = concat!("\x1b[", stringify!($fg), "m");
                 const ANSI_BG: &'static str = concat!("\x1b[", stringify!($bg), "m");
 
+                #[doc(hidden)]
                 fn into_dyncolors() -> crate::DynColors {
                     crate::DynColors::Ansi(ansi_colors::AnsiColors::$color)
                 }

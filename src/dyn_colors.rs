@@ -29,10 +29,12 @@ impl DynColor for DynColors {
         }
     }
 
+    #[doc(hidden)]
     fn get_dyncolors_fg(&self) -> crate::DynColors {
         *self
     }
 
+    #[doc(hidden)]
     fn get_dyncolors_bg(&self) -> crate::DynColors {
         *self
     }

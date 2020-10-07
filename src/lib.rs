@@ -45,7 +45,9 @@ use core::marker::PhantomData;
 pub trait Color {
     const ANSI_FG: &'static str;
     const ANSI_BG: &'static str;
-    fn into_dyncolors() -> DynColors;
+
+    #[doc(hidden)]
+    fn into_dyncolors() -> crate::DynColors;
 }
 
 /// A trait describing a runtime-configurable color which can displayed using [`FgDynColorDisplay`](FgDynColorDisplay)
@@ -54,7 +56,9 @@ pub trait Color {
 pub trait DynColor {
     fn fmt_ansi_fg(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result;
     fn fmt_ansi_bg(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result;
+    #[doc(hidden)]
     fn get_dyncolors_fg(&self) -> DynColors;
+    #[doc(hidden)]
     fn get_dyncolors_bg(&self) -> DynColors;
 }
 
