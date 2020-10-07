@@ -1,5 +1,5 @@
 use core::fmt;
-use crate::{AnsiColors, DynColor, DynStylesColor};
+use crate::{AnsiColors, DynColor};
 
 #[allow(unused_imports)]
 use crate::OwoColorize;
@@ -10,15 +10,6 @@ use crate::OwoColorize;
 pub struct Rgb(pub u8, pub u8, pub u8);
 
 impl DynColor for Rgb {
-    fn get_fg(&self) -> DynStylesColor {
-        let Rgb(r, g, b) = self;
-        DynStylesColor::Rgb(*r, *g, *b)
-    }
-
-    fn get_bg(&self) -> DynStylesColor {
-        self.get_fg()
-    }
-
     fn fmt_ansi_fg(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let Rgb(r, g, b) = self;
         write!(f, "\x1b[38;2;{};{};{}m", r, g, b)
@@ -31,14 +22,14 @@ impl DynColor for Rgb {
 }
 
 impl DynColor for str {
-    fn get_fg(&self) -> DynStylesColor {
+    fn fmt_ansi_fg(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let color: AnsiColors = self.into();
-        color.get_fg()
+        color.fmt_ansi_fg(f)
     }
 
-    fn get_bg(&self) -> DynStylesColor {
+    fn fmt_ansi_bg(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let color: AnsiColors = self.into();
-        color.get_bg()
+        color.fmt_ansi_bg(f)
     }
 }
 

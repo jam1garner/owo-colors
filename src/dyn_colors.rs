@@ -1,60 +1,31 @@
 #[allow(unused_imports)]
 use crate::{AnsiColors, XtermColors, FgDynColorDisplay, BgDynColorDisplay, DynColor, Rgb};
-use crate::DynStylesColor;
 use core::fmt;
 
 /// An enum describing runtime-configurable colors which can be displayed using [`FgDynColorDisplay`](FgDynColorDisplay)
 /// or [`BgDynColorDisplay`](BgDynColorDisplay), allowing for multiple types of colors to be used
 /// at runtime. 
-#[derive(Copy, Clone, PartialEq)]
+#[derive(Copy, Clone, PartialEq, Debug)]
 pub enum DynColors {
     Ansi(AnsiColors),
     Xterm(XtermColors),
     Rgb(u8, u8, u8),
 }
 
-macro_rules! impl_fmt {
-    ($($trait:path),* $(,)?) => {
-        $(
-            impl $trait for DynColors {
-                fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-                    match self {
-                        Self::Ansi(ansi) => <AnsiColors as $trait>::fmt(&ansi, f),
-                        Self::Xterm(xterm) => <XtermColors as $trait>::fmt(&xterm, f), 
-                        Self::Rgb(r, g, b) => <Rgb as $trait>::fmt(&Rgb(*r, *g, *b), f),
-                    }
-                }
-            }
-        )*
-    };
-}
-
-impl_fmt! {
-    fmt::Display,
-    fmt::Debug,
-    fmt::UpperHex,
-    fmt::LowerHex,
-    fmt::Binary,
-    fmt::UpperExp,
-    fmt::LowerExp,
-    fmt::Octal,
-    fmt::Pointer,
-}
-
 impl DynColor for DynColors {
-    fn get_fg(&self) -> DynStylesColor {
+    fn fmt_ansi_fg(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            DynColors::Ansi(ansi) => ansi.get_fg(),
-            DynColors::Xterm(xterm) => xterm.get_fg(),
-            &DynColors::Rgb(r, g, b) => Rgb(r, g, b).get_fg(),
+            DynColors::Ansi(ansi) => ansi.fmt_ansi_fg(f),
+            DynColors::Xterm(xterm) => xterm.fmt_ansi_fg(f),
+            &DynColors::Rgb(r, g, b) => Rgb(r, g, b).fmt_ansi_fg(f),
         }
     }
 
-    fn get_bg(&self) -> DynStylesColor {
+    fn fmt_ansi_bg(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            DynColors::Ansi(ansi) => ansi.get_bg(),
-            DynColors::Xterm(xterm) => xterm.get_bg(),
-            &DynColors::Rgb(r, g, b) => Rgb(r, g, b).get_bg(),
+            DynColors::Ansi(ansi) => ansi.fmt_ansi_bg(f),
+            DynColors::Xterm(xterm) => xterm.fmt_ansi_bg(f),
+            &DynColors::Rgb(r, g, b) => Rgb(r, g, b).fmt_ansi_bg(f),
         }
     }
 }

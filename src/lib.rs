@@ -51,35 +51,8 @@ pub trait Color {
 /// or [`BgDynColorDisplay`](BgDynColorDisplay). If your color will be known at compile time it
 /// is recommended you avoid this.
 pub trait DynColor {
-
-    // XXX needed for dyn_styles.rs. Should we better return `Result`? It doesn't seem necessary right now, but maybe in the future.
-    fn get_fg(&self) -> DynStylesColor;
-    fn get_bg(&self) -> DynStylesColor;
-
-    // XXX Do you have any idea how to handle this without `DynStylesColor`? I tried half a day, but I couldn't find anything better. Without `dynamic::Rgb` we could use a `&'static str` easily, but when I hit `Rgb` everything because a pain because there wasn't an easy way to format the RGB string. Generating and returning a UTF-8 byte array, instead of `DynStylesColor`, and using `str::from_utf8(&byte_array).unwrap()` was the best I found (at least I think, this should work). But that would make everything else a little less efficient and more complex, so I went with `DynStylesColor`
-    fn fmt_ansi_fg(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        if let DynStylesColor::Ansi(ansi) = self.get_fg() {
-            write!(f, "{}", ansi)
-        } else {
-            unreachable!() // RGB based implementations implement this themself
-        }
-    }
-
-    // XXX If the `if let` costs too much, I can restore the previous version. I made this change before I realized `Rgb` will give me such troubles. I let it as it is now because it's less code and the `if let` shouldn't use too much ressources
-    fn fmt_ansi_bg(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        if let DynStylesColor::Ansi(ansi) = self.get_bg() {
-            write!(f, "{}", ansi)
-        } else {
-            unreachable!() // RGB based implementations implement this themself
-        }
-    }
-}
-
-// XXX Any idea for a better name?
-#[derive(Copy, Clone, Debug, PartialEq)]
-pub enum DynStylesColor {
-    Ansi(&'static str),
-    Rgb(u8, u8, u8)
+    fn fmt_ansi_fg(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result;
+    fn fmt_ansi_bg(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result;
 }
 
 /// Transparent wrapper around a type which implements all the formatters the wrapped type does,
@@ -351,10 +324,6 @@ pub trait OwoColorize: Sized {
     fn on_truecolor<'a>(&'a self, r: u8, g: u8, b: u8) -> BgDynColorDisplay<'a, Rgb, Self> {
         BgDynColorDisplay(self, Rgb(r, g, b))
     }
-
-    fn style(&self, style: &Style) -> Styled<&Self> {
-        style.style(self)
-    }
 }
 
 pub use colors::{xterm::dynamic::XtermColors, ansi_colors::AnsiColors, dynamic::Rgb};
@@ -364,9 +333,6 @@ impl<D: Sized> OwoColorize for D {}
 
 mod dyn_colors;
 pub use dyn_colors::*;
-
-mod dyn_styles;
-pub use dyn_styles::*;
 
 /// Color types for used for being generic over the color
 pub mod colors;
