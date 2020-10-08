@@ -49,7 +49,7 @@ macro_rules! style_methods {
                 self.$name = true;
                 self
             }
-         )*
+        )*
     };
 }
 
@@ -185,33 +185,48 @@ impl Style {
         strikethrough,
     }
 
-    fn set_effects(mut self, effects: &[Effect], to: bool) -> Self {
+    fn set_effect(&mut self, effect: Effect, to: bool) {
         use Effect::*;
-        for e in effects {
-            match e {
-                Bold                => self.bold           = to,
-                Dimmed              => self.dimmed         = to,
-                Italic              => self.italic         = to,
-                Underline           => self.underline      = to,
-                Blink               => self.blink          = to,
-                BlinkFast           => self.blink_fast     = to,
-                Reversed            => self.reversed       = to,
-                Hidden              => self.hidden         = to,
-                Strikethrough       => self.strikethrough  = to,
-            }
+        match effect {
+            Bold                => self.bold           = to,
+            Dimmed              => self.dimmed         = to,
+            Italic              => self.italic         = to,
+            Underline           => self.underline      = to,
+            Blink               => self.blink          = to,
+            BlinkFast           => self.blink_fast     = to,
+            Reversed            => self.reversed       = to,
+            Hidden              => self.hidden         = to,
+            Strikethrough       => self.strikethrough  = to,
         }
+    }
+
+    fn set_effects(&mut self, effects: &[Effect], to: bool) {
+        for e in effects {
+            self.set_effect(*e, to)
+        }
+    }
+
+    pub fn effect(mut self, effect: Effect) -> Self {
+        self.set_effect(effect, true);
         self
     }
 
-    pub fn effects(self, effects: &[Effect]) -> Self {
-        self.set_effects(effects, true)
+    pub fn remove_effect(mut self, effect: Effect) -> Self {
+        self.set_effect(effect, false);
+        self
     }
 
-    pub fn unset_effects(self, effects: &[Effect]) -> Self {
-        self.set_effects(effects, false)
+    pub fn effects(mut self, effects: &[Effect]) -> Self {
+        self.set_effects(effects, true);
+        self
     }
 
-    pub fn unset_all_effects(mut self) -> Self {
+    pub fn remove_effects(mut self, effects: &[Effect]) -> Self {
+        self.set_effects(effects, false);
+        self
+    }
+
+    pub fn remove_all_effects(mut self) -> Self {
         self.bold           = false;
         self.dimmed         = false;
         self.italic         = false;
@@ -298,7 +313,7 @@ impl Style {
 
 }
 
-/// Small helper to create new style a bit more ergonomically
+/// Helper to create [Styles](dyn_styles::Style) more ergonomically
 pub fn style() -> Style {
     Style::new()
 }
