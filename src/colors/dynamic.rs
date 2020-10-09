@@ -1,5 +1,5 @@
-use core::fmt;
 use crate::{AnsiColors, DynColor};
+use core::fmt;
 
 #[allow(unused_imports)]
 use crate::OwoColorize;

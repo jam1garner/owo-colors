@@ -186,7 +186,7 @@ pub trait OwoColorize: Sized {
     }
 
     color_methods! {
-        /// Change the foreground color to black 
+        /// Change the foreground color to black
         /// Change the background color to black
         Black    black    on_black,
         /// Change the foreground color to red
@@ -214,7 +214,7 @@ pub trait OwoColorize: Sized {
         /// Change the background color to white
         White    white    on_white,
 
-        /// Change the foreground color to bright black 
+        /// Change the foreground color to bright black
         /// Change the background color to bright black
         BrightBlack    bright_black    on_bright_black,
         /// Change the foreground color to bright red
@@ -337,7 +337,7 @@ pub trait OwoColorize: Sized {
     }
 }
 
-pub use colors::{xterm::dynamic::XtermColors, ansi_colors::AnsiColors, dynamic::Rgb};
+pub use colors::{ansi_colors::AnsiColors, dynamic::Rgb, xterm::dynamic::XtermColors};
 
 // TODO: figure out some wait to only implement for fmt::Display | fmt::Debug | ...
 impl<D: Sized> OwoColorize for D {}
@@ -370,8 +370,8 @@ pub mod styles;
 /// use owo_colors::colored::*;
 /// ```
 pub mod colored {
-    pub use crate::OwoColorize;
     pub use crate::AnsiColors as Color;
+    pub use crate::OwoColorize;
 }
 
 #[cfg(test)]

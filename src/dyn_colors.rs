@@ -1,10 +1,10 @@
 #[allow(unused_imports)]
-use crate::{AnsiColors, XtermColors, FgDynColorDisplay, BgDynColorDisplay, DynColor, Rgb};
+use crate::{AnsiColors, BgDynColorDisplay, DynColor, FgDynColorDisplay, Rgb, XtermColors};
 use core::fmt;
 
 /// An enum describing runtime-configurable colors which can be displayed using [`FgDynColorDisplay`](FgDynColorDisplay)
 /// or [`BgDynColorDisplay`](BgDynColorDisplay), allowing for multiple types of colors to be used
-/// at runtime. 
+/// at runtime.
 #[derive(Copy, Clone, PartialEq, Debug)]
 pub enum DynColors {
     Ansi(AnsiColors),
@@ -52,18 +52,15 @@ impl core::str::FromStr for DynColors {
                 4 => {
                     // TODO
                     Err(ParseColorError)
-                },
-                7 => {
-                    Ok(Self::Rgb(
-                        u8::from_str_radix(&s[1..3], 16).or(Err(ParseColorError))?,
-                        u8::from_str_radix(&s[3..5], 16).or(Err(ParseColorError))?,
-                        u8::from_str_radix(&s[5..7], 16).or(Err(ParseColorError))?,
-                    ))
                 }
+                7 => Ok(Self::Rgb(
+                    u8::from_str_radix(&s[1..3], 16).or(Err(ParseColorError))?,
+                    u8::from_str_radix(&s[3..5], 16).or(Err(ParseColorError))?,
+                    u8::from_str_radix(&s[5..7], 16).or(Err(ParseColorError))?,
+                )),
                 _ => Err(ParseColorError),
             }
-        }
-        else {
+        } else {
             let ansi = match s {
                 "black" => AnsiColors::Black,
                 "red" => AnsiColors::Red,
@@ -82,10 +79,10 @@ impl core::str::FromStr for DynColors {
                 "bright magenta" => AnsiColors::BrightMagenta,
                 "bright cyan" => AnsiColors::BrightCyan,
                 "bright white" => AnsiColors::BrightWhite,
-                _ => return Err(ParseColorError)
+                _ => return Err(ParseColorError),
             };
 
             Ok(Self::Ansi(ansi))
         }
-    } 
+    }
 }

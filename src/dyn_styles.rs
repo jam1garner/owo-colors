@@ -1,11 +1,10 @@
-
 /*  XXX
     Fell free to re-name or re-locate this as you see fit (or just tell me, and I wil do it)
     The name this module "kind of" clashes with the `styles` module, but I don't know a better name.
 */
 
+use crate::{AnsiColors, Color, DynColor, DynColors};
 use core::fmt;
-use crate::{Color, DynColor, DynColors, AnsiColors};
 
 // XXX Should we better use the plural `Effects`? I prefer `Effect` but I think you used the plural versions so far (for example `DynColors`)
 #[derive(Debug, Copy, Clone)]
@@ -79,7 +78,10 @@ impl Style {
     }
 
     pub fn style<T>(&self, target: T) -> Styled<T> {
-        Styled {target, style: *self}
+        Styled {
+            target,
+            style: *self,
+        }
     }
 
     /// Set the foreground color generically
@@ -188,15 +190,15 @@ impl Style {
     fn set_effect(&mut self, effect: Effect, to: bool) {
         use Effect::*;
         match effect {
-            Bold                => self.bold           = to,
-            Dimmed              => self.dimmed         = to,
-            Italic              => self.italic         = to,
-            Underline           => self.underline      = to,
-            Blink               => self.blink          = to,
-            BlinkFast           => self.blink_fast     = to,
-            Reversed            => self.reversed       = to,
-            Hidden              => self.hidden         = to,
-            Strikethrough       => self.strikethrough  = to,
+            Bold => self.bold = to,
+            Dimmed => self.dimmed = to,
+            Italic => self.italic = to,
+            Underline => self.underline = to,
+            Blink => self.blink = to,
+            BlinkFast => self.blink_fast = to,
+            Reversed => self.reversed = to,
+            Hidden => self.hidden = to,
+            Strikethrough => self.strikethrough = to,
         }
     }
 
@@ -227,15 +229,15 @@ impl Style {
     }
 
     pub fn remove_all_effects(mut self) -> Self {
-        self.bold           = false;
-        self.dimmed         = false;
-        self.italic         = false;
-        self.underline      = false;
-        self.blink          = false;
-        self.blink_fast     = false;
-        self.reversed       = false;
-        self.hidden         = false;
-        self.strikethrough  = false;
+        self.bold = false;
+        self.dimmed = false;
+        self.italic = false;
+        self.underline = false;
+        self.blink = false;
+        self.blink_fast = false;
+        self.reversed = false;
+        self.hidden = false;
+        self.strikethrough = false;
         self
     }
 
@@ -273,17 +275,16 @@ impl Style {
 
     // XXX It seems, for the next two methods `unsafe` Rust is needed, but I don't know `unsafe` at the moment. Can you implement this?
 
-    /*
     /// Set the foreground color to a specific RGB value.
     ///
     /// **Requires**: nightly and the `custom` feature.
     ///
     /// If nightly is not preferable for you, use [`OwoColorize::truecolor`](OwoColorize::truecolor)
     #[cfg(feature = "custom")]
-    pub fn fg_rgb<'a, const R: u8, const G: u8, const B: u8>(
-        &'a self,
-    ) -> FgColorDisplay<'a, colors::CustomColor<R, G, B>, Self> {
-        FgColorDisplay(self, PhantomData)
+    pub fn fg_rgb<const R: u8, const G: u8, const B: u8>(mut self) -> Self {
+        self.fg = Some(DynColors::Rgb(R, G, B));
+
+        self
     }
 
     /// Set the background color to a specific RGB value.
@@ -292,12 +293,11 @@ impl Style {
     ///
     /// If nightly is not preferable for you, use [`OwoColorize::on_truecolor`](OwoColorize::on_truecolor)
     #[cfg(feature = "custom")]
-    pub fn bg_rgb<'a, const R: u8, const G: u8, const B: u8>(
-        &'a self,
-    ) -> BgColorDisplay<'a, colors::CustomColor<R, G, B>, Self> {
-        BgColorDisplay(self, PhantomData)
+    pub fn bg_rgb<const R: u8, const G: u8, const B: u8>(mut self) -> Self {
+        self.bg = Some(DynColors::Rgb(R, G, B));
+
+        self
     }
-    */
 
     /// Sets the foreground color to an RGB value.
     pub fn truecolor(mut self, r: u8, g: u8, b: u8) -> Self {
@@ -310,7 +310,6 @@ impl Style {
         self.bg = Some(DynColors::Rgb(r, g, b));
         self
     }
-
 }
 
 /// Helper to create [Styles](dyn_styles::Style) more ergonomically
@@ -396,8 +395,7 @@ mod tests {
             //.blink_fast()
             //.reversed()
             //.hidden()
-            .strikethrough()
-        ;
+            .strikethrough();
         let s = style.style("TEST");
         let s2 = format!("{}", &s);
         println!("{}", &s2);
@@ -407,10 +405,7 @@ mod tests {
     #[test]
     fn test_effects() {
         use Effect::*;
-        let style = Style::new().effects(&[
-            Strikethrough,
-            Underline,
-        ]);
+        let style = Style::new().effects(&[Strikethrough, Underline]);
 
         let s = style.style("TEST");
         let s2 = format!("{}", &s);
@@ -432,9 +427,7 @@ mod tests {
 
     #[test]
     fn test_truecolor() {
-        let style = Style::new()
-            .truecolor(255, 255, 255)
-            .on_truecolor(0, 0, 0);
+        let style = Style::new().truecolor(255, 255, 255).on_truecolor(0, 0, 0);
 
         let s = style.style("TEST");
         let s2 = format!("{}", &s);
@@ -444,9 +437,7 @@ mod tests {
 
     #[test]
     fn test_string_reference() {
-        let style = Style::new()
-            .truecolor(255, 255, 255)
-            .on_truecolor(0, 0, 0);
+        let style = Style::new().truecolor(255, 255, 255).on_truecolor(0, 0, 0);
 
         let string = String::from("TEST");
         let s = style.style(&string);
@@ -457,9 +448,7 @@ mod tests {
 
     #[test]
     fn test_owocolorize() {
-        let style = Style::new()
-            .bright_white()
-            .on_blue();
+        let style = Style::new().bright_white().on_blue();
 
         let s = "TEST".style(&style);
         let s2 = format!("{}", &s);

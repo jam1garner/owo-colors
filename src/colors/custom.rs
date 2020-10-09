@@ -295,4 +295,8 @@ impl<const R: u8, const G: u8, const B: u8> Color for CustomColor<R, G, B> {
         unsafe { core::mem::transmute(&rgb_to_ansi(R, G, B, true) as &[u8]) };
     const ANSI_BG: &'static str =
         unsafe { core::mem::transmute(&rgb_to_ansi(R, G, B, false) as &[u8]) };
+
+    fn into_dyncolors() -> crate::DynColors {
+        crate::DynColors::Rgb(R, G, B)
+    }
 }
