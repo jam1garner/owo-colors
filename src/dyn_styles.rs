@@ -1,12 +1,6 @@
-/*  XXX
-    Fell free to re-name or re-locate this as you see fit (or just tell me, and I wil do it)
-    The name this module "kind of" clashes with the `styles` module, but I don't know a better name.
-*/
-
 use crate::{AnsiColors, Color, DynColor, DynColors};
 use core::fmt;
 
-// XXX Should we better use the plural `Effects`? I prefer `Effect` but I think you used the plural versions so far (for example `DynColors`)
 #[derive(Debug, Copy, Clone)]
 pub enum Effect {
     Bold,
@@ -273,8 +267,6 @@ impl Style {
         self
     }
 
-    // XXX It seems, for the next two methods `unsafe` Rust is needed, but I don't know `unsafe` at the moment. Can you implement this?
-
     /// Set the foreground color to a specific RGB value.
     ///
     /// **Requires**: nightly and the `custom` feature.
@@ -332,8 +324,6 @@ macro_rules! impl_fmt {
                 fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
 
                     let s = &self.style;
-
-                    // XXX Is my assumption correct, that it doesn't matter in what order ANSI escape sequences are applied? Because otherwise we need to store the order in which the user applies them (which would make the code more complex)
 
                     if let Some(fg) = s.fg {
                         <DynColors as DynColor>::fmt_ansi_fg(&fg, f)?;
