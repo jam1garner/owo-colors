@@ -332,7 +332,7 @@ pub trait OwoColorize: Sized {
         BgDynColorDisplay(self, Rgb(r, g, b))
     }
 
-    fn style(&self, style: &Style) -> Styled<&Self> {
+    fn style(&self, style: Style) -> Styled<&Self> {
         style.style(self)
     }
 }
