@@ -6,16 +6,6 @@ macro_rules! colors {
         $color:ident $fg:literal $bg:literal
     ),* $(,)?) => {
 
-        $(
-            /// A color for use with [`OwoColorize`](crate::OwoColorize)'s `fg` and `bg` methods.
-            pub struct $color;
-
-            impl crate::Color for $color {
-                const ANSI_FG: &'static str = concat!("\x1b[", stringify!($fg), "m");
-                const ANSI_BG: &'static str = concat!("\x1b[", stringify!($bg), "m");
-            }
-        )*
-
         pub(crate) mod ansi_colors {
             use core::fmt;
 
@@ -51,8 +41,34 @@ macro_rules! colors {
 
                     write!(f, "{}", color)
                 }
+
+                #[doc(hidden)]
+                fn get_dyncolors_fg(&self) -> crate::DynColors {
+                    crate::DynColors::Ansi(*self)
+                }
+
+                #[doc(hidden)]
+                fn get_dyncolors_bg(&self) -> crate::DynColors {
+                    crate::DynColors::Ansi(*self)
+                }
             }
         }
+
+        $(
+            /// A color for use with [`OwoColorize`](crate::OwoColorize)'s `fg` and `bg` methods.
+            pub struct $color;
+
+            impl crate::Color for $color {
+                const ANSI_FG: &'static str = concat!("\x1b[", stringify!($fg), "m");
+                const ANSI_BG: &'static str = concat!("\x1b[", stringify!($bg), "m");
+
+                #[doc(hidden)]
+                fn into_dyncolors() -> crate::DynColors {
+                    crate::DynColors::Ansi(ansi_colors::AnsiColors::$color)
+                }
+            }
+        )*
+
     };
 }
 

@@ -2,14 +2,6 @@ macro_rules! xterm_colors {
     ($(
         $xterm_num:literal $name:ident ($r:literal, $g:literal, $b:literal)
     )*) => {
-        $(
-            pub struct $name;
-
-            impl crate::Color for $name {
-                const ANSI_FG: &'static str = concat!("\x1b[38;5;", stringify!($xterm_num), "m");
-                const ANSI_BG: &'static str = concat!("\x1b[48;5;", stringify!($xterm_num), "m");
-            }
-        )*
 
         pub(crate) mod dynamic {
             use core::fmt;
@@ -46,8 +38,32 @@ macro_rules! xterm_colors {
 
                     write!(f, "{}", color)
                 }
+
+                #[doc(hidden)]
+                fn get_dyncolors_fg(&self) -> crate::DynColors {
+                    crate::DynColors::Xterm(*self)
+                }
+
+                #[doc(hidden)]
+                fn get_dyncolors_bg(&self) -> crate::DynColors {
+                    crate::DynColors::Xterm(*self)
+                }
             }
         }
+
+        $(
+            pub struct $name;
+
+            impl crate::Color for $name {
+                const ANSI_FG: &'static str = concat!("\x1b[38;5;", stringify!($xterm_num), "m");
+                const ANSI_BG: &'static str = concat!("\x1b[48;5;", stringify!($xterm_num), "m");
+
+                #[doc(hidden)]
+                fn into_dyncolors() -> crate::DynColors {
+                    crate::DynColors::Xterm(dynamic::XtermColors::$name)
+                }
+            }
+        )*
     };
 }
 
