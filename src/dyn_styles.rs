@@ -348,7 +348,22 @@ macro_rules! impl_fmt {
 
                     <T as $trait>::fmt(&self.target, f)?;
 
-                    f.write_str("\x1b[0m")
+                    if s.fg.is_some()
+                        || s.bg.is_some()
+                        || s.bold
+                        || s.dimmed
+                        || s.italic
+                        || s.underline
+                        || s.blink
+                        || s.blink_fast
+                        || s.reversed
+                        || s.hidden
+                        || s.strikethrough
+                    {
+                        f.write_str("\x1b[0m")?;
+                    }
+
+                    Ok(())
                 }
             }
         )*
