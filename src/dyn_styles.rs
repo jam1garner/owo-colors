@@ -404,7 +404,7 @@ mod tests {
         let s = style.style("TEST");
         let s2 = format!("{}", &s);
         println!("{}", &s2);
-        assert_eq!(&s2, "TEST");
+        assert_eq!(&s2, "\u{1b}[97m\u{1b}[44m\u{1b}[1m\u{1b}[2m\u{1b}[3m\u{1b}[4m\u{1b}[5m\u{1b}[9mTEST\u{1b}[0m");
     }
 
     #[test]
@@ -415,7 +415,7 @@ mod tests {
         let s = style.style("TEST");
         let s2 = format!("{}", &s);
         println!("{}", &s2);
-        assert_eq!(&s2, "TEST");
+        assert_eq!(&s2, "\u{1b}[4m\u{1b}[9mTEST\u{1b}[0m");
     }
 
     #[test]
@@ -427,7 +427,7 @@ mod tests {
         let s = style.style("TEST");
         let s2 = format!("{}", &s);
         println!("{}", &s2);
-        assert_eq!(&s2, "TEST");
+        assert_eq!(&s2, "\u{1b}[37m\u{1b}[40mTEST\u{1b}[0m");
     }
 
     #[test]
@@ -437,7 +437,7 @@ mod tests {
         let s = style.style("TEST");
         let s2 = format!("{}", &s);
         println!("{}", &s2);
-        assert_eq!(&s2, "TEST");
+        assert_eq!(&s2, "\u{1b}[38;2;255;255;255m\u{1b}[48;2;0;0;0mTEST\u{1b}[0m");
     }
 
     #[test]
@@ -448,16 +448,16 @@ mod tests {
         let s = style.style(&string);
         let s2 = format!("{}", &s);
         println!("{}", &s2);
-        assert_eq!(&s2, "TEST");
+        assert_eq!(&s2, "\u{1b}[38;2;255;255;255m\u{1b}[48;2;0;0;0mTEST\u{1b}[0m");
     }
 
     #[test]
     fn test_owocolorize() {
         let style = Style::new().bright_white().on_blue();
 
-        let s = "TEST".style(&style);
+        let s = "TEST".style(style);
         let s2 = format!("{}", &s);
         println!("{}", &s2);
-        assert_eq!(&s2, "TEST");
+        assert_eq!(&s2, "\u{1b}[97m\u{1b}[44mTEST\u{1b}[0m");
     }
 }
