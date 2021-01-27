@@ -164,7 +164,8 @@ macro_rules! style_methods {
 /// **Do you want it to only display colors if it's a terminal?**
 ///
 /// 1. Enable the `tty` feature
-/// 2. Colorize inside [`if_tty`](OwoColorize::if_tty)
+/// 2. Colorize inside [`if_stdout_tty`](OwoColorize::if_stdout_tty) or
+/// [`if_stdout_tty`](OwoColorize::if_stderr_tty)
 ///
 pub trait OwoColorize: Sized {
     /// Set the foreground color generically
@@ -343,11 +344,64 @@ pub trait OwoColorize: Sized {
         style.style(self)
     }
     
-    fn if_stdout_tty<'a, Out, F: Fn(&'a Self) -> Out>(&'a self, apply: F) -> TtyDisplay<'a, StdOut, Self, Out, F> {
+    /// Apply a given transformation function to all formatters if stdout is a tty console
+    /// allowing you to conditionally apply given styles/colors.
+    ///
+    /// Requires the `tty` feature.
+    ///
+    /// ```rust
+    /// use owo_colors::{OwoColorize, Style};
+    ///
+    /// fn main() {
+    ///     println!(
+    ///         "{}",
+    ///         "bright cyan if this is terminal output"
+    ///             .if_stdout_tty(|text| text.bright_cyan())
+    ///     );
+    ///
+    ///     // applying multiple at both
+    ///     println!(
+    ///         "{}",
+    ///         "bright cyan AND underlined(?!) if this is terminal output"
+    ///             .if_stdout_tty(|text| text.style(
+    ///                 Style::new()
+    ///                     .bright_cyan()
+    ///                     .underline()
+    ///             ))
+    ///     );
+    /// }
+    /// ```
+    fn if_stdout_tty<'a, Out, ApplyFn>(
+        &'a self,
+        apply: ApplyFn
+    ) -> TtyDisplay<'a, StdOut, Self, Out, ApplyFn>
+        where ApplyFn: Fn(&'a Self) -> Out
+    {
         TtyDisplay(self, apply, StdOut)
     }
     
-    fn if_stderr_tty<'a, Out, F: Fn(&'a Self) -> Out>(&'a self, apply: F) -> TtyDisplay<'a, StdErr, Self, Out, F> {
+    /// Apply a given transformation function to all formatters if stderr is a tty console
+    /// allowing you to conditionally apply given styles/colors.
+    ///
+    /// Requires the `tty` feature.
+    ///
+    /// ```rust
+    /// use owo_colors::OwoColorize;
+    ///
+    /// fn main() {
+    ///     eprintln!(
+    ///         "{}",
+    ///         "woah! error! if this is terminal output, it's red"
+    ///             .if_stderr_tty(|text| text.bright_red())
+    ///     );
+    /// }
+    /// ```
+    fn if_stderr_tty<'a, Out, ApplyFn>(
+        &'a self,
+        apply: ApplyFn
+    ) -> TtyDisplay<'a, StdErr, Self, Out, ApplyFn>
+        where ApplyFn: Fn(&'a Self) -> Out
+    {
         TtyDisplay(self, apply, StdErr)
     }
 }

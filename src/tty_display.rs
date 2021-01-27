@@ -3,6 +3,7 @@ use core::fmt;
 pub struct StdOut;
 pub struct StdErr;
 
+/// Trait implemented to provide fake const generics for plugging in given streams
 pub trait IsTty {
     const TTY: atty::Stream;
 }
@@ -15,8 +16,16 @@ impl IsTty for StdErr {
     const TTY: atty::Stream = atty::Stream::Stderr;
 }
 
-pub struct TtyDisplay
-    <'a, Tty: IsTty,  In: ?Sized, Out, F: Fn(&'a In) -> Out>(pub(crate) &'a In, pub(crate) F, pub(crate) Tty);
+/// A display which applies a transformation based on if the given stream is a tty
+pub struct TtyDisplay<'a, Tty,  InVal, Out, ApplyFn>
+(
+    pub(crate) &'a InVal,
+    pub(crate) ApplyFn,
+    pub(crate) Tty
+) 
+  where Tty: IsTty,
+        InVal: ?Sized,
+        ApplyFn: Fn(&'a InVal) -> Out;
 
 macro_rules! impl_fmt_for {
     ($($trait:path),* $(,)?) => {
