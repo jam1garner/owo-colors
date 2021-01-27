@@ -160,6 +160,12 @@ macro_rules! style_methods {
 /// * [`reversed`](OwoColorize::reversed)
 /// * [`hidden`](OwoColorize::hidden)
 /// * [`strikethrough`](OwoColorize::strikethrough)
+///
+/// **Do you want it to only display colors if it's a terminal?**
+///
+/// 1. Enable the `tty` feature
+/// 2. Colorize inside [`if_tty`](OwoColorize::if_tty)
+///
 pub trait OwoColorize: Sized {
     /// Set the foreground color generically
     ///
@@ -332,8 +338,17 @@ pub trait OwoColorize: Sized {
         BgDynColorDisplay(self, Rgb(r, g, b))
     }
 
+    /// Apply a runtime-determined style
     fn style(&self, style: Style) -> Styled<&Self> {
         style.style(self)
+    }
+    
+    fn if_stdout_tty<'a, Out, F: Fn(&'a Self) -> Out>(&'a self, apply: F) -> TtyDisplay<'a, StdOut, Self, Out, F> {
+        TtyDisplay(self, apply, StdOut)
+    }
+    
+    fn if_stderr_tty<'a, Out, F: Fn(&'a Self) -> Out>(&'a self, apply: F) -> TtyDisplay<'a, StdErr, Self, Out, F> {
+        TtyDisplay(self, apply, StdErr)
     }
 }
 
@@ -347,6 +362,11 @@ pub use dyn_colors::*;
 
 mod dyn_styles;
 pub use dyn_styles::*;
+
+mod tty_display;
+pub use tty_display::TtyDisplay;
+
+use tty_display::{StdOut, StdErr};
 
 /// Color types for used for being generic over the color
 pub mod colors;
