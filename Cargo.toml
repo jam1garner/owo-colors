@@ -1,6 +1,6 @@
 [package]
 name = "owo-colors"
-version = "1.2.1"
+version = "1.3.0"
 authors = ["jam1garner <8260240+jam1garner@users.noreply.github.com>"]
 edition = "2018"
 documentation = "https://docs.rs/owo-colors"
@@ -18,3 +18,6 @@ required-features = ["custom"]
 
 [features]
 custom = []
+
+[dependencies]
+atty = "0.2.14"
