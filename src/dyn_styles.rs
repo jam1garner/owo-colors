@@ -236,8 +236,8 @@ impl Style {
     }
 
     /// Set the foreground color at runtime. Only use if you do not know which color will be used at
-    /// compile-time. If the color is constant, use either [`OwoColorize::fg`](OwoColorize::fg) or
-    /// a color-specific method, such as [`OwoColorize::green`](OwoColorize::green),
+    /// compile-time. If the color is constant, use either [`OwoColorize::fg`](crate::OwoColorize::fg) or
+    /// a color-specific method, such as [`OwoColorize::green`](crate::OwoColorize::green),
     ///
     /// ```rust
     /// use owo_colors::{OwoColorize, AnsiColors};
@@ -252,8 +252,8 @@ impl Style {
     }
 
     /// Set the background color at runtime. Only use if you do not know what color to use at
-    /// compile-time. If the color is constant, use either [`OwoColorize::bg`](OwoColorize::bg) or
-    /// a color-specific method, such as [`OwoColorize::on_yellow`](OwoColorize::on_yellow),
+    /// compile-time. If the color is constant, use either [`OwoColorize::bg`](crate::OwoColorize::bg) or
+    /// a color-specific method, such as [`OwoColorize::on_yellow`](crate::OwoColorize::on_yellow),
     ///
     /// ```rust
     /// use owo_colors::{OwoColorize, AnsiColors};
@@ -304,7 +304,7 @@ impl Style {
     }
 }
 
-/// Helper to create [Styles](dyn_styles::Style) more ergonomically
+/// Helper to create [`Style`]s more ergonomically
 pub fn style() -> Style {
     Style::new()
 }
