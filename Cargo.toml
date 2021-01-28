@@ -16,8 +16,13 @@ all-features = true
 name = "custom_colors"
 required-features = ["custom"]
 
+[[example]]
+name = "is_tty"
+required-features = ["tty"]
+
 [features]
 custom = []
+tty = ["atty"]
 
 [dependencies]
-atty = "0.2.14"
+atty = { version = "0.2", optional = true }

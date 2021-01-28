@@ -371,6 +371,7 @@ pub trait OwoColorize: Sized {
     ///     );
     /// }
     /// ```
+    #[cfg(feature = "tty")]
     fn if_stdout_tty<'a, Out, ApplyFn>(
         &'a self,
         apply: ApplyFn
@@ -396,6 +397,7 @@ pub trait OwoColorize: Sized {
     ///     );
     /// }
     /// ```
+    #[cfg(feature = "tty")]
     fn if_stderr_tty<'a, Out, ApplyFn>(
         &'a self,
         apply: ApplyFn
@@ -417,9 +419,13 @@ pub use dyn_colors::*;
 mod dyn_styles;
 pub use dyn_styles::*;
 
+#[cfg(feature = "tty")]
 mod tty_display;
+
+#[cfg(feature = "tty")]
 pub use tty_display::TtyDisplay;
 
+#[cfg(feature = "tty")]
 use tty_display::{StdOut, StdErr};
 
 /// Color types for used for being generic over the color
