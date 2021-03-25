@@ -34,7 +34,6 @@
 //! println!("{}", "strikethrough".strikethrough());
 //! ```
 #![cfg_attr(not(test), no_std)]
-#![cfg_attr(feature = "custom", feature(min_const_generics))]
 #![doc(html_logo_url = "https://jam1.re/img/rust_owo.svg")]
 
 use core::fmt;
@@ -304,11 +303,6 @@ pub trait OwoColorize: Sized {
     }
 
     /// Set the foreground color to a specific RGB value.
-    ///
-    /// **Requires**: nightly and the `custom` feature.
-    ///
-    /// If nightly is not preferable for you, use [`OwoColorize::truecolor`](OwoColorize::truecolor)
-    #[cfg(feature = "custom")]
     fn fg_rgb<'a, const R: u8, const G: u8, const B: u8>(
         &'a self,
     ) -> FgColorDisplay<'a, colors::CustomColor<R, G, B>, Self> {
@@ -316,11 +310,6 @@ pub trait OwoColorize: Sized {
     }
 
     /// Set the background color to a specific RGB value.
-    ///
-    /// **Requires**: nightly and the `custom` feature.
-    ///
-    /// If nightly is not preferable for you, use [`OwoColorize::on_truecolor`](OwoColorize::on_truecolor)
-    #[cfg(feature = "custom")]
     fn bg_rgb<'a, const R: u8, const G: u8, const B: u8>(
         &'a self,
     ) -> BgColorDisplay<'a, colors::CustomColor<R, G, B>, Self> {

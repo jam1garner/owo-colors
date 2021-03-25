@@ -173,10 +173,8 @@ impl_fmt_for_dyn! {
 /// XTerm 256-bit colors. Not as widely supported as standard ANSI but contains 240 more colors.
 pub mod xterm;
 
-#[cfg(feature = "custom")]
 mod custom;
 
-#[cfg(feature = "custom")]
 pub use custom::CustomColor;
 
 pub(crate) mod dynamic;

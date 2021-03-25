@@ -1,6 +1,10 @@
 use crate::{AnsiColors, Color, DynColor, DynColors};
 use core::fmt;
 
+#[cfg(doc)]
+use crate::OwoColorize;
+
+/// A runtime-configurable text effect for use with [`Style`]
 #[derive(Debug, Copy, Clone)]
 pub enum Effect {
     Bold,
@@ -46,11 +50,13 @@ macro_rules! style_methods {
     };
 }
 
+/// A struct with a [`Style`] applied to it
 pub struct Styled<T> {
     target: T,
     style: Style,
 }
 
+/// A pre-computed style that can be applied to a struct using [`OwoColorize::style`]
 #[derive(Debug, Default, Copy, Clone)]
 pub struct Style {
     fg: Option<DynColors>,
@@ -268,11 +274,6 @@ impl Style {
     }
 
     /// Set the foreground color to a specific RGB value.
-    ///
-    /// **Requires**: nightly and the `custom` feature.
-    ///
-    /// If nightly is not preferable for you, use [`OwoColorize::truecolor`](OwoColorize::truecolor)
-    #[cfg(feature = "custom")]
     pub fn fg_rgb<const R: u8, const G: u8, const B: u8>(mut self) -> Self {
         self.fg = Some(DynColors::Rgb(R, G, B));
 
@@ -280,11 +281,6 @@ impl Style {
     }
 
     /// Set the background color to a specific RGB value.
-    ///
-    /// **Requires**: nightly and the `custom` feature.
-    ///
-    /// If nightly is not preferable for you, use [`OwoColorize::on_truecolor`](OwoColorize::on_truecolor)
-    #[cfg(feature = "custom")]
     pub fn bg_rgb<const R: u8, const G: u8, const B: u8>(mut self) -> Self {
         self.bg = Some(DynColors::Rgb(R, G, B));
 
