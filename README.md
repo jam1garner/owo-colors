@@ -1,7 +1,7 @@
 # <img src="https://jam1.re/img/rust_owo.svg" height="100"> Colors
 [![Current Crates.io Version](https://img.shields.io/crates/v/owo-colors.svg)](https://crates.io/crates/owo-colors)
 [![docs-rs](https://docs.rs/owo-colors/badge.svg)](https://docs.rs/owo-colors)
-![MSRV 1.34+](https://img.shields.io/badge/rustc-1.34+-blue.svg)
+![MSRV 1.51+](https://img.shields.io/badge/rustc-1.51+-blue.svg)
 
 A zero-allocation no_std-compatible zero-cost way to add color to your Rust terminal to make people go owo.
 
