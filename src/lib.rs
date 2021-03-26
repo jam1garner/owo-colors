@@ -332,7 +332,7 @@ pub trait OwoColorize: Sized {
     fn style(&self, style: Style) -> Styled<&Self> {
         style.style(self)
     }
-    
+
     /// Apply a given transformation function to all formatters if stdout is a tty console
     /// allowing you to conditionally apply given styles/colors.
     ///
@@ -363,13 +363,14 @@ pub trait OwoColorize: Sized {
     #[cfg(feature = "tty")]
     fn if_stdout_tty<'a, Out, ApplyFn>(
         &'a self,
-        apply: ApplyFn
+        apply: ApplyFn,
     ) -> TtyDisplay<'a, StdOut, Self, Out, ApplyFn>
-        where ApplyFn: Fn(&'a Self) -> Out
+    where
+        ApplyFn: Fn(&'a Self) -> Out,
     {
         TtyDisplay(self, apply, StdOut)
     }
-    
+
     /// Apply a given transformation function to all formatters if stderr is a tty console
     /// allowing you to conditionally apply given styles/colors.
     ///
@@ -389,15 +390,18 @@ pub trait OwoColorize: Sized {
     #[cfg(feature = "tty")]
     fn if_stderr_tty<'a, Out, ApplyFn>(
         &'a self,
-        apply: ApplyFn
+        apply: ApplyFn,
     ) -> TtyDisplay<'a, StdErr, Self, Out, ApplyFn>
-        where ApplyFn: Fn(&'a Self) -> Out
+    where
+        ApplyFn: Fn(&'a Self) -> Out,
     {
         TtyDisplay(self, apply, StdErr)
     }
 }
 
-pub use colors::{ansi_colors::AnsiColors, dynamic::Rgb, xterm::dynamic::XtermColors};
+pub use colors::{
+    ansi_colors::AnsiColors, css::CssColors, dynamic::Rgb, xterm::dynamic::XtermColors,
+};
 
 // TODO: figure out some wait to only implement for fmt::Display | fmt::Debug | ...
 impl<D: Sized> OwoColorize for D {}
@@ -415,7 +419,7 @@ mod tty_display;
 pub use tty_display::TtyDisplay;
 
 #[cfg(feature = "tty")]
-use tty_display::{StdOut, StdErr};
+use tty_display::{StdErr, StdOut};
 
 /// Color types for used for being generic over the color
 pub mod colors;

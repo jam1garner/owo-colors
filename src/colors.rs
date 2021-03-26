@@ -170,6 +170,7 @@ impl_fmt_for_dyn! {
     (BgDynColorDisplay, fmt::Pointer,  fmt_ansi_bg),
 }
 
+pub mod css;
 /// XTerm 256-bit colors. Not as widely supported as standard ANSI but contains 240 more colors.
 pub mod xterm;
 
