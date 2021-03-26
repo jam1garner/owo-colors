@@ -1,5 +1,6 @@
 use super::colors::*;
 use super::OwoColorize;
+use crate::colors::css::Lavender;
 use crate::{AnsiColors, DynColors};
 
 #[test]
@@ -17,6 +18,14 @@ fn test_bg() {
 #[test]
 fn test_hex() {
     assert_eq!(format!("{:08X}", 0xa.red()), "\x1b[31m0000000A\x1b[0m");
+}
+
+#[test]
+fn test_css_name() {
+    assert_eq!(
+        "test".fg::<Lavender>().to_string(),
+        "\x1b[38;2;230;230;250mtest\x1b[0m"
+    );
 }
 
 #[test]
