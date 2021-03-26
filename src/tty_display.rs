@@ -17,15 +17,15 @@ impl IsTty for StdErr {
 }
 
 /// A display which applies a transformation based on if the given stream is a tty
-pub struct TtyDisplay<'a, Tty,  InVal, Out, ApplyFn>
-(
+pub struct TtyDisplay<'a, Tty, InVal, Out, ApplyFn>(
     pub(crate) &'a InVal,
     pub(crate) ApplyFn,
-    pub(crate) Tty
-) 
-  where Tty: IsTty,
-        InVal: ?Sized,
-        ApplyFn: Fn(&'a InVal) -> Out;
+    pub(crate) Tty,
+)
+where
+    Tty: IsTty,
+    InVal: ?Sized,
+    ApplyFn: Fn(&'a InVal) -> Out;
 
 macro_rules! impl_fmt_for {
     ($($trait:path),* $(,)?) => {
