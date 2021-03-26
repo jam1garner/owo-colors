@@ -35,6 +35,7 @@
 //! ```
 #![cfg_attr(not(test), no_std)]
 #![doc(html_logo_url = "https://jam1.re/img/rust_owo.svg")]
+#![warn(missing_docs)]
 
 use core::fmt;
 use core::marker::PhantomData;
@@ -400,7 +401,7 @@ pub trait OwoColorize: Sized {
 }
 
 pub use colors::{
-    ansi_colors::AnsiColors, css::CssColors, dynamic::Rgb, xterm::dynamic::XtermColors,
+    ansi_colors::AnsiColors, css::dynamic::CssColors, dynamic::Rgb, xterm::dynamic::XtermColors,
 };
 
 // TODO: figure out some wait to only implement for fmt::Display | fmt::Debug | ...

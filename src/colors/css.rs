@@ -5,12 +5,16 @@ macro_rules! css_color_types {
         use crate::{Color, colors::CustomColor};
         use core::fmt;
 
-        /// Available CSS colors for use with [`OwoColorize::color`](OwoColorize::color)
-        /// or [`OwoColorize::on_color`](OwoColorize::on_color)
-        #[derive(Copy, Clone, Debug, PartialEq)]
-        pub enum CssColors {
-            $($name,)*
+        pub(crate) mod dynamic {
+            /// Available CSS colors for use with [`OwoColorize::color`](OwoColorize::color)
+            /// or [`OwoColorize::on_color`](OwoColorize::on_color)
+            #[derive(Copy, Clone, Debug, PartialEq)]
+            pub enum CssColors {
+                $($name,)*
+            }
         }
+
+        use dynamic::CssColors;
 
         impl crate::DynColor for CssColors {
             fn fmt_ansi_fg(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
