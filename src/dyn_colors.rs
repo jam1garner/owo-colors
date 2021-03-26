@@ -1,7 +1,6 @@
 #[allow(unused_imports)]
 use crate::{
-    colors::css::CssColors, AnsiColors, BgDynColorDisplay, DynColor, FgDynColorDisplay, Rgb,
-    XtermColors,
+    CssColors, AnsiColors, BgDynColorDisplay, DynColor, FgDynColorDisplay, Rgb, XtermColors,
 };
 use core::fmt;
 
