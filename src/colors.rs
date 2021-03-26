@@ -170,6 +170,10 @@ impl_fmt_for_dyn! {
     (BgDynColorDisplay, fmt::Pointer,  fmt_ansi_bg),
 }
 
+/// CSS named colors. Not as widely supported as standard ANSI as it relies on 48bit color support.
+///
+/// Reference: https://www.w3schools.com/cssref/css_colors.asp
+/// Reference: https://developer.mozilla.org/en-US/docs/Web/CSS/color_value
 pub mod css;
 /// XTerm 256-bit colors. Not as widely supported as standard ANSI but contains 240 more colors.
 pub mod xterm;
