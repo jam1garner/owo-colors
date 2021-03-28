@@ -7,6 +7,7 @@ use core::fmt;
 /// An enum describing runtime-configurable colors which can be displayed using [`FgDynColorDisplay`](FgDynColorDisplay)
 /// or [`BgDynColorDisplay`](BgDynColorDisplay), allowing for multiple types of colors to be used
 /// at runtime.
+#[allow(missing_docs)]
 #[derive(Copy, Clone, PartialEq, Debug)]
 pub enum DynColors {
     Ansi(AnsiColors),
@@ -45,6 +46,7 @@ impl DynColor for DynColors {
     }
 }
 
+/// An error for when the color can not be parsed from a string at runtime
 #[derive(Debug)]
 pub struct ParseColorError;
 

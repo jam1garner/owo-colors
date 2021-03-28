@@ -8,6 +8,7 @@ macro_rules! css_color_types {
         pub(crate) mod dynamic {
             /// Available CSS colors for use with [`OwoColorize::color`](OwoColorize::color)
             /// or [`OwoColorize::on_color`](OwoColorize::on_color)
+            #[allow(missing_docs)]
             #[derive(Copy, Clone, Debug, PartialEq)]
             pub enum CssColors {
                 $($name,)*
@@ -49,6 +50,7 @@ macro_rules! css_color_types {
         }
 
         $(
+            #[allow(missing_docs)]
             pub type $name = CustomColor<$r, $g, $b>;
         )*
     };

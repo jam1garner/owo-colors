@@ -14,6 +14,7 @@ macro_rules! xterm_colors {
             #[derive(Copy, Clone, Debug, PartialEq)]
             pub enum XtermColors {
                 $(
+                    #[allow(missing_docs)]
                     $name,
                 )*
             }
@@ -52,6 +53,7 @@ macro_rules! xterm_colors {
         }
 
         $(
+            #[allow(missing_docs)]
             pub struct $name;
 
             impl crate::Color for $name {

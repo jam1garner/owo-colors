@@ -288,6 +288,7 @@ const fn rgb_to_ansi(r: u8, g: u8, b: u8, is_fg: bool) -> [u8; 19] {
     buf
 }
 
+/// A custom RGB color, determined at compile time
 pub struct CustomColor<const R: u8, const G: u8, const B: u8>;
 
 impl<const R: u8, const G: u8, const B: u8> Color for CustomColor<R, G, B> {

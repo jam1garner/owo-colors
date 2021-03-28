@@ -43,7 +43,10 @@ use core::marker::PhantomData;
 /// A trait for describing a type which can be used with [`FgColorDisplay`](FgColorDisplay) or
 /// [`BgCBgColorDisplay`](BgColorDisplay)
 pub trait Color {
+    /// The ANSI format code for setting this color as the foreground
     const ANSI_FG: &'static str;
+
+    /// The ANSI format code for setting this color as the background
     const ANSI_BG: &'static str;
 
     #[doc(hidden)]
@@ -54,7 +57,9 @@ pub trait Color {
 /// or [`BgDynColorDisplay`](BgDynColorDisplay). If your color will be known at compile time it
 /// is recommended you avoid this.
 pub trait DynColor {
+    /// A function to output a ANSI code to a formatter to set the foreground to this color
     fn fmt_ansi_fg(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result;
+    /// A function to output a ANSI code to a formatter to set the background to this color
     fn fmt_ansi_bg(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result;
     #[doc(hidden)]
     fn get_dyncolors_fg(&self) -> DynColors;

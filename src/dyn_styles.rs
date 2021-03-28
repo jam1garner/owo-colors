@@ -5,6 +5,7 @@ use core::fmt;
 use crate::OwoColorize;
 
 /// A runtime-configurable text effect for use with [`Style`]
+#[allow(missing_docs)]
 #[derive(Debug, Copy, Clone)]
 pub enum Effect {
     Bold,
@@ -73,10 +74,12 @@ pub struct Style {
 }
 
 impl Style {
+    /// Create a new style to be applied later
     pub fn new() -> Self {
         Self::default()
     }
 
+    /// Apply the style to a given struct to output
     pub fn style<T>(&self, target: T) -> Styled<T> {
         Styled {
             target,
@@ -208,26 +211,31 @@ impl Style {
         }
     }
 
+    /// Apply a given effect from the style
     pub fn effect(mut self, effect: Effect) -> Self {
         self.set_effect(effect, true);
         self
     }
 
+    /// Remove a given effect from the style
     pub fn remove_effect(mut self, effect: Effect) -> Self {
         self.set_effect(effect, false);
         self
     }
 
+    /// Apply a given set of effects to the style
     pub fn effects(mut self, effects: &[Effect]) -> Self {
         self.set_effects(effects, true);
         self
     }
 
+    /// Remove a given set of effects from the style
     pub fn remove_effects(mut self, effects: &[Effect]) -> Self {
         self.set_effects(effects, false);
         self
     }
 
+    /// Disables all the given effects from the style
     pub fn remove_all_effects(mut self) -> Self {
         self.bold = false;
         self.dimmed = false;
