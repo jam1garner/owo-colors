@@ -18,6 +18,8 @@ name = "is_tty"
 required-features = ["tty"]
 
 [features]
+env-no-color = []
+no-color = []
 tty = ["atty"]
 
 # outdated feature, does nothing
