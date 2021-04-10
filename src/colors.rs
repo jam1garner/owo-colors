@@ -23,6 +23,7 @@ macro_rules! colors {
             }
 
             impl crate::DynColor for AnsiColors {
+                #[cfg(not(feature = "no-color"))]
                 fn fmt_ansi_fg(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
                     let color = match self {
                         $(
@@ -30,9 +31,23 @@ macro_rules! colors {
                         )*
                     };
 
+                    #[cfg(feature = "env-no-color")]
+                    if std::env::var("NO_COLOR").is_ok() {
+                        write!(f, "{}", color)
+                    } else {
+                        Ok(())
+                    }
+
+                    #[cfg(not(feature = "env-no-color"))]
                     write!(f, "{}", color)
                 }
 
+                #[cfg(feature = "no-color")]
+                fn fmt_ansi_fg(&self, _f: &mut fmt::Formatter<'_>) -> fmt::Result {
+                    Ok(())
+                }
+
+                #[cfg(not(feature = "no-color"))]
                 fn fmt_ansi_bg(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
                     let color = match self {
                         $(
@@ -41,6 +56,11 @@ macro_rules! colors {
                     };
 
                     write!(f, "{}", color)
+                }
+
+                #[cfg(feature = "no-color")]
+                fn fmt_ansi_bg(&self, _f: &mut fmt::Formatter<'_>) -> fmt::Result {
+                    Ok(())
                 }
 
                 #[doc(hidden)]
