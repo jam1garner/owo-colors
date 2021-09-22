@@ -39,7 +39,11 @@
 //! ```rust
 //! use owo_colors::{OwoColorize, Stream::Stdout};
 //!
-//! println!("{}", "strikethrough"..strikethrough());
+//! println!(
+//!     "{}",
+//!     "colored blue if a supported terminal"
+//!         .if_supports_color(Stdout, |text| text.bright_blue())
+//! );
 //! ```
 //!
 //! Supports `NO_COLOR`/`FORCE_COLOR` environment variables, checks if it's a tty, checks

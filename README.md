@@ -7,21 +7,36 @@ A zero-allocation no_std-compatible zero-cost way to add color to your Rust term
 
 **Supports:**
 
-* [x] [Display](https://doc.rust-lang.org/std/fmt/trait.Display.html)
-* [x] [Debug](https://doc.rust-lang.org/std/fmt/trait.Debug.html)
-* [x] [Octal](https://doc.rust-lang.org/std/fmt/trait.Octal.html)
-* [x] [LowerHex](https://doc.rust-lang.org/std/fmt/trait.LowerHex.html)
-* [x] [UpperHex](https://doc.rust-lang.org/std/fmt/trait.UpperHex.html)
-* [x] [Pointer](https://doc.rust-lang.org/std/fmt/trait.Pointer.html)
-* [x] [Binary](https://doc.rust-lang.org/std/fmt/trait.Binary.html)
-* [x] [LowerExp](https://doc.rust-lang.org/std/fmt/trait.LowerExp.html)
-* [x] [UpperExp](https://doc.rust-lang.org/std/fmt/trait.UpperExp.html)
+* [x] All std/core formatters
+    * [x] [Display](https://doc.rust-lang.org/std/fmt/trait.Display.html)
+    * [x] [Debug](https://doc.rust-lang.org/std/fmt/trait.Debug.html)
+    * [x] [Octal](https://doc.rust-lang.org/std/fmt/trait.Octal.html)
+    * [x] [LowerHex](https://doc.rust-lang.org/std/fmt/trait.LowerHex.html)
+    * [x] [UpperHex](https://doc.rust-lang.org/std/fmt/trait.UpperHex.html)
+    * [x] [Pointer](https://doc.rust-lang.org/std/fmt/trait.Pointer.html)
+    * [x] [Binary](https://doc.rust-lang.org/std/fmt/trait.Binary.html)
+    * [x] [LowerExp](https://doc.rust-lang.org/std/fmt/trait.LowerExp.html)
+    * [x] [UpperExp](https://doc.rust-lang.org/std/fmt/trait.UpperExp.html)
+* [x] Optional checking for if a terminal supports colors
+    * [x] Enabled for CI
+    * [x] Disabled by default for non-terminal outputs
+    * [x] Overridable by `NO_COLOR`/`FORCE_COLOR` environment variables
+    * [x] 
+* [x] Dependency-less by default
+* [x] Hand picked names for all ANSI (4-bit) and Xterm (8-bit) colors
+* [x] Support for RGB colors
+* [x] Set colors at compile time by generics or at runtime by value
+* [x] All ANSI colors
+    * [x] Basic support (normal and bright variants)
+    * [x] Xterm support (high compatibility and 256 colors)
+    * [x] Truecolor support (modern, 48-bit color)
+* [x] Styling (underline, strikethrough, etc)
 
 owo-colors is also more-or-less a drop-in replacement for [colored](https://crates.io/crates/colored), allowing colored to work in a no_std environment. No allocations, unsafe, or dependencies required because embedded systems deserve to be pretty too uwu.
 
 To add to your Cargo.toml:
 ```toml
-owo-colors = "1"
+owo-colors = "2"
 ```
 
 ## Example
@@ -53,3 +68,19 @@ use owo_colors::OwoColorize;
 
 println!("{}", "strikethrough".strikethrough());
 ```
+
+## Only Style on Supported Terminals
+
+```rust
+use owo_colors::{OwoColorize, Stream::Stdout};
+
+println!(
+    "{}",
+    "colored blue if a supported terminal"
+        .if_supports_color(Stdout, |text| text.bright_blue())
+);
+```
+
+Supports `NO_COLOR`/`FORCE_COLOR` environment variables, checks if it's a tty, checks
+if it's running in CI (and thus likely supports color), and checks which terminal is being
+used. (Note: requires `supports-colors` feature)
