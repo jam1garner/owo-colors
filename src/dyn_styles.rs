@@ -256,9 +256,7 @@ impl Style {
     /// ```rust
     /// use owo_colors::{OwoColorize, AnsiColors};
     ///
-    /// fn main() {
-    ///     println!("{}", "green".color(AnsiColors::Green));
-    /// }
+    /// println!("{}", "green".color(AnsiColors::Green));
     /// ```
     pub fn color<Color: DynColor>(mut self, color: Color) -> Self {
         self.fg = Some(color.get_dyncolors_fg());
@@ -272,9 +270,7 @@ impl Style {
     /// ```rust
     /// use owo_colors::{OwoColorize, AnsiColors};
     ///
-    /// fn main() {
-    ///     println!("{}", "yellow background".on_color(AnsiColors::BrightYellow));
-    /// }
+    /// println!("{}", "yellow background".on_color(AnsiColors::BrightYellow));
     /// ```
     pub fn on_color<Color: DynColor>(mut self, color: Color) -> Self {
         self.bg = Some(color.get_dyncolors_bg());

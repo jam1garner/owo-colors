@@ -1,6 +1,6 @@
 #[allow(unused_imports)]
 use crate::{
-    CssColors, AnsiColors, BgDynColorDisplay, DynColor, FgDynColorDisplay, Rgb, XtermColors,
+    AnsiColors, BgDynColorDisplay, CssColors, DynColor, FgDynColorDisplay, Rgb, XtermColors,
 };
 use core::fmt;
 
@@ -54,7 +54,7 @@ impl core::str::FromStr for DynColors {
     type Err = ParseColorError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        if s.chars().nth(0).ok_or(ParseColorError)? == '#' {
+        if s.chars().next().ok_or(ParseColorError)? == '#' {
             match s.len() {
                 4 => {
                     // TODO

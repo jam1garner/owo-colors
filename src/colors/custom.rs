@@ -291,6 +291,7 @@ const fn rgb_to_ansi(r: u8, g: u8, b: u8, is_fg: bool) -> [u8; 19] {
 /// A custom RGB color, determined at compile time
 pub struct CustomColor<const R: u8, const G: u8, const B: u8>;
 
+#[allow(clippy::transmute_bytes_to_str)]
 impl<const R: u8, const G: u8, const B: u8> Color for CustomColor<R, G, B> {
     const ANSI_FG: &'static str =
         unsafe { core::mem::transmute(&rgb_to_ansi(R, G, B, true) as &[u8]) };

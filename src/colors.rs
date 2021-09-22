@@ -1,3 +1,4 @@
+//! Color types for used for being generic over the color
 use crate::{BgColorDisplay, BgDynColorDisplay, FgColorDisplay, FgDynColorDisplay};
 use core::fmt;
 

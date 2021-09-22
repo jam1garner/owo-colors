@@ -1,3 +1,4 @@
+//! Different display styles (strikethrough, bold, etc.)
 use core::fmt;
 
 #[allow(unused_imports)]

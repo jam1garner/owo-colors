@@ -33,9 +33,26 @@
 //!
 //! println!("{}", "strikethrough".strikethrough());
 //! ```
+//!
+//! ## Only Style on Supported Terminals
+//!
+//! ```rust
+//! use owo_colors::{OwoColorize, Stream::Stdout};
+//!
+//! println!("{}", "strikethrough"..strikethrough());
+//! ```
+//!
+//! Supports `NO_COLOR`/`FORCE_COLOR` environment variables, checks if it's a tty, checks
+//! if it's running in CI (and thus likely supports color), and checks which terminal is being
+//! used. (Note: requires `supports-colors` feature)
 #![cfg_attr(not(test), no_std)]
 #![doc(html_logo_url = "https://jam1.re/img/rust_owo.svg")]
 #![warn(missing_docs)]
+
+pub mod colors;
+mod dyn_colors;
+mod dyn_styles;
+pub mod styles;
 
 use core::fmt;
 use core::marker::PhantomData;
@@ -89,6 +106,18 @@ pub struct FgDynColorDisplay<'a, Color: DynColor, T>(&'a T, Color);
 /// coloring is not an option.
 pub struct BgDynColorDisplay<'a, Color: DynColor, T>(&'a T, Color);
 
+macro_rules! style_methods {
+    ($(#[$meta:meta] $name:ident $ty:ident),* $(,)?) => {
+        $(
+            #[$meta]
+            #[inline(always)]
+            fn $name<'a>(&'a self) -> styles::$ty<'a, Self> {
+                styles::$ty(self)
+            }
+         )*
+    };
+}
+
 macro_rules! color_methods {
     ($(
         #[$fg_meta:meta] #[$bg_meta:meta] $color:ident $fg_method:ident $bg_method:ident
@@ -109,18 +138,6 @@ macro_rules! color_methods {
     };
 }
 
-macro_rules! style_methods {
-    ($(#[$meta:meta] $name:ident $ty:ident),* $(,)?) => {
-        $(
-            #[$meta]
-            #[inline(always)]
-            fn $name<'a>(&'a self) -> styles::$ty<'a, Self> {
-                styles::$ty(self)
-            }
-         )*
-    };
-}
-
 /// Extension trait for colorizing a type which implements any std formatter
 /// ([`Display`](core::fmt::Display), [`Debug`](core::fmt::Debug), [`UpperHex`](core::fmt::UpperHex),
 /// etc.)
@@ -130,10 +147,8 @@ macro_rules! style_methods {
 /// ```rust
 /// use owo_colors::OwoColorize;
 ///
-/// fn main() {
-///     println!("My number is {:#x}!", 10.green());
-///     println!("My number is not {}!", 4.on_red());
-/// }
+/// println!("My number is {:#x}!", 10.green());
+/// println!("My number is not {}!", 4.on_red());
 /// ```
 ///
 /// ## How to decide which method to use
@@ -181,7 +196,7 @@ pub trait OwoColorize: Sized {
     /// println!("{}", "red foreground".fg::<Red>());
     /// ```
     #[inline(always)]
-    fn fg<'a, C: Color>(&'a self) -> FgColorDisplay<'a, C, Self> {
+    fn fg<C: Color>(&self) -> FgColorDisplay<'_, C, Self> {
         FgColorDisplay(self, PhantomData)
     }
 
@@ -193,7 +208,7 @@ pub trait OwoColorize: Sized {
     /// println!("{}", "black background".bg::<Black>());
     /// ```
     #[inline(always)]
-    fn bg<'a, C: Color>(&'a self) -> BgColorDisplay<'a, C, Self> {
+    fn bg<C: Color>(&self) -> BgColorDisplay<'_, C, Self> {
         BgColorDisplay(self, PhantomData)
     }
 
@@ -283,12 +298,10 @@ pub trait OwoColorize: Sized {
     /// ```rust
     /// use owo_colors::{OwoColorize, AnsiColors};
     ///
-    /// fn main() {
-    ///     println!("{}", "green".color(AnsiColors::Green));
-    /// }
+    /// println!("{}", "green".color(AnsiColors::Green));
     /// ```
     #[inline(always)]
-    fn color<'a, Color: DynColor>(&'a self, color: Color) -> FgDynColorDisplay<'a, Color, Self> {
+    fn color<Color: DynColor>(&self, color: Color) -> FgDynColorDisplay<'_, Color, Self> {
         FgDynColorDisplay(self, color)
     }
 
@@ -299,38 +312,36 @@ pub trait OwoColorize: Sized {
     /// ```rust
     /// use owo_colors::{OwoColorize, AnsiColors};
     ///
-    /// fn main() {
-    ///     println!("{}", "yellow background".on_color(AnsiColors::BrightYellow));
-    /// }
+    /// println!("{}", "yellow background".on_color(AnsiColors::BrightYellow));
     /// ```
     #[inline(always)]
-    fn on_color<'a, Color: DynColor>(&'a self, color: Color) -> BgDynColorDisplay<'a, Color, Self> {
+    fn on_color<Color: DynColor>(&self, color: Color) -> BgDynColorDisplay<'_, Color, Self> {
         BgDynColorDisplay(self, color)
     }
 
     /// Set the foreground color to a specific RGB value.
-    fn fg_rgb<'a, const R: u8, const G: u8, const B: u8>(
-        &'a self,
-    ) -> FgColorDisplay<'a, colors::CustomColor<R, G, B>, Self> {
+    fn fg_rgb<const R: u8, const G: u8, const B: u8>(
+        &self,
+    ) -> FgColorDisplay<'_, colors::CustomColor<R, G, B>, Self> {
         FgColorDisplay(self, PhantomData)
     }
 
     /// Set the background color to a specific RGB value.
-    fn bg_rgb<'a, const R: u8, const G: u8, const B: u8>(
-        &'a self,
-    ) -> BgColorDisplay<'a, colors::CustomColor<R, G, B>, Self> {
+    fn bg_rgb<const R: u8, const G: u8, const B: u8>(
+        &self,
+    ) -> BgColorDisplay<'_, colors::CustomColor<R, G, B>, Self> {
         BgColorDisplay(self, PhantomData)
     }
 
     /// Sets the foreground color to an RGB value.
     #[inline(always)]
-    fn truecolor<'a>(&'a self, r: u8, g: u8, b: u8) -> FgDynColorDisplay<'a, Rgb, Self> {
+    fn truecolor(&self, r: u8, g: u8, b: u8) -> FgDynColorDisplay<'_, Rgb, Self> {
         FgDynColorDisplay(self, Rgb(r, g, b))
     }
 
     /// Sets the background color to an RGB value.
     #[inline(always)]
-    fn on_truecolor<'a>(&'a self, r: u8, g: u8, b: u8) -> BgDynColorDisplay<'a, Rgb, Self> {
+    fn on_truecolor(&self, r: u8, g: u8, b: u8) -> BgDynColorDisplay<'_, Rgb, Self> {
         BgDynColorDisplay(self, Rgb(r, g, b))
     }
 
@@ -366,6 +377,10 @@ pub trait OwoColorize: Sized {
     ///     );
     /// }
     /// ```
+    #[deprecated(
+        since = "2.1.0",
+        note = "if_stdout_tty is superseded by if_supports_color"
+    )]
     #[cfg(feature = "tty")]
     fn if_stdout_tty<'a, Out, ApplyFn>(
         &'a self,
@@ -393,6 +408,10 @@ pub trait OwoColorize: Sized {
     ///     );
     /// }
     /// ```
+    #[deprecated(
+        since = "2.1.0",
+        note = "if_stderr_tty is superseded by if_supports_color"
+    )]
     #[cfg(feature = "tty")]
     fn if_stderr_tty<'a, Out, ApplyFn>(
         &'a self,
@@ -403,7 +422,40 @@ pub trait OwoColorize: Sized {
     {
         TtyDisplay(self, apply, StdErr)
     }
+
+    /// Apply a given transformation function to all formatters if the given stream
+    /// supports at least basic ANSI colors, allowing you to conditionally apply
+    /// given styles/colors.
+    ///
+    /// Requires the `supports-colors` feature.
+    ///
+    /// ```rust
+    /// use owo_colors::{OwoColorize, Stream};
+    ///
+    /// println!(
+    ///     "{}",
+    ///     "woah! error! if this terminal supports colors, it's blue"
+    ///         .if_supports_color(Stream::Stdout, |text| text.bright_blue())
+    /// );
+    /// ```
+    #[cfg(feature = "supports-colors")]
+    fn if_supports_color<'a, Out, ApplyFn>(
+        &'a self,
+        stream: Stream,
+        apply: ApplyFn,
+    ) -> SupportsColorsDisplay<'a, Self, Out, ApplyFn>
+    where
+        ApplyFn: Fn(&'a Self) -> Out,
+    {
+        SupportsColorsDisplay(self, apply, stream)
+    }
 }
+
+#[cfg(feature = "supports-colors")]
+mod supports_colors;
+
+#[cfg(feature = "supports-colors")]
+pub use {supports_color::Stream, supports_colors::SupportsColorsDisplay};
 
 pub use colors::{
     ansi_colors::AnsiColors, css::dynamic::CssColors, dynamic::Rgb, xterm::dynamic::XtermColors,
@@ -412,11 +464,7 @@ pub use colors::{
 // TODO: figure out some wait to only implement for fmt::Display | fmt::Debug | ...
 impl<D: Sized> OwoColorize for D {}
 
-mod dyn_colors;
-pub use dyn_colors::*;
-
-mod dyn_styles;
-pub use dyn_styles::*;
+pub use {dyn_colors::*, dyn_styles::*};
 
 #[cfg(feature = "tty")]
 mod tty_display;
@@ -426,12 +474,6 @@ pub use tty_display::TtyDisplay;
 
 #[cfg(feature = "tty")]
 use tty_display::{StdErr, StdOut};
-
-/// Color types for used for being generic over the color
-pub mod colors;
-
-/// Different display styles (strikethrough, bold, etc.)
-pub mod styles;
 
 /// Module for drop-in [`colored`](https://docs.rs/colored) support to aid in porting code from
 /// [`colored`](https://docs.rs/colored) to owo-colors.

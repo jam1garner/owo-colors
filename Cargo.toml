@@ -1,6 +1,6 @@
 [package]
 name = "owo-colors"
-version = "2.0.0"
+version = "2.1.0"
 authors = ["jam1garner <8260240+jam1garner@users.noreply.github.com>"]
 edition = "2018"
 documentation = "https://docs.rs/owo-colors"
@@ -9,19 +9,22 @@ description = "Zero-allocation terminal colors that'll make people go owo"
 license = "MIT"
 readme = "README.md"
 keywords = ["cli", "color", "no-std", "terminal", "ansi_term"]
+categories = ["command-line-interface"]
 
 [package.metadata.docs.rs]
 all-features = true
 
 [[example]]
-name = "is_tty"
-required-features = ["tty"]
+name = "supports_color"
+required-features = ["supports-colors"]
 
 [features]
-tty = ["atty"]
+supports-colors = ["supports-color"]
 
-# outdated feature, does nothing
-custom = []
+# outdated features 
+custom = []         # does nothing
+tty = ["atty"]      # deprecated in favor of supports-colors
 
 [dependencies]
 atty = { version = "0.2", optional = true }
+supports-color = { version = "1.0.4", optional = true }
