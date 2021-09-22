@@ -1,6 +1,6 @@
 [package]
 name = "owo-colors"
-version = "2.1.0-beta.0"
+version = "2.1.0"
 authors = ["jam1garner <8260240+jam1garner@users.noreply.github.com>"]
 edition = "2018"
 documentation = "https://docs.rs/owo-colors"
