@@ -20,7 +20,7 @@ macro_rules! impl_fmt_for {
             {
                 #[inline(always)]
                 fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-                    if supports_color::on(self.2).map(|level| level.has_basic).unwrap_or(false) {
+                    if supports_color::on_cached(self.2).map(|level| level.has_basic).unwrap_or(false) {
                         <Out as $trait>::fmt(&self.1(self.0), f)
                     } else {
                         <In as $trait>::fmt(self.0, f)
