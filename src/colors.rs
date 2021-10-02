@@ -64,6 +64,9 @@ macro_rules! colors {
                 const ANSI_FG: &'static str = concat!("\x1b[", stringify!($fg), "m");
                 const ANSI_BG: &'static str = concat!("\x1b[", stringify!($bg), "m");
 
+                const RAW_ANSI_FG: &'static str = stringify!($fg);
+                const RAW_ANSI_BG: &'static str = stringify!($bg);
+
                 #[doc(hidden)]
                 fn into_dyncolors() -> crate::DynColors {
                     crate::DynColors::Ansi(ansi_colors::AnsiColors::$color)

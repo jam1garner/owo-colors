@@ -288,6 +288,35 @@ const fn rgb_to_ansi(r: u8, g: u8, b: u8, is_fg: bool) -> [u8; 19] {
     buf
 }
 
+const fn rgb_to_ansi_color(r: u8, g: u8, b: u8, is_fg: bool) -> [u8; 16] {
+    let mut buf = if is_fg {
+        *b"38;2;rrr;ggg;bbb"
+    } else {
+        *b"48;2;rrr;ggg;bbb"
+    };
+
+    let r = U8_TO_STR[r as usize];
+    let g = U8_TO_STR[g as usize];
+    let b = U8_TO_STR[b as usize];
+
+    // r 5
+    buf[5] = r[0];
+    buf[6] = r[1];
+    buf[7] = r[2];
+
+    // g 9
+    buf[9] = g[0];
+    buf[10] = g[1];
+    buf[11] = g[2];
+
+    // b 13
+    buf[13] = b[0];
+    buf[14] = b[1];
+    buf[15] = b[2];
+
+    buf
+}
+
 /// A custom RGB color, determined at compile time
 pub struct CustomColor<const R: u8, const G: u8, const B: u8>;
 
@@ -297,6 +326,11 @@ impl<const R: u8, const G: u8, const B: u8> Color for CustomColor<R, G, B> {
         unsafe { core::mem::transmute(&rgb_to_ansi(R, G, B, true) as &[u8]) };
     const ANSI_BG: &'static str =
         unsafe { core::mem::transmute(&rgb_to_ansi(R, G, B, false) as &[u8]) };
+
+    const RAW_ANSI_FG: &'static str =
+        unsafe { core::mem::transmute(&rgb_to_ansi_color(R, G, B, true) as &[u8]) };
+    const RAW_ANSI_BG: &'static str =
+        unsafe { core::mem::transmute(&rgb_to_ansi_color(R, G, B, false) as &[u8]) };
 
     fn into_dyncolors() -> crate::DynColors {
         crate::DynColors::Rgb(R, G, B)

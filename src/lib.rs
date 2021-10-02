@@ -54,6 +54,7 @@
 #![warn(missing_docs)]
 
 pub mod colors;
+mod combo;
 mod dyn_colors;
 mod dyn_styles;
 pub mod styles;
@@ -69,6 +70,14 @@ pub trait Color {
 
     /// The ANSI format code for setting this color as the background
     const ANSI_BG: &'static str;
+
+    /// The raw ANSI format for settings this color as the foreground without the ANSI
+    /// delimiters ("\x1b" and "m")
+    const RAW_ANSI_FG: &'static str;
+
+    /// The raw ANSI format for settings this color as the background without the ANSI
+    /// delimiters ("\x1b" and "m")
+    const RAW_ANSI_BG: &'static str;
 
     #[doc(hidden)]
     fn into_dyncolors() -> crate::DynColors;
@@ -122,6 +131,8 @@ macro_rules! style_methods {
     };
 }
 
+const _: () = (); // workaround for syntax highlighting bug
+
 macro_rules! color_methods {
     ($(
         #[$fg_meta:meta] #[$bg_meta:meta] $color:ident $fg_method:ident $bg_method:ident
@@ -133,7 +144,7 @@ macro_rules! color_methods {
                 FgColorDisplay(self, PhantomData)
             }
 
-            #[$fg_meta]
+            #[$bg_meta]
             #[inline(always)]
             fn $bg_method<'a>(&'a self) -> BgColorDisplay<'a, colors::$color, Self> {
                 BgColorDisplay(self, PhantomData)
@@ -141,6 +152,8 @@ macro_rules! color_methods {
          )*
     };
 }
+
+const _: () = (); // workaround for syntax highlighting bug
 
 /// Extension trait for colorizing a type which implements any std formatter
 /// ([`Display`](core::fmt::Display), [`Debug`](core::fmt::Debug), [`UpperHex`](core::fmt::UpperHex),
@@ -468,7 +481,7 @@ pub use colors::{
 // TODO: figure out some wait to only implement for fmt::Display | fmt::Debug | ...
 impl<D: Sized> OwoColorize for D {}
 
-pub use {dyn_colors::*, dyn_styles::*};
+pub use {combo::ComboColorDisplay, dyn_colors::*, dyn_styles::*};
 
 #[cfg(feature = "tty")]
 mod tty_display;
