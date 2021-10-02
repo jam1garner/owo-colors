@@ -27,7 +27,7 @@ macro_rules! xterm_colors {
                         )*
                     };
 
-                    write!(f, "{}", color)
+                    f.write_str(color)
                 }
 
                 fn fmt_ansi_bg(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -37,7 +37,27 @@ macro_rules! xterm_colors {
                         )*
                     };
 
-                    write!(f, "{}", color)
+                    f.write_str(color)
+                }
+
+                fn fmt_raw_ansi_fg(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+                    let color = match self {
+                        $(
+                            XtermColors::$name => concat!("38;5;", stringify!($xterm_num)),
+                        )*
+                    };
+
+                    f.write_str(color)
+                }
+
+                fn fmt_raw_ansi_bg(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+                    let color = match self {
+                        $(
+                            XtermColors::$name => concat!("48;5;", stringify!($xterm_num)),
+                        )*
+                    };
+
+                    f.write_str(color)
                 }
 
                 #[doc(hidden)]

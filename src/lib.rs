@@ -91,6 +91,15 @@ pub trait DynColor {
     fn fmt_ansi_fg(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result;
     /// A function to output a ANSI code to a formatter to set the background to this color
     fn fmt_ansi_bg(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result;
+
+    /// A function to output a raw ANSI code to a formatter to set the foreground to this color,
+    /// but without including the ANSI delimiters.
+    fn fmt_raw_ansi_fg(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result;
+
+    /// A function to output a raw ANSI code to a formatter to set the background to this color,
+    /// but without including the ANSI delimiters.
+    fn fmt_raw_ansi_bg(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result;
+
     #[doc(hidden)]
     fn get_dyncolors_fg(&self) -> DynColors;
     #[doc(hidden)]

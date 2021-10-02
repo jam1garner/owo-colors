@@ -25,7 +25,7 @@ macro_rules! css_color_types {
                     )*
                 };
 
-                write!(f, "{}", color)
+                f.write_str(color)
             }
 
             fn fmt_ansi_bg(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -35,7 +35,27 @@ macro_rules! css_color_types {
                     )*
                 };
 
-                write!(f, "{}", color)
+                f.write_str(color)
+            }
+
+            fn fmt_raw_ansi_fg(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+                let color = match self {
+                    $(
+                        CssColors::$name => CustomColor::<$r, $g, $b>::RAW_ANSI_FG,
+                    )*
+                };
+
+                f.write_str(color)
+            }
+
+            fn fmt_raw_ansi_bg(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+                let color = match self {
+                    $(
+                        CssColors::$name => CustomColor::<$r, $g, $b>::RAW_ANSI_BG,
+                    )*
+                };
+
+                f.write_str(color)
             }
 
             #[doc(hidden)]
