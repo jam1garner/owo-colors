@@ -51,6 +51,8 @@ macro_rules! style_methods {
     };
 }
 
+const _: () = (); // workaround for syntax highlighting bug
+
 /// A struct with a [`Style`] applied to it
 pub struct Styled<T> {
     target: T,

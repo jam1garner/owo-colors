@@ -44,6 +44,26 @@ macro_rules! colors {
                     write!(f, "{}", color)
                 }
 
+                fn fmt_raw_ansi_fg(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+                    let color = match self {
+                        $(
+                            AnsiColors::$color => stringify!($fg),
+                        )*
+                    };
+
+                    f.write_str(color)
+                }
+
+                fn fmt_raw_ansi_bg(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+                    let color = match self {
+                        $(
+                            AnsiColors::$color => stringify!($bg),
+                        )*
+                    };
+
+                    f.write_str(color)
+                }
+
                 #[doc(hidden)]
                 fn get_dyncolors_fg(&self) -> crate::DynColors {
                     crate::DynColors::Ansi(*self)
