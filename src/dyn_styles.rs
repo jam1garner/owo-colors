@@ -312,9 +312,14 @@ pub fn style() -> Style {
 }
 
 macro_rules! text_effect_fmt {
-    ($style:ident, $formatter:ident, $(($attr:ident, $value:literal)),* $(,)?) => {
+    ($style:ident, $formatter:ident, $semicolon:ident, $(($attr:ident, $value:literal)),* $(,)?) => {
         $(if $style.$attr {
+            if $semicolon {
+                $formatter.write_str(";")?;
+            }
             $formatter.write_str($value)?;
+
+            $semicolon = true;
         })+
     }
 }
@@ -323,36 +328,11 @@ macro_rules! impl_fmt {
     ($($trait:path),* $(,)?) => {
         $(
             impl<T: $trait> $trait for Styled<T> {
+                #[allow(unused_assignments)]
                 fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
 
                     let s = &self.style;
-
-                    if let Some(fg) = s.fg {
-                        <DynColors as DynColor>::fmt_ansi_fg(&fg, f)?;
-                    }
-
-                    if let Some(bg) = s.bg {
-                        <DynColors as DynColor>::fmt_ansi_bg(&bg, f)?;
-                    }
-
-                    text_effect_fmt!{
-                        s, f,
-                        (bold,          "\x1b[1m"),
-                        (dimmed,        "\x1b[2m"),
-                        (italic,        "\x1b[3m"),
-                        (underline,     "\x1b[4m"),
-                        (blink,         "\x1b[5m"),
-                        (blink_fast,    "\x1b[6m"),
-                        (reversed,      "\x1b[7m"),
-                        (hidden,        "\x1b[8m"),
-                        (strikethrough, "\x1b[9m"),
-                    }
-
-                    <T as $trait>::fmt(&self.target, f)?;
-
-                    if s.fg.is_some()
-                        || s.bg.is_some()
-                        || s.bold
+                    let format_effect = s.bold
                         || s.dimmed
                         || s.italic
                         || s.underline
@@ -360,8 +340,48 @@ macro_rules! impl_fmt {
                         || s.blink_fast
                         || s.reversed
                         || s.hidden
-                        || s.strikethrough
-                    {
+                        || s.strikethrough;
+                    let format_color = s.fg.is_some() || s.bg.is_some();
+                    let format_any = format_color || format_effect;
+
+                    let mut semicolon = false;
+
+                    if format_any {
+                        f.write_str("\x1b[")?;
+                    }
+
+                    if let Some(fg) = s.fg {
+                        <DynColors as DynColor>::fmt_raw_ansi_fg(&fg, f)?;
+                        semicolon = true;
+                    }
+
+                    if let Some(bg) = s.bg {
+                        if s.fg.is_some() {
+                            f.write_str(";")?;
+                        }
+                        <DynColors as DynColor>::fmt_raw_ansi_bg(&bg, f)?;
+                    }
+
+                    text_effect_fmt!{
+                        s, f, semicolon,
+                        (bold,          "1"),
+                        (dimmed,        "2"),
+                        (italic,        "3"),
+                        (underline,     "4"),
+                        (blink,         "5"),
+                        (blink_fast,    "6"),
+                        (reversed,      "7"),
+                        (hidden,        "8"),
+                        (strikethrough, "9"),
+                    }
+
+                    if format_any {
+                        f.write_str("m")?;
+                    }
+
+                    <T as $trait>::fmt(&self.target, f)?;
+
+                    if format_any {
                         f.write_str("\x1b[0m")?;
                     }
 
@@ -406,7 +426,7 @@ mod tests {
         let s = style.style("TEST");
         let s2 = format!("{}", &s);
         println!("{}", &s2);
-        assert_eq!(&s2, "\u{1b}[97m\u{1b}[44m\u{1b}[1m\u{1b}[2m\u{1b}[3m\u{1b}[4m\u{1b}[5m\u{1b}[9mTEST\u{1b}[0m");
+        assert_eq!(&s2, "\u{1b}[97;44;1;2;3;4;5;9mTEST\u{1b}[0m");
     }
 
     #[test]
@@ -417,7 +437,7 @@ mod tests {
         let s = style.style("TEST");
         let s2 = format!("{}", &s);
         println!("{}", &s2);
-        assert_eq!(&s2, "\u{1b}[4m\u{1b}[9mTEST\u{1b}[0m");
+        assert_eq!(&s2, "\u{1b}[4;9mTEST\u{1b}[0m");
     }
 
     #[test]
@@ -429,7 +449,7 @@ mod tests {
         let s = style.style("TEST");
         let s2 = format!("{}", &s);
         println!("{}", &s2);
-        assert_eq!(&s2, "\u{1b}[37m\u{1b}[40mTEST\u{1b}[0m");
+        assert_eq!(&s2, "\u{1b}[37;40mTEST\u{1b}[0m");
     }
 
     #[test]
@@ -439,10 +459,7 @@ mod tests {
         let s = style.style("TEST");
         let s2 = format!("{}", &s);
         println!("{}", &s2);
-        assert_eq!(
-            &s2,
-            "\u{1b}[38;2;255;255;255m\u{1b}[48;2;0;0;0mTEST\u{1b}[0m"
-        );
+        assert_eq!(&s2, "\u{1b}[38;2;255;255;255;48;2;0;0;0mTEST\u{1b}[0m");
     }
 
     #[test]
@@ -453,10 +470,7 @@ mod tests {
         let s = style.style(&string);
         let s2 = format!("{}", &s);
         println!("{}", &s2);
-        assert_eq!(
-            &s2,
-            "\u{1b}[38;2;255;255;255m\u{1b}[48;2;0;0;0mTEST\u{1b}[0m"
-        );
+        assert_eq!(&s2, "\u{1b}[38;2;255;255;255;48;2;0;0;0mTEST\u{1b}[0m");
     }
 
     #[test]
@@ -466,6 +480,6 @@ mod tests {
         let s = "TEST".style(style);
         let s2 = format!("{}", &s);
         println!("{}", &s2);
-        assert_eq!(&s2, "\u{1b}[97m\u{1b}[44mTEST\u{1b}[0m");
+        assert_eq!(&s2, "\u{1b}[97;44mTEST\u{1b}[0m");
     }
 }
