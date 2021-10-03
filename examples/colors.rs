@@ -1,10 +1,13 @@
 use owo_colors::{colors::*, OwoColorize};
 
 fn main() {
-    println!("{}", "green".fg::<Green>());
-    println!("{}", "yellow".fg::<Yellow>());
-    println!("{}", "blue".fg::<Blue>());
-    println!("{}", "black".fg::<Black>());
+    // normal usage
+    println!("{}", "green".green());
+    println!("{}", "yellow".yellow());
+    println!("{}", "blue".blue());
+    println!("{}", "black".black());
+
+    // generic examples
     println!("{}", "red".fg::<Red>());
     println!("{}", "magenta".fg::<Magenta>());
     println!("{}", "white".fg::<White>());
@@ -29,4 +32,8 @@ fn main() {
     println!("1{}3", "2".hidden());
     println!("{}", "blink".blink());
     println!("{}", "blink fast".blink_fast());
+
+    // foreground and background
+    let red_on_white = "red on white".red().on_white();
+    println!("{}", red_on_white);
 }
