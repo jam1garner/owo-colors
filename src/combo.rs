@@ -1,4 +1,4 @@
-use crate::colors;
+use crate::{colors, BgDynColorDisplay, DynColor, FgDynColorDisplay};
 use crate::{BgColorDisplay, Color, FgColorDisplay};
 
 use core::fmt;
@@ -6,6 +6,11 @@ use core::marker::PhantomData;
 
 /// A wrapper type which applies both a foreground and background color
 pub struct ComboColorDisplay<'a, Fg: Color, Bg: Color, T>(&'a T, PhantomData<(Fg, Bg)>);
+
+/// Wrapper around a type which implements all the formatters the wrapped type does,
+/// with the addition of changing the foreground and background color. Is not recommended
+/// unless compile-time coloring is not an option.
+pub struct ComboDynColorDisplay<'a, Fg: DynColor, Bg: DynColor, T>(&'a T, Fg, Bg);
 
 macro_rules! impl_fmt_for_combo {
     ($($trait:path),* $(,)?) => {
@@ -17,6 +22,21 @@ macro_rules! impl_fmt_for_combo {
                     f.write_str(Fg::RAW_ANSI_FG)?;
                     f.write_str(";")?;
                     f.write_str(Bg::RAW_ANSI_BG)?;
+                    f.write_str("m")?;
+                    <T as $trait>::fmt(&self.0, f)?;
+                    f.write_str("\x1b[0m")
+                }
+            }
+        )*
+
+        $(
+            impl<'a, Fg: DynColor, Bg: DynColor, T: $trait> $trait for ComboDynColorDisplay<'a, Fg, Bg, T> {
+                #[inline(always)]
+                fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+                    f.write_str("\x1b[")?;
+                    self.1.fmt_raw_ansi_fg(f)?;
+                    f.write_str(";")?;
+                    self.2.fmt_raw_ansi_bg(f)?;
                     f.write_str("m")?;
                     <T as $trait>::fmt(&self.0, f)?;
                     f.write_str("\x1b[0m")
@@ -169,19 +189,85 @@ color_methods! {
     BrightWhite    bright_white    on_bright_white,
 }
 
+impl<'a, Fg: DynColor, T> FgDynColorDisplay<'a, Fg, T> {
+    /// Set the background color at runtime. Only use if you do not know what color to use at
+    /// compile-time. If the color is constant, use either [`OwoColorize::bg`](OwoColorize::bg) or
+    /// a color-specific method, such as [`OwoColorize::on_yellow`](OwoColorize::on_yellow),
+    ///
+    /// ```rust
+    /// use owo_colors::{OwoColorize, AnsiColors};
+    ///
+    /// println!("{}", "yellow background".on_color(AnsiColors::BrightYellow));
+    /// ```
+    pub fn on_color<Bg: DynColor>(self, bg: Bg) -> ComboDynColorDisplay<'a, Fg, Bg, T> {
+        let Self(inner, fg) = self;
+        ComboDynColorDisplay(inner, fg, bg)
+    }
+
+    /// Set the foreground color at runtime. Only use if you do not know which color will be used at
+    /// compile-time. If the color is constant, use either [`OwoColorize::fg`](OwoColorize::fg) or
+    /// a color-specific method, such as [`OwoColorize::green`](OwoColorize::green),
+    ///
+    /// ```rust
+    /// use owo_colors::{OwoColorize, AnsiColors};
+    ///
+    /// println!("{}", "green".color(AnsiColors::Green));
+    /// ```
+    pub fn color<NewFg: DynColor>(self, fg: NewFg) -> FgDynColorDisplay<'a, NewFg, T> {
+        let Self(inner, _) = self;
+        FgDynColorDisplay(inner, fg)
+    }
+}
+
+impl<'a, Bg: DynColor, T> BgDynColorDisplay<'a, Bg, T> {
+    /// Set the background color at runtime. Only use if you do not know what color to use at
+    /// compile-time. If the color is constant, use either [`OwoColorize::bg`](OwoColorize::bg) or
+    /// a color-specific method, such as [`OwoColorize::on_yellow`](OwoColorize::on_yellow),
+    ///
+    /// ```rust
+    /// use owo_colors::{OwoColorize, AnsiColors};
+    ///
+    /// println!("{}", "yellow background".on_color(AnsiColors::BrightYellow));
+    /// ```
+    pub fn on_color<NewBg: DynColor>(self, bg: NewBg) -> BgDynColorDisplay<'a, NewBg, T> {
+        let Self(inner, _) = self;
+        BgDynColorDisplay(inner, bg)
+    }
+
+    /// Set the foreground color at runtime. Only use if you do not know which color will be used at
+    /// compile-time. If the color is constant, use either [`OwoColorize::fg`](OwoColorize::fg) or
+    /// a color-specific method, such as [`OwoColorize::green`](OwoColorize::green),
+    ///
+    /// ```rust
+    /// use owo_colors::{OwoColorize, AnsiColors};
+    ///
+    /// println!("{}", "green".color(AnsiColors::Green));
+    /// ```
+    pub fn color<Fg: DynColor>(self, fg: Fg) -> ComboDynColorDisplay<'a, Fg, Bg, T> {
+        let Self(inner, bg) = self;
+        ComboDynColorDisplay(inner, fg, bg)
+    }
+}
+
 #[cfg(test)]
 mod tests {
-    use crate::OwoColorize;
+    use crate::{AnsiColors, OwoColorize};
 
     #[test]
     fn fg_bg_combo() {
         let test = "test".red().on_blue();
+        assert_eq!(test.to_string(), "\x1b[31;44mtest\x1b[0m");
+
+        let test = "test".color(AnsiColors::Red).on_color(AnsiColors::Blue);
         assert_eq!(test.to_string(), "\x1b[31;44mtest\x1b[0m");
     }
 
     #[test]
     fn bg_fg_combo() {
         let test = "test".on_blue().red();
+        assert_eq!(test.to_string(), "\x1b[31;44mtest\x1b[0m");
+
+        let test = "test".on_color(AnsiColors::Blue).color(AnsiColors::Red);
         assert_eq!(test.to_string(), "\x1b[31;44mtest\x1b[0m");
     }
 
