@@ -80,6 +80,12 @@ pub trait Color {
     const RAW_ANSI_BG: &'static str;
 
     #[doc(hidden)]
+    type DynEquivelant: DynColor;
+
+    #[doc(hidden)]
+    const DYN_EQUIVELANT: Self::DynEquivelant;
+
+    #[doc(hidden)]
     fn into_dyncolors() -> crate::DynColors;
 }
 

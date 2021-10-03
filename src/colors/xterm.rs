@@ -84,6 +84,12 @@ macro_rules! xterm_colors {
                 const RAW_ANSI_FG: &'static str = concat!("48;5;", stringify!($xterm_num));
 
                 #[doc(hidden)]
+                type DynEquivelant = dynamic::XtermColors;
+
+                #[doc(hidden)]
+                const DYN_EQUIVELANT: Self::DynEquivelant = dynamic::XtermColors::$name;
+
+                #[doc(hidden)]
                 fn into_dyncolors() -> crate::DynColors {
                     crate::DynColors::Xterm(dynamic::XtermColors::$name)
                 }
