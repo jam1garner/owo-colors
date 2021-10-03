@@ -88,6 +88,12 @@ macro_rules! colors {
                 const RAW_ANSI_BG: &'static str = stringify!($bg);
 
                 #[doc(hidden)]
+                type DynEquivelant = ansi_colors::AnsiColors;
+
+                #[doc(hidden)]
+                const DYN_EQUIVELANT: Self::DynEquivelant = ansi_colors::AnsiColors::$color;
+
+                #[doc(hidden)]
                 fn into_dyncolors() -> crate::DynColors {
                     crate::DynColors::Ansi(ansi_colors::AnsiColors::$color)
                 }

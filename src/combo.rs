@@ -69,6 +69,38 @@ macro_rules! color_methods {
         where
             Fg: Color,
         {
+            /// Set the foreground color at runtime. Only use if you do not know which color will be used at
+            /// compile-time. If the color is constant, use either [`OwoColorize::fg`](OwoColorize::fg) or
+            /// a color-specific method, such as [`OwoColorize::green`](OwoColorize::green),
+            ///
+            /// ```rust
+            /// use owo_colors::{OwoColorize, AnsiColors};
+            ///
+            /// println!("{}", "green".color(AnsiColors::Green));
+            /// ```
+            pub fn color<NewFg: DynColor>(
+                self,
+                fg: NewFg,
+            ) -> FgDynColorDisplay<'a, NewFg, T> {
+                FgDynColorDisplay(self.0, fg)
+            }
+
+            /// Set the background color at runtime. Only use if you do not know what color to use at
+            /// compile-time. If the color is constant, use either [`OwoColorize::bg`](OwoColorize::bg) or
+            /// a color-specific method, such as [`OwoColorize::on_yellow`](OwoColorize::on_yellow),
+            ///
+            /// ```rust
+            /// use owo_colors::{OwoColorize, AnsiColors};
+            ///
+            /// println!("{}", "yellow background".on_color(AnsiColors::BrightYellow));
+            /// ```
+            pub fn on_color<NewBg: DynColor>(
+                self,
+                bg: NewBg,
+            ) -> ComboDynColorDisplay<'a, Fg::DynEquivelant, NewBg, T> {
+                ComboDynColorDisplay(self.0, Fg::DYN_EQUIVELANT, bg)
+            }
+
             $(
                 #[$fg_meta]
                 #[inline(always)]
@@ -90,6 +122,38 @@ macro_rules! color_methods {
         where
             Bg: Color,
         {
+            /// Set the foreground color at runtime. Only use if you do not know which color will be used at
+            /// compile-time. If the color is constant, use either [`OwoColorize::fg`](OwoColorize::fg) or
+            /// a color-specific method, such as [`OwoColorize::green`](OwoColorize::green),
+            ///
+            /// ```rust
+            /// use owo_colors::{OwoColorize, AnsiColors};
+            ///
+            /// println!("{}", "green".color(AnsiColors::Green));
+            /// ```
+            pub fn color<NewFg: DynColor>(
+                self,
+                fg: NewFg,
+            ) -> ComboDynColorDisplay<'a, NewFg, Bg::DynEquivelant, T> {
+                ComboDynColorDisplay(self.0, fg, Bg::DYN_EQUIVELANT)
+            }
+
+            /// Set the background color at runtime. Only use if you do not know what color to use at
+            /// compile-time. If the color is constant, use either [`OwoColorize::bg`](OwoColorize::bg) or
+            /// a color-specific method, such as [`OwoColorize::on_yellow`](OwoColorize::on_yellow),
+            ///
+            /// ```rust
+            /// use owo_colors::{OwoColorize, AnsiColors};
+            ///
+            /// println!("{}", "yellow background".on_color(AnsiColors::BrightYellow));
+            /// ```
+            pub fn on_color<NewBg: DynColor>(
+                self,
+                bg: NewBg,
+            ) -> BgDynColorDisplay<'a, NewBg, T> {
+                BgDynColorDisplay(self.0, bg)
+            }
+
             $(
                 #[$bg_meta]
                 #[inline(always)]
@@ -112,6 +176,38 @@ macro_rules! color_methods {
             Fg: Color,
             Bg: Color,
         {
+            /// Set the background color at runtime. Only use if you do not know what color to use at
+            /// compile-time. If the color is constant, use either [`OwoColorize::bg`](OwoColorize::bg) or
+            /// a color-specific method, such as [`OwoColorize::on_yellow`](OwoColorize::on_yellow),
+            ///
+            /// ```rust
+            /// use owo_colors::{OwoColorize, AnsiColors};
+            ///
+            /// println!("{}", "yellow background".on_color(AnsiColors::BrightYellow));
+            /// ```
+            pub fn on_color<NewBg: DynColor>(
+                self,
+                bg: NewBg,
+            ) -> ComboDynColorDisplay<'a, Fg::DynEquivelant, NewBg, T> {
+                ComboDynColorDisplay(self.0, Fg::DYN_EQUIVELANT, bg)
+            }
+
+            /// Set the foreground color at runtime. Only use if you do not know which color will be used at
+            /// compile-time. If the color is constant, use either [`OwoColorize::fg`](OwoColorize::fg) or
+            /// a color-specific method, such as [`OwoColorize::green`](OwoColorize::green),
+            ///
+            /// ```rust
+            /// use owo_colors::{OwoColorize, AnsiColors};
+            ///
+            /// println!("{}", "green".color(AnsiColors::Green));
+            /// ```
+            pub fn color<NewFg: DynColor>(
+                self,
+                fg: NewFg,
+            ) -> ComboDynColorDisplay<'a, NewFg, Bg::DynEquivelant, T> {
+                ComboDynColorDisplay(self.0, fg, Bg::DYN_EQUIVELANT)
+            }
+
             $(
                 #[$bg_meta]
                 #[inline(always)]
@@ -124,7 +220,7 @@ macro_rules! color_methods {
                 pub fn $fg_method(self) -> ComboColorDisplay<'a, colors::$color, Bg, T> {
                     ComboColorDisplay(self.0, PhantomData)
                 }
-             )*
+            )*
         }
     };
 }
@@ -249,6 +345,36 @@ impl<'a, Bg: DynColor, T> BgDynColorDisplay<'a, Bg, T> {
     }
 }
 
+impl<'a, Fg: DynColor, Bg: DynColor, T> ComboDynColorDisplay<'a, Fg, Bg, T> {
+    /// Set the background color at runtime. Only use if you do not know what color to use at
+    /// compile-time. If the color is constant, use either [`OwoColorize::bg`](OwoColorize::bg) or
+    /// a color-specific method, such as [`OwoColorize::on_yellow`](OwoColorize::on_yellow),
+    ///
+    /// ```rust
+    /// use owo_colors::{OwoColorize, AnsiColors};
+    ///
+    /// println!("{}", "yellow background".on_color(AnsiColors::BrightYellow));
+    /// ```
+    pub fn on_color<NewBg: DynColor>(self, bg: NewBg) -> ComboDynColorDisplay<'a, Fg, NewBg, T> {
+        let Self(inner, fg, _) = self;
+        ComboDynColorDisplay(inner, fg, bg)
+    }
+
+    /// Set the foreground color at runtime. Only use if you do not know which color will be used at
+    /// compile-time. If the color is constant, use either [`OwoColorize::fg`](OwoColorize::fg) or
+    /// a color-specific method, such as [`OwoColorize::green`](OwoColorize::green),
+    ///
+    /// ```rust
+    /// use owo_colors::{OwoColorize, AnsiColors};
+    ///
+    /// println!("{}", "green".color(AnsiColors::Green));
+    /// ```
+    pub fn color<NewFg: DynColor>(self, fg: NewFg) -> ComboDynColorDisplay<'a, NewFg, Bg, T> {
+        let Self(inner, _, bg) = self;
+        ComboDynColorDisplay(inner, fg, bg)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use crate::{AnsiColors, OwoColorize};
@@ -292,6 +418,38 @@ mod tests {
             .green()
             .on_blue()
             .red();
+        assert_eq!(test.to_string(), "\x1b[31;44mtest\x1b[0m");
+
+        let test = "test"
+            .color(AnsiColors::Blue)
+            .color(AnsiColors::White)
+            .on_color(AnsiColors::Black)
+            .color(AnsiColors::Red)
+            .on_color(AnsiColors::Blue);
+        assert_eq!(test.to_string(), "\x1b[31;44mtest\x1b[0m");
+
+        let test = "test"
+            .on_yellow()
+            .on_red()
+            .on_color(AnsiColors::Black)
+            .color(AnsiColors::Red)
+            .on_color(AnsiColors::Blue);
+        assert_eq!(test.to_string(), "\x1b[31;44mtest\x1b[0m");
+
+        let test = "test"
+            .yellow()
+            .red()
+            .color(AnsiColors::Red)
+            .on_color(AnsiColors::Black)
+            .on_color(AnsiColors::Blue);
+        assert_eq!(test.to_string(), "\x1b[31;44mtest\x1b[0m");
+
+        let test = "test"
+            .yellow()
+            .red()
+            .on_color(AnsiColors::Black)
+            .color(AnsiColors::Red)
+            .on_color(AnsiColors::Blue);
         assert_eq!(test.to_string(), "\x1b[31;44mtest\x1b[0m");
     }
 }
