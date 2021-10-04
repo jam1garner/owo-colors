@@ -112,6 +112,7 @@ colors! {
     Magenta 35 45,
     Cyan    36 46,
     White   37 47,
+    Default   39 49,
 
     BrightBlack   90 100,
     BrightRed     91 101,
@@ -124,14 +125,23 @@ colors! {
 }
 
 macro_rules! impl_fmt_for {
-    ($(($ty:ident, $trait:path, $const:ident)),* $(,)?) => {
+    ($($trait:path),* $(,)?) => {
         $(
-            impl<'a, Color: crate::Color, T: $trait> $trait for $ty<'a, Color, T> {
+            impl<'a, Color: crate::Color, T: $trait> $trait for FgColorDisplay<'a, Color, T> {
                 #[inline(always)]
                 fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-                    f.write_str(Color::$const)?;
+                    f.write_str(Color::ANSI_FG)?;
                     <T as $trait>::fmt(&self.0, f)?;
-                    f.write_str("\x1b[0m")
+                    f.write_str("\x1b[39m")
+                }
+            }
+
+            impl<'a, Color: crate::Color, T: $trait> $trait for BgColorDisplay<'a, Color, T> {
+                #[inline(always)]
+                fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+                    f.write_str(Color::ANSI_BG)?;
+                    <T as $trait>::fmt(&self.0, f)?;
+                    f.write_str("\x1b[49m")
                 }
             }
         )*
@@ -139,27 +149,15 @@ macro_rules! impl_fmt_for {
 }
 
 impl_fmt_for! {
-    // Foreground
-    (FgColorDisplay, fmt::Display,  ANSI_FG),
-    (FgColorDisplay, fmt::Debug,    ANSI_FG),
-    (FgColorDisplay, fmt::UpperHex, ANSI_FG),
-    (FgColorDisplay, fmt::LowerHex, ANSI_FG),
-    (FgColorDisplay, fmt::Binary,   ANSI_FG),
-    (FgColorDisplay, fmt::UpperExp, ANSI_FG),
-    (FgColorDisplay, fmt::LowerExp, ANSI_FG),
-    (FgColorDisplay, fmt::Octal,    ANSI_FG),
-    (FgColorDisplay, fmt::Pointer,  ANSI_FG),
-
-    // Background
-    (BgColorDisplay, fmt::Display,  ANSI_BG),
-    (BgColorDisplay, fmt::Debug,    ANSI_BG),
-    (BgColorDisplay, fmt::UpperHex, ANSI_BG),
-    (BgColorDisplay, fmt::LowerHex, ANSI_BG),
-    (BgColorDisplay, fmt::Binary,   ANSI_BG),
-    (BgColorDisplay, fmt::UpperExp, ANSI_BG),
-    (BgColorDisplay, fmt::LowerExp, ANSI_BG),
-    (BgColorDisplay, fmt::Octal,    ANSI_BG),
-    (BgColorDisplay, fmt::Pointer,  ANSI_BG),
+    fmt::Display,
+    fmt::Debug,
+    fmt::UpperHex,
+    fmt::LowerHex,
+    fmt::Binary,
+    fmt::UpperExp,
+    fmt::LowerExp,
+    fmt::Octal,
+    fmt::Pointer,
 }
 
 macro_rules! impl_fmt_for_dyn {
