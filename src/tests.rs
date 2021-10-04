@@ -19,6 +19,30 @@ fn test_bg() {
 }
 
 #[test]
+fn test_dyn_fg() {
+    assert_eq!(
+        "test".color(AnsiColors::Black).to_string(),
+        "\x1b[30mtest\x1b[39m"
+    );
+    assert_eq!(
+        "blah blah".color(AnsiColors::Red).to_string(),
+        "\x1b[31mblah blah\x1b[39m"
+    );
+}
+
+#[test]
+fn test_dyn_bg() {
+    assert_eq!(
+        "test".on_color(AnsiColors::Black).to_string(),
+        "\x1b[40mtest\x1b[49m"
+    );
+    assert_eq!(
+        "blah blah".on_color(AnsiColors::Red).to_string(),
+        "\x1b[41mblah blah\x1b[49m"
+    );
+}
+
+#[test]
 fn test_hex() {
     assert_eq!(format!("{:08X}", 0xa.red()), "\x1b[31m0000000A\x1b[39m");
 }
