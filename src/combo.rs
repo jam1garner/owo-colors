@@ -101,6 +101,28 @@ macro_rules! color_methods {
                 ComboDynColorDisplay(self.0, Fg::DYN_EQUIVELANT, bg)
             }
 
+            /// Set the foreground color generically
+            ///
+            /// ```rust
+            /// use owo_colors::{OwoColorize, colors::*};
+            ///
+            /// println!("{}", "red foreground".fg::<Red>());
+            /// ```
+            pub fn fg<C: Color>(self) -> FgColorDisplay<'a, C, T> {
+                FgColorDisplay(self.0, PhantomData)
+            }
+
+            /// Set the background color generically.
+            ///
+            /// ```rust
+            /// use owo_colors::{OwoColorize, colors::*};
+            ///
+            /// println!("{}", "black background".bg::<Black>());
+            /// ```
+            pub fn bg<C: Color>(self) -> ComboColorDisplay<'a, Fg, C, T> {
+                ComboColorDisplay(self.0, PhantomData)
+            }
+
             $(
                 #[$fg_meta]
                 #[inline(always)]
@@ -152,6 +174,28 @@ macro_rules! color_methods {
                 bg: NewBg,
             ) -> BgDynColorDisplay<'a, NewBg, T> {
                 BgDynColorDisplay(self.0, bg)
+            }
+
+            /// Set the foreground color generically
+            ///
+            /// ```rust
+            /// use owo_colors::{OwoColorize, colors::*};
+            ///
+            /// println!("{}", "red foreground".fg::<Red>());
+            /// ```
+            pub fn fg<C: Color>(self) -> ComboColorDisplay<'a, C, Bg, T> {
+                ComboColorDisplay(self.0, PhantomData)
+            }
+
+            /// Set the background color generically.
+            ///
+            /// ```rust
+            /// use owo_colors::{OwoColorize, colors::*};
+            ///
+            /// println!("{}", "black background".bg::<Black>());
+            /// ```
+            pub fn bg<C: Color>(self) -> BgColorDisplay<'a, C, T> {
+                BgColorDisplay(self.0, PhantomData)
             }
 
             $(
@@ -206,6 +250,28 @@ macro_rules! color_methods {
                 fg: NewFg,
             ) -> ComboDynColorDisplay<'a, NewFg, Bg::DynEquivelant, T> {
                 ComboDynColorDisplay(self.0, fg, Bg::DYN_EQUIVELANT)
+            }
+
+            /// Set the foreground color generically
+            ///
+            /// ```rust
+            /// use owo_colors::{OwoColorize, colors::*};
+            ///
+            /// println!("{}", "red foreground".fg::<Red>());
+            /// ```
+            pub fn fg<C: Color>(self) -> ComboColorDisplay<'a, C, Bg, T> {
+                ComboColorDisplay(self.0, PhantomData)
+            }
+
+            /// Set the background color generically.
+            ///
+            /// ```rust
+            /// use owo_colors::{OwoColorize, colors::*};
+            ///
+            /// println!("{}", "black background".bg::<Black>());
+            /// ```
+            pub fn bg<C: Color>(self) -> ComboColorDisplay<'a, Fg, C, T> {
+                ComboColorDisplay(self.0, PhantomData)
             }
 
             $(
@@ -377,14 +443,11 @@ impl<'a, Fg: DynColor, Bg: DynColor, T> ComboDynColorDisplay<'a, Fg, Bg, T> {
 
 #[cfg(test)]
 mod tests {
-    use crate::{AnsiColors, OwoColorize};
+    use crate::{colors::*, AnsiColors, OwoColorize};
 
     #[test]
     fn fg_bg_combo() {
         let test = "test".red().on_blue();
-        assert_eq!(test.to_string(), "\x1b[31;44mtest\x1b[0m");
-
-        let test = "test".color(AnsiColors::Red).on_color(AnsiColors::Blue);
         assert_eq!(test.to_string(), "\x1b[31;44mtest\x1b[0m");
     }
 
@@ -392,7 +455,16 @@ mod tests {
     fn bg_fg_combo() {
         let test = "test".on_blue().red();
         assert_eq!(test.to_string(), "\x1b[31;44mtest\x1b[0m");
+    }
 
+    #[test]
+    fn fg_bg_dyn_combo() {
+        let test = "test".color(AnsiColors::Red).on_color(AnsiColors::Blue);
+        assert_eq!(test.to_string(), "\x1b[31;44mtest\x1b[0m");
+    }
+
+    #[test]
+    fn bg_fg_dyn_combo() {
         let test = "test".on_color(AnsiColors::Blue).color(AnsiColors::Red);
         assert_eq!(test.to_string(), "\x1b[31;44mtest\x1b[0m");
     }
@@ -450,6 +522,32 @@ mod tests {
             .on_color(AnsiColors::Black)
             .color(AnsiColors::Red)
             .on_color(AnsiColors::Blue);
+        assert_eq!(test.to_string(), "\x1b[31;44mtest\x1b[0m");
+    }
+
+    #[test]
+    fn generic_multiple_override() {
+        use crate::colors::*;
+
+        let test = "test"
+            .bg::<Green>()
+            .bg::<Yellow>()
+            .bg::<Red>()
+            .fg::<Green>()
+            .bg::<Blue>()
+            .fg::<Red>();
+        assert_eq!(test.to_string(), "\x1b[31;44mtest\x1b[0m");
+    }
+
+    #[test]
+    fn fg_bg_combo_generic() {
+        let test = "test".fg::<Red>().bg::<Blue>();
+        assert_eq!(test.to_string(), "\x1b[31;44mtest\x1b[0m");
+    }
+
+    #[test]
+    fn bg_fg_combo_generic() {
+        let test = "test".bg::<Blue>().fg::<Red>();
         assert_eq!(test.to_string(), "\x1b[31;44mtest\x1b[0m");
     }
 }
