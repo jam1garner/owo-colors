@@ -161,14 +161,23 @@ impl_fmt_for! {
 }
 
 macro_rules! impl_fmt_for_dyn {
-    ($(($ty:ident, $trait:path, $fmt:ident)),* $(,)?) => {
+    ($($trait:path),* $(,)?) => {
         $(
-            impl<'a, Color: crate::DynColor, T: $trait> $trait for $ty<'a, Color, T> {
+            impl<'a, Color: crate::DynColor, T: $trait> $trait for FgDynColorDisplay<'a, Color, T> {
                 #[inline(always)]
                 fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-                    (self.1).$fmt(f)?;
+                    (self.1).fmt_ansi_fg(f)?;
                     <T as $trait>::fmt(&self.0, f)?;
-                    f.write_str("\x1b[0m")
+                    f.write_str("\x1b[39m")
+                }
+            }
+
+            impl<'a, Color: crate::DynColor, T: $trait> $trait for BgDynColorDisplay<'a, Color, T> {
+                #[inline(always)]
+                fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+                    (self.1).fmt_ansi_bg(f)?;
+                    <T as $trait>::fmt(&self.0, f)?;
+                    f.write_str("\x1b[49m")
                 }
             }
         )*
@@ -176,27 +185,15 @@ macro_rules! impl_fmt_for_dyn {
 }
 
 impl_fmt_for_dyn! {
-    // Foreground
-    (FgDynColorDisplay, fmt::Display,  fmt_ansi_fg),
-    (FgDynColorDisplay, fmt::Debug,    fmt_ansi_fg),
-    (FgDynColorDisplay, fmt::UpperHex, fmt_ansi_fg),
-    (FgDynColorDisplay, fmt::LowerHex, fmt_ansi_fg),
-    (FgDynColorDisplay, fmt::Binary,   fmt_ansi_fg),
-    (FgDynColorDisplay, fmt::UpperExp, fmt_ansi_fg),
-    (FgDynColorDisplay, fmt::LowerExp, fmt_ansi_fg),
-    (FgDynColorDisplay, fmt::Octal,    fmt_ansi_fg),
-    (FgDynColorDisplay, fmt::Pointer,  fmt_ansi_fg),
-
-    // Background
-    (BgDynColorDisplay, fmt::Display,  fmt_ansi_bg),
-    (BgDynColorDisplay, fmt::Debug,    fmt_ansi_bg),
-    (BgDynColorDisplay, fmt::UpperHex, fmt_ansi_bg),
-    (BgDynColorDisplay, fmt::LowerHex, fmt_ansi_bg),
-    (BgDynColorDisplay, fmt::Binary,   fmt_ansi_bg),
-    (BgDynColorDisplay, fmt::UpperExp, fmt_ansi_bg),
-    (BgDynColorDisplay, fmt::LowerExp, fmt_ansi_bg),
-    (BgDynColorDisplay, fmt::Octal,    fmt_ansi_bg),
-    (BgDynColorDisplay, fmt::Pointer,  fmt_ansi_bg),
+    fmt::Display,
+    fmt::Debug,
+    fmt::UpperHex,
+    fmt::LowerHex,
+    fmt::Binary,
+    fmt::UpperExp,
+    fmt::LowerExp,
+    fmt::Octal,
+    fmt::Pointer,
 }
 
 /// CSS named colors. Not as widely supported as standard ANSI as it relies on 48bit color support.
