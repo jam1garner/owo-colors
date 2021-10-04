@@ -1,6 +1,7 @@
 use core::fmt;
 
-/// A display which applies a transformation based on if the given stream is a tty
+/// A display wrapper which applies a transformation based on if the given stream supports
+/// colored terminal output
 pub struct SupportsColorsDisplay<'a, InVal, Out, ApplyFn>(
     pub(crate) &'a InVal,
     pub(crate) ApplyFn,
