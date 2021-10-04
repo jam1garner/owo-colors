@@ -215,9 +215,8 @@ const _: () = (); // workaround for syntax highlighting bug
 ///
 /// **Do you want it to only display colors if it's a terminal?**
 ///
-/// 1. Enable the `tty` feature
-/// 2. Colorize inside [`if_stdout_tty`](OwoColorize::if_stdout_tty) or
-/// [`if_stdout_tty`](OwoColorize::if_stderr_tty)
+/// 1. Enable the `supports-colors` feature
+/// 2. Colorize inside [`if_supports_color`](OwoColorize::if_supports_color)///
 ///
 pub trait OwoColorize: Sized {
     /// Set the foreground color generically
@@ -382,79 +381,6 @@ pub trait OwoColorize: Sized {
         style.style(self)
     }
 
-    /// Apply a given transformation function to all formatters if stdout is a tty console
-    /// allowing you to conditionally apply given styles/colors.
-    ///
-    /// Requires the `tty` feature.
-    ///
-    /// ```rust
-    /// use owo_colors::{OwoColorize, Style};
-    ///
-    /// fn main() {
-    ///     println!(
-    ///         "{}",
-    ///         "bright cyan if this is terminal output"
-    ///             .if_stdout_tty(|text| text.bright_cyan())
-    ///     );
-    ///
-    ///     // applying multiple at both
-    ///     println!(
-    ///         "{}",
-    ///         "bright cyan AND underlined(?!) if this is terminal output"
-    ///             .if_stdout_tty(|text| text.style(
-    ///                 Style::new()
-    ///                     .bright_cyan()
-    ///                     .underline()
-    ///             ))
-    ///     );
-    /// }
-    /// ```
-    #[deprecated(
-        since = "2.1.0",
-        note = "if_stdout_tty is superseded by if_supports_color"
-    )]
-    #[cfg(feature = "tty")]
-    fn if_stdout_tty<'a, Out, ApplyFn>(
-        &'a self,
-        apply: ApplyFn,
-    ) -> TtyDisplay<'a, StdOut, Self, Out, ApplyFn>
-    where
-        ApplyFn: Fn(&'a Self) -> Out,
-    {
-        TtyDisplay(self, apply, StdOut)
-    }
-
-    /// Apply a given transformation function to all formatters if stderr is a tty console
-    /// allowing you to conditionally apply given styles/colors.
-    ///
-    /// Requires the `tty` feature.
-    ///
-    /// ```rust
-    /// use owo_colors::OwoColorize;
-    ///
-    /// fn main() {
-    ///     eprintln!(
-    ///         "{}",
-    ///         "woah! error! if this is terminal output, it's red"
-    ///             .if_stderr_tty(|text| text.bright_red())
-    ///     );
-    /// }
-    /// ```
-    #[deprecated(
-        since = "2.1.0",
-        note = "if_stderr_tty is superseded by if_supports_color"
-    )]
-    #[cfg(feature = "tty")]
-    fn if_stderr_tty<'a, Out, ApplyFn>(
-        &'a self,
-        apply: ApplyFn,
-    ) -> TtyDisplay<'a, StdErr, Self, Out, ApplyFn>
-    where
-        ApplyFn: Fn(&'a Self) -> Out,
-    {
-        TtyDisplay(self, apply, StdErr)
-    }
-
     /// Apply a given transformation function to all formatters if the given stream
     /// supports at least basic ANSI colors, allowing you to conditionally apply
     /// given styles/colors.
@@ -497,15 +423,6 @@ pub use colors::{
 impl<D: Sized> OwoColorize for D {}
 
 pub use {combo::ComboColorDisplay, dyn_colors::*, dyn_styles::*};
-
-#[cfg(feature = "tty")]
-mod tty_display;
-
-#[cfg(feature = "tty")]
-pub use tty_display::TtyDisplay;
-
-#[cfg(feature = "tty")]
-use tty_display::{StdErr, StdOut};
 
 /// Module for drop-in [`colored`](https://docs.rs/colored) support to aid in porting code from
 /// [`colored`](https://docs.rs/colored) to owo-colors.
