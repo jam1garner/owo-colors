@@ -1,5 +1,5 @@
 //! This crate provides [`OwoColorize`](OwoColorize), an extension trait for colorizing a
-//! formatter.
+//! given type.
 //!
 //! ## Example
 //!
@@ -51,6 +51,23 @@
 //! Supports `NO_COLOR`/`FORCE_COLOR` environment variables, checks if it's a tty, checks
 //! if it's running in CI (and thus likely supports color), and checks which terminal is being
 //! used. (Note: requires `supports-colors` feature)
+//!
+//! ## Style Objects
+//!
+//! owo-colors also features the ability to create a [`Style`] object and use it to
+//! apply the same set of colors/effects to any number of things to display.
+//!
+//! ```rust
+//! use owo_colors::{OwoColorize, Style};
+//!
+//! let my_style = Style::new()
+//!     .red()
+//!     .on_white()
+//!     .strikethrough();
+//!
+//! let text = "red text, white background, struck through";
+//! println!("{}", text.style(my_style));
+//! ```
 #![cfg_attr(not(test), no_std)]
 #![doc(html_logo_url = "https://jam1.re/img/rust_owo.svg")]
 #![warn(missing_docs)]
@@ -219,6 +236,10 @@ const _: () = (); // workaround for syntax highlighting bug
 ///
 /// 1. Enable the `supports-colors` feature
 /// 2. Colorize inside [`if_supports_color`](OwoColorize::if_supports_color)///
+///
+/// **Do you need to store a set of colors/effects to apply to multiple things?**
+///
+/// Use [`style`](OwoColorize::style) to apply a [`Style`]
 ///
 pub trait OwoColorize: Sized {
     /// Set the foreground color generically
