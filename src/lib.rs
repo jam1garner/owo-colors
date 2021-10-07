@@ -37,6 +37,7 @@
 //! ## Only Style on Supported Terminals
 //!
 //! ```rust
+//! # #[cfg(feature = "supports-color")] {
 //! use owo_colors::{OwoColorize, Stream::Stdout};
 //!
 //! println!(
@@ -44,6 +45,7 @@
 //!     "colored blue if a supported terminal"
 //!         .if_supports_color(Stdout, |text| text.bright_blue())
 //! );
+//! # }
 //! ```
 //!
 //! Supports `NO_COLOR`/`FORCE_COLOR` environment variables, checks if it's a tty, checks
@@ -271,6 +273,10 @@ pub trait OwoColorize: Sized {
         /// Change the foreground color to white
         /// Change the background color to white
         White    white    on_white,
+
+        /// Change the foreground color to the terminal default
+        /// Change the background color to the terminal default
+        Default default_color on_default_color,
 
         /// Change the foreground color to bright black
         /// Change the background color to bright black

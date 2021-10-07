@@ -71,3 +71,13 @@ fn test_parse() {
         "#eb4034" == DynColors::Rgb(235, 64, 52),
     );
 }
+
+#[test]
+fn default_color() {
+    assert_eq!(
+        format_args!("red red red {} no color", "default color".default_color())
+            .red()
+            .to_string(),
+        "\x1b[31mred red red \x1b[39mdefault color\x1b[39m no color\x1b[39m"
+    );
+}
