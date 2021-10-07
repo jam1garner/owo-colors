@@ -21,7 +21,6 @@ A zero-allocation no_std-compatible zero-cost way to add color to your Rust term
     * [x] Enabled for CI
     * [x] Disabled by default for non-terminal outputs
     * [x] Overridable by `NO_COLOR`/`FORCE_COLOR` environment variables
-    * [x] 
 * [x] Dependency-less by default
 * [x] Hand picked names for all ANSI (4-bit) and Xterm (8-bit) colors
 * [x] Support for RGB colors
@@ -36,7 +35,7 @@ owo-colors is also more-or-less a drop-in replacement for [colored](https://crat
 
 To add to your Cargo.toml:
 ```toml
-owo-colors = "2"
+owo-colors = "3.0.0-beta.2"
 ```
 
 ## Example
