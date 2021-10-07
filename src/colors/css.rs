@@ -6,6 +6,9 @@ macro_rules! css_color_types {
         use core::fmt;
 
         pub(crate) mod dynamic {
+            #[cfg(doc)]
+            use crate::OwoColorize;
+
             /// Available CSS colors for use with [`OwoColorize::color`](OwoColorize::color)
             /// or [`OwoColorize::on_color`](OwoColorize::on_color)
             #[allow(missing_docs)]
