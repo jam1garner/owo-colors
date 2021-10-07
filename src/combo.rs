@@ -4,6 +4,9 @@ use crate::{BgColorDisplay, Color, FgColorDisplay};
 use core::fmt;
 use core::marker::PhantomData;
 
+#[cfg(doc)]
+use crate::OwoColorize;
+
 /// A wrapper type which applies both a foreground and background color
 pub struct ComboColorDisplay<'a, Fg: Color, Bg: Color, T>(&'a T, PhantomData<(Fg, Bg)>);
 
