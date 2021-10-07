@@ -59,7 +59,20 @@ pub struct Styled<T> {
     style: Style,
 }
 
-/// A pre-computed style that can be applied to a struct using [`OwoColorize::style`]
+/// A pre-computed style that can be applied to a struct using [`OwoColorize::style`]. Its
+/// interface mimicks that of [`OwoColorize`], but instead of chaining methods on your
+/// object, you instead chain them on the `Style` object before applying it.
+///
+/// ```rust
+/// use owo_colors::{OwoColorize, Style};
+///
+/// let my_style = Style::new()
+///     .red()
+///     .on_white()
+///     .strikethrough();
+///
+/// println!("{}", "red text, white background, struck through".style(my_style));
+/// ```
 #[derive(Debug, Default, Copy, Clone)]
 pub struct Style {
     fg: Option<DynColors>,
