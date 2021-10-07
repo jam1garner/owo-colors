@@ -53,7 +53,7 @@ macro_rules! style_methods {
 
 const _: () = (); // workaround for syntax highlighting bug
 
-/// A struct with a [`Style`] applied to it
+/// A wrapper type which applies a [`Style`] when displaying the inner type
 pub struct Styled<T> {
     target: T,
     style: Style,
@@ -113,6 +113,26 @@ impl Style {
         self
     }
 
+    /// Removes the foreground color from the style. Note that this does not apply
+    /// the default color, but rather represents not changing the current terminal color.
+    ///
+    /// If you wish to actively change the terminal color back to the default, see
+    /// [`Style::default_color`].
+    pub fn remove_fg(mut self) -> Self {
+        self.fg = None;
+        self
+    }
+
+    /// Removes the background color from the style. Note that this does not apply
+    /// the default color, but rather represents not changing the current terminal color.
+    ///
+    /// If you wish to actively change the terminal color back to the default, see
+    /// [`Style::on_default_color`].
+    pub fn remove_bg(mut self) -> Self {
+        self.bg = None;
+        self
+    }
+
     color_methods! {
         /// Change the foreground color to black
         /// Change the background color to black
@@ -141,6 +161,10 @@ impl Style {
         /// Change the foreground color to white
         /// Change the background color to white
         White    white    on_white,
+
+        /// Change the foreground color to the terminal default
+        /// Change the background color to the terminal default
+        Default default_color on_default_color,
 
         /// Change the foreground color to bright black
         /// Change the background color to bright black
