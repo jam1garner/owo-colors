@@ -35,7 +35,7 @@ owo-colors is also more-or-less a drop-in replacement for [colored](https://crat
 
 To add to your Cargo.toml:
 ```toml
-owo-colors = "3.0.0-beta.2"
+owo-colors = "3.0.0"
 ```
 
 ## Example
