@@ -1,5 +1,6 @@
 use core::fmt;
 
+#[cfg(feature = "supports-colors")]
 /// A display wrapper which applies a transformation based on if the given stream supports
 /// colored terminal output
 pub struct SupportsColorsDisplay<'a, InVal, Out, ApplyFn>(
@@ -11,6 +12,8 @@ where
     InVal: ?Sized,
     ApplyFn: Fn(&'a InVal) -> Out;
 
+use crate::OVERRIDE;
+
 macro_rules! impl_fmt_for {
     ($($trait:path),* $(,)?) => {
         $(
@@ -21,7 +24,13 @@ macro_rules! impl_fmt_for {
             {
                 #[inline(always)]
                 fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-                    if supports_color::on_cached(self.2).map(|level| level.has_basic).unwrap_or(false) {
+                    let (force_enabled, force_disabled) = OVERRIDE.is_force_enabled_or_disabled();
+                    if force_enabled || (
+                        supports_color::on_cached(self.2)
+                            .map(|level| level.has_basic)
+                            .unwrap_or(false)
+                        && !force_disabled
+                    ) {
                         <Out as $trait>::fmt(&self.1(self.0), f)
                     } else {
                         <In as $trait>::fmt(self.0, f)
