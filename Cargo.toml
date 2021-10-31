@@ -18,6 +18,10 @@ all-features = true
 name = "supports_color"
 required-features = ["supports-colors"]
 
+[[example]]
+name = "override"
+required-features = ["supports-colors"]
+
 [features]
 supports-colors = ["supports-color"]
 
