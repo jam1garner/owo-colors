@@ -480,6 +480,12 @@ pub use {combo::ComboColorDisplay, dyn_colors::*, dyn_styles::*};
 pub mod colored {
     pub use crate::AnsiColors as Color;
     pub use crate::OwoColorize;
+
+    /// A couple of functions to enable and disable coloring similarly to `colored`
+    #[cfg(feature = "supports-colors")]
+    pub mod control {
+        pub use crate::{set_override, unset_override};
+    }
 }
 
 #[cfg(test)]
