@@ -69,7 +69,7 @@
 //! println!("{}", text.style(my_style));
 //! ```
 #![cfg_attr(not(test), no_std)]
-#![cfg_attr(doc, feature(doc_cfg))]
+#![cfg_attr(all(doc, not(doctest)), feature(doc_cfg))]
 #![doc(html_logo_url = "https://jam1.re/img/rust_owo.svg")]
 #![warn(missing_docs)]
 
