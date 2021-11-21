@@ -2,6 +2,7 @@
 [![Current Crates.io Version](https://img.shields.io/crates/v/owo-colors.svg)](https://crates.io/crates/owo-colors)
 [![docs-rs](https://docs.rs/owo-colors/badge.svg)](https://docs.rs/owo-colors)
 ![MSRV 1.51+](https://img.shields.io/badge/rustc-1.51+-blue.svg)
+![Downloads](https://img.shields.io/crates/d/owo-colors)
 
 A zero-allocation no_std-compatible zero-cost way to add color to your Rust terminal to make people go owo.
 
@@ -21,6 +22,7 @@ A zero-allocation no_std-compatible zero-cost way to add color to your Rust term
     * [x] Enabled for CI
     * [x] Disabled by default for non-terminal outputs
     * [x] Overridable by `NO_COLOR`/`FORCE_COLOR` environment variables
+    * [x] Overridable programatically via [`set_override`](https://docs.rs/owo-colors/3.1.0/owo_colors/fn.set_override.html)
 * [x] Dependency-less by default
 * [x] Hand picked names for all ANSI (4-bit) and Xterm (8-bit) colors
 * [x] Support for RGB colors
@@ -35,7 +37,7 @@ owo-colors is also more-or-less a drop-in replacement for [colored](https://crat
 
 To add to your Cargo.toml:
 ```toml
-owo-colors = "3.0.0"
+owo-colors = "3"
 ```
 
 ## Example
