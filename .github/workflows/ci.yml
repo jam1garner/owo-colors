@@ -1,6 +1,9 @@
 name: Continuous Integration
 
 on:
+  push:
+    branches:
+      - master
   pull_request:
     branches:
       - master
@@ -76,4 +79,4 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: test
-          args: --all-features
+          args: --all-features --example all_xterm_colors --example colors --example dyn_colors --example override --example custom_colors --example extra_colors --example supports_color
