@@ -70,6 +70,26 @@ macro_rules! xterm_colors {
                     crate::DynColors::Xterm(*self)
                 }
             }
+
+            impl From<u8> for XtermColors {
+                fn from(x: u8) -> Self {
+                    match x {
+                        $(
+                            $xterm_num => XtermColors::$name,
+                        )*
+                    }
+                }
+            }
+
+            impl Into<u8> for XtermColors {
+                fn into(self) -> u8 {
+                    match self {
+                        $(
+                            XtermColors::$name => $xterm_num,
+                        )*
+                    }
+                }
+            }
         }
 
         $(
