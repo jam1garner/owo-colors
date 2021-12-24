@@ -164,6 +164,7 @@ macro_rules! style_methods {
     ($(#[$meta:meta] $name:ident $ty:ident),* $(,)?) => {
         $(
             #[$meta]
+            #[must_use]
             #[inline(always)]
             fn $name<'a>(&'a self) -> styles::$ty<'a, Self> {
                 styles::$ty(self)
@@ -180,12 +181,14 @@ macro_rules! color_methods {
     ),* $(,)?) => {
         $(
             #[$fg_meta]
+            #[must_use]
             #[inline(always)]
             fn $fg_method<'a>(&'a self) -> FgColorDisplay<'a, colors::$color, Self> {
                 FgColorDisplay(self, PhantomData)
             }
 
             #[$bg_meta]
+            #[must_use]
             #[inline(always)]
             fn $bg_method<'a>(&'a self) -> BgColorDisplay<'a, colors::$color, Self> {
                 BgColorDisplay(self, PhantomData)
@@ -256,6 +259,7 @@ pub trait OwoColorize: Sized {
     ///
     /// println!("{}", "red foreground".fg::<Red>());
     /// ```
+    #[must_use]
     #[inline(always)]
     fn fg<C: Color>(&self) -> FgColorDisplay<'_, C, Self> {
         FgColorDisplay(self, PhantomData)
@@ -268,6 +272,7 @@ pub trait OwoColorize: Sized {
     ///
     /// println!("{}", "black background".bg::<Black>());
     /// ```
+    #[must_use]
     #[inline(always)]
     fn bg<C: Color>(&self) -> BgColorDisplay<'_, C, Self> {
         BgColorDisplay(self, PhantomData)
@@ -365,6 +370,7 @@ pub trait OwoColorize: Sized {
     ///
     /// println!("{}", "green".color(AnsiColors::Green));
     /// ```
+    #[must_use]
     #[inline(always)]
     fn color<Color: DynColor>(&self, color: Color) -> FgDynColorDisplay<'_, Color, Self> {
         FgDynColorDisplay(self, color)
@@ -379,12 +385,14 @@ pub trait OwoColorize: Sized {
     ///
     /// println!("{}", "yellow background".on_color(AnsiColors::BrightYellow));
     /// ```
+    #[must_use]
     #[inline(always)]
     fn on_color<Color: DynColor>(&self, color: Color) -> BgDynColorDisplay<'_, Color, Self> {
         BgDynColorDisplay(self, color)
     }
 
     /// Set the foreground color to a specific RGB value.
+    #[must_use]
     fn fg_rgb<const R: u8, const G: u8, const B: u8>(
         &self,
     ) -> FgColorDisplay<'_, colors::CustomColor<R, G, B>, Self> {
@@ -392,6 +400,7 @@ pub trait OwoColorize: Sized {
     }
 
     /// Set the background color to a specific RGB value.
+    #[must_use]
     fn bg_rgb<const R: u8, const G: u8, const B: u8>(
         &self,
     ) -> BgColorDisplay<'_, colors::CustomColor<R, G, B>, Self> {
@@ -399,18 +408,21 @@ pub trait OwoColorize: Sized {
     }
 
     /// Sets the foreground color to an RGB value.
+    #[must_use]
     #[inline(always)]
     fn truecolor(&self, r: u8, g: u8, b: u8) -> FgDynColorDisplay<'_, Rgb, Self> {
         FgDynColorDisplay(self, Rgb(r, g, b))
     }
 
     /// Sets the background color to an RGB value.
+    #[must_use]
     #[inline(always)]
     fn on_truecolor(&self, r: u8, g: u8, b: u8) -> BgDynColorDisplay<'_, Rgb, Self> {
         BgDynColorDisplay(self, Rgb(r, g, b))
     }
 
     /// Apply a runtime-determined style
+    #[must_use]
     fn style(&self, style: Style) -> Styled<&Self> {
         style.style(self)
     }
@@ -430,6 +442,7 @@ pub trait OwoColorize: Sized {
     ///         .if_supports_color(Stream::Stdout, |text| text.bright_blue())
     /// );
     /// ```
+    #[must_use]
     #[cfg(feature = "supports-colors")]
     fn if_supports_color<'a, Out, ApplyFn>(
         &'a self,
