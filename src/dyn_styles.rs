@@ -25,12 +25,14 @@ macro_rules! color_methods {
     ),* $(,)?) => {
         $(
             #[$fg_meta]
+            #[must_use]
             pub fn $fg_method(mut self) -> Self {
                 self.fg = Some(DynColors::Ansi(AnsiColors::$color));
                 self
             }
 
             #[$fg_meta]
+            #[must_use]
             pub fn $bg_method(mut self) -> Self {
                 self.bg = Some(DynColors::Ansi(AnsiColors::$color));
                 self
@@ -43,6 +45,7 @@ macro_rules! style_methods {
     ($(#[$meta:meta] $name:ident),* $(,)?) => {
         $(
             #[$meta]
+            #[must_use]
             pub fn $name(mut self) -> Self {
                 self.$name = true;
                 self
@@ -90,6 +93,7 @@ pub struct Style {
 
 impl Style {
     /// Create a new style to be applied later
+    #[must_use]
     pub fn new() -> Self {
         Self::default()
     }
@@ -109,6 +113,7 @@ impl Style {
     ///
     /// println!("{}", "red foreground".fg::<Red>());
     /// ```
+    #[must_use]
     pub fn fg<C: Color>(mut self) -> Self {
         self.fg = Some(C::into_dyncolors());
         self
@@ -121,6 +126,7 @@ impl Style {
     ///
     /// println!("{}", "black background".bg::<Black>());
     /// ```
+    #[must_use]
     pub fn bg<C: Color>(mut self) -> Self {
         self.bg = Some(C::into_dyncolors());
         self
@@ -131,6 +137,7 @@ impl Style {
     ///
     /// If you wish to actively change the terminal color back to the default, see
     /// [`Style::default_color`].
+    #[must_use]
     pub fn remove_fg(mut self) -> Self {
         self.fg = None;
         self
@@ -141,6 +148,7 @@ impl Style {
     ///
     /// If you wish to actively change the terminal color back to the default, see
     /// [`Style::on_default_color`].
+    #[must_use]
     pub fn remove_bg(mut self) -> Self {
         self.bg = None;
         self
@@ -251,30 +259,35 @@ impl Style {
     }
 
     /// Apply a given effect from the style
+    #[must_use]
     pub fn effect(mut self, effect: Effect) -> Self {
         self.set_effect(effect, true);
         self
     }
 
     /// Remove a given effect from the style
+    #[must_use]
     pub fn remove_effect(mut self, effect: Effect) -> Self {
         self.set_effect(effect, false);
         self
     }
 
     /// Apply a given set of effects to the style
+    #[must_use]
     pub fn effects(mut self, effects: &[Effect]) -> Self {
         self.set_effects(effects, true);
         self
     }
 
     /// Remove a given set of effects from the style
+    #[must_use]
     pub fn remove_effects(mut self, effects: &[Effect]) -> Self {
         self.set_effects(effects, false);
         self
     }
 
     /// Disables all the given effects from the style
+    #[must_use]
     pub fn remove_all_effects(mut self) -> Self {
         self.bold = false;
         self.dimmed = false;
@@ -297,6 +310,7 @@ impl Style {
     ///
     /// println!("{}", "green".color(AnsiColors::Green));
     /// ```
+    #[must_use]
     pub fn color<Color: DynColor>(mut self, color: Color) -> Self {
         self.fg = Some(color.get_dyncolors_fg());
         self
@@ -311,12 +325,14 @@ impl Style {
     ///
     /// println!("{}", "yellow background".on_color(AnsiColors::BrightYellow));
     /// ```
+    #[must_use]
     pub fn on_color<Color: DynColor>(mut self, color: Color) -> Self {
         self.bg = Some(color.get_dyncolors_bg());
         self
     }
 
     /// Set the foreground color to a specific RGB value.
+    #[must_use]
     pub fn fg_rgb<const R: u8, const G: u8, const B: u8>(mut self) -> Self {
         self.fg = Some(DynColors::Rgb(R, G, B));
 
@@ -324,6 +340,7 @@ impl Style {
     }
 
     /// Set the background color to a specific RGB value.
+    #[must_use]
     pub fn bg_rgb<const R: u8, const G: u8, const B: u8>(mut self) -> Self {
         self.bg = Some(DynColors::Rgb(R, G, B));
 
@@ -331,12 +348,14 @@ impl Style {
     }
 
     /// Sets the foreground color to an RGB value.
+    #[must_use]
     pub fn truecolor(mut self, r: u8, g: u8, b: u8) -> Self {
         self.fg = Some(DynColors::Rgb(r, g, b));
         self
     }
 
     /// Sets the background color to an RGB value.
+    #[must_use]
     pub fn on_truecolor(mut self, r: u8, g: u8, b: u8) -> Self {
         self.bg = Some(DynColors::Rgb(r, g, b));
         self
