@@ -81,9 +81,9 @@ macro_rules! xterm_colors {
                 }
             }
 
-            impl Into<u8> for XtermColors {
-                fn into(self) -> u8 {
-                    match self {
+            impl From<XtermColors> for u8 {
+                fn from(color: XtermColors) -> Self {
+                    match color {
                         $(
                             XtermColors::$name => $xterm_num,
                         )*
