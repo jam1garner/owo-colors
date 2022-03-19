@@ -42,12 +42,12 @@ macro_rules! color_methods {
 }
 
 macro_rules! style_methods {
-    ($(#[$meta:meta] $name:ident),* $(,)?) => {
+    ($(#[$meta:meta] ($name:ident, $set_name:ident)),* $(,)?) => {
         $(
             #[$meta]
             #[must_use]
             pub fn $name(mut self) -> Self {
-                self.$name = true;
+                self.style_flags.$set_name(true);
                 self
             }
         )*
@@ -81,14 +81,47 @@ pub struct Style {
     fg: Option<DynColors>,
     bg: Option<DynColors>,
     bold: bool,
-    dimmed: bool,
-    italic: bool,
-    underline: bool,
-    blink: bool,
-    blink_fast: bool,
-    reversed: bool,
-    hidden: bool,
-    strikethrough: bool,
+    style_flags: StyleFlags,
+}
+
+#[repr(transparent)]
+#[derive(Debug, Default, Copy, Clone, PartialEq)]
+struct StyleFlags(u8);
+
+const DIMMED_SHIFT: u8 = 0;
+const ITALIC_SHIFT: u8 = 1;
+const UNDERLINE_SHIFT: u8 = 2;
+const BLINK_SHIFT: u8 = 3;
+const BLINK_FAST_SHIFT: u8 = 4;
+const REVERSED_SHIFT: u8 = 5;
+const HIDDEN_SHIFT: u8 = 6;
+const STRIKETHROUGH_SHIFT: u8 = 7;
+
+macro_rules! style_flags_methods {
+    ($(($shift:ident, $name:ident, $set_name:ident)),* $(,)?) => {
+        $(
+            fn $name(&self) -> bool {
+                ((self.0 >> $shift) & 1) != 0
+            }
+
+            fn $set_name(&mut self, $name: bool) {
+                self.0 = (self.0 & !(1 << $shift)) | (($name as u8) << $shift);
+            }
+        )*
+    };
+}
+
+impl StyleFlags {
+    style_flags_methods! {
+        (DIMMED_SHIFT, dimmed, set_dimmed),
+        (ITALIC_SHIFT, italic, set_italic),
+        (UNDERLINE_SHIFT, underline, set_underline),
+        (BLINK_SHIFT, blink, set_blink),
+        (BLINK_FAST_SHIFT, blink_fast, set_blink_fast),
+        (REVERSED_SHIFT, reversed, set_reversed),
+        (HIDDEN_SHIFT, hidden, set_hidden),
+        (STRIKETHROUGH_SHIFT, strikethrough, set_strikethrough),
+    }
 }
 
 impl Style {
@@ -216,39 +249,44 @@ impl Style {
         BrightWhite    bright_white    on_bright_white,
     }
 
+    /// Make the text bold
+    #[must_use]
+    pub fn bold(mut self) -> Self {
+        self.bold = true;
+        self
+    }
+
     style_methods! {
-        /// Make the text bold
-        bold,
         /// Make the text dim
-        dimmed,
+        (dimmed, set_dimmed),
         /// Make the text italicized
-        italic,
+        (italic, set_italic),
         /// Make the text italicized
-        underline,
+        (underline, set_underline),
         /// Make the text blink
-        blink,
+        (blink, set_blink),
         /// Make the text blink (but fast!)
-        blink_fast,
+        (blink_fast, set_blink_fast),
         /// Swap the foreground and background colors
-        reversed,
+        (reversed, set_reversed),
         /// Hide the text
-        hidden,
+        (hidden, set_hidden),
         /// Cross out the text
-        strikethrough,
+        (strikethrough, set_strikethrough),
     }
 
     fn set_effect(&mut self, effect: Effect, to: bool) {
         use Effect::*;
         match effect {
             Bold => self.bold = to,
-            Dimmed => self.dimmed = to,
-            Italic => self.italic = to,
-            Underline => self.underline = to,
-            Blink => self.blink = to,
-            BlinkFast => self.blink_fast = to,
-            Reversed => self.reversed = to,
-            Hidden => self.hidden = to,
-            Strikethrough => self.strikethrough = to,
+            Dimmed => self.style_flags.set_dimmed(to),
+            Italic => self.style_flags.set_italic(to),
+            Underline => self.style_flags.set_underline(to),
+            Blink => self.style_flags.set_blink(to),
+            BlinkFast => self.style_flags.set_blink_fast(to),
+            Reversed => self.style_flags.set_reversed(to),
+            Hidden => self.style_flags.set_hidden(to),
+            Strikethrough => self.style_flags.set_strikethrough(to),
         }
     }
 
@@ -290,14 +328,7 @@ impl Style {
     #[must_use]
     pub fn remove_all_effects(mut self) -> Self {
         self.bold = false;
-        self.dimmed = false;
-        self.italic = false;
-        self.underline = false;
-        self.blink = false;
-        self.blink_fast = false;
-        self.reversed = false;
-        self.hidden = false;
-        self.strikethrough = false;
+        self.style_flags = StyleFlags::default();
         self
     }
 
@@ -369,14 +400,16 @@ pub fn style() -> Style {
 
 macro_rules! text_effect_fmt {
     ($style:ident, $formatter:ident, $semicolon:ident, $(($attr:ident, $value:literal)),* $(,)?) => {
-        $(if $style.$attr {
-            if $semicolon {
-                $formatter.write_str(";")?;
-            }
-            $formatter.write_str($value)?;
+        $(
+            if $style.style_flags.$attr() {
+                if $semicolon {
+                    $formatter.write_str(";")?;
+                }
+                $formatter.write_str($value)?;
 
-            $semicolon = true;
-        })+
+                $semicolon = true;
+            }
+        )+
     }
 }
 
@@ -388,15 +421,8 @@ macro_rules! impl_fmt {
                 fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
 
                     let s = &self.style;
-                    let format_effect = s.bold
-                        || s.dimmed
-                        || s.italic
-                        || s.underline
-                        || s.blink
-                        || s.blink_fast
-                        || s.reversed
-                        || s.hidden
-                        || s.strikethrough;
+                    let format_less_important_effects = s.style_flags != StyleFlags::default();
+                    let format_effect = s.bold || format_less_important_effects;
                     let format_color = s.fg.is_some() || s.bg.is_some();
                     let format_any = format_color || format_effect;
 
@@ -418,17 +444,30 @@ macro_rules! impl_fmt {
                         <DynColors as DynColor>::fmt_raw_ansi_bg(&bg, f)?;
                     }
 
-                    text_effect_fmt!{
-                        s, f, semicolon,
-                        (bold,          "1"),
-                        (dimmed,        "2"),
-                        (italic,        "3"),
-                        (underline,     "4"),
-                        (blink,         "5"),
-                        (blink_fast,    "6"),
-                        (reversed,      "7"),
-                        (hidden,        "8"),
-                        (strikethrough, "9"),
+                    if format_effect {
+                        if s.bold {
+                            if semicolon {
+                                f.write_str(";")?;
+                            }
+
+                            f.write_str("1")?;
+
+                            semicolon = true;
+                        }
+
+                        if format_less_important_effects {
+                            text_effect_fmt!{
+                                s, f, semicolon,
+                                (dimmed,        "2"),
+                                (italic,        "3"),
+                                (underline,     "4"),
+                                (blink,         "5"),
+                                (blink_fast,    "6"),
+                                (reversed,      "7"),
+                                (hidden,        "8"),
+                                (strikethrough, "9"),
+                            }
+                        }
                     }
 
                     if format_any {
