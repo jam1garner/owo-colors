@@ -76,7 +76,7 @@ pub struct Styled<T> {
 ///
 /// println!("{}", "red text, white background, struck through".style(my_style));
 /// ```
-#[derive(Debug, Default, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone, PartialEq)]
 pub struct Style {
     fg: Option<DynColors>,
     bg: Option<DynColors>,
