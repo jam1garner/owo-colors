@@ -391,26 +391,102 @@ impl Style {
         self.bg = Some(DynColors::Rgb(r, g, b));
         self
     }
+
+    /// Returns if the style does not apply any formatting
+    #[must_use]
+    #[inline]
+    pub fn is_plain(&self) -> bool {
+        let s = &self;
+        !(s.fg.is_some() || s.bg.is_some() || s.bold || s.style_flags != StyleFlags::default())
+    }
+
+    /// Applies the ANSI-prefix for this style to the given formatter
+    #[inline]
+    #[allow(unused_assignments)]
+    pub fn fmt_prefix(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let s = self;
+        let format_less_important_effects = s.style_flags != StyleFlags::default();
+        let format_effect = s.bold || format_less_important_effects;
+        let format_any = !self.is_plain();
+
+        let mut semicolon = false;
+
+        if format_any {
+            f.write_str("\x1b[")?;
+        }
+
+        if let Some(fg) = s.fg {
+            <DynColors as DynColor>::fmt_raw_ansi_fg(&fg, f)?;
+            semicolon = true;
+        }
+
+        if let Some(bg) = s.bg {
+            if s.fg.is_some() {
+                f.write_str(";")?;
+            }
+            <DynColors as DynColor>::fmt_raw_ansi_bg(&bg, f)?;
+        }
+
+        if format_effect {
+            if s.bold {
+                if semicolon {
+                    f.write_str(";")?;
+                }
+
+                f.write_str("1")?;
+
+                semicolon = true;
+            }
+
+            macro_rules! text_effect_fmt {
+                ($style:ident, $formatter:ident, $semicolon:ident, $(($attr:ident, $value:literal)),* $(,)?) => {
+                    $(
+                        if $style.style_flags.$attr() {
+                            if $semicolon {
+                                $formatter.write_str(";")?;
+                            }
+                            $formatter.write_str($value)?;
+
+                            $semicolon = true;
+                        }
+                    )+
+                }
+            }
+
+            if format_less_important_effects {
+                text_effect_fmt! {
+                    s, f, semicolon,
+                    (dimmed,        "2"),
+                    (italic,        "3"),
+                    (underline,     "4"),
+                    (blink,         "5"),
+                    (blink_fast,    "6"),
+                    (reversed,      "7"),
+                    (hidden,        "8"),
+                    (strikethrough, "9"),
+                }
+            }
+        }
+
+        if format_any {
+            f.write_str("m")?;
+        }
+        Ok(())
+    }
+
+    /// Applies the ANSI-suffix for this style to the given formatter
+    #[inline]
+    pub fn fmt_suffix(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        if !self.is_plain() {
+            f.write_str("\x1b[0m")?;
+        }
+        Ok(())
+    }
 }
 
 /// Helper to create [`Style`]s more ergonomically
 pub fn style() -> Style {
     Style::new()
-}
-
-macro_rules! text_effect_fmt {
-    ($style:ident, $formatter:ident, $semicolon:ident, $(($attr:ident, $value:literal)),* $(,)?) => {
-        $(
-            if $style.style_flags.$attr() {
-                if $semicolon {
-                    $formatter.write_str(";")?;
-                }
-                $formatter.write_str($value)?;
-
-                $semicolon = true;
-            }
-        )+
-    }
 }
 
 macro_rules! impl_fmt {
@@ -419,68 +495,9 @@ macro_rules! impl_fmt {
             impl<T: $trait> $trait for Styled<T> {
                 #[allow(unused_assignments)]
                 fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-
-                    let s = &self.style;
-                    let format_less_important_effects = s.style_flags != StyleFlags::default();
-                    let format_effect = s.bold || format_less_important_effects;
-                    let format_color = s.fg.is_some() || s.bg.is_some();
-                    let format_any = format_color || format_effect;
-
-                    let mut semicolon = false;
-
-                    if format_any {
-                        f.write_str("\x1b[")?;
-                    }
-
-                    if let Some(fg) = s.fg {
-                        <DynColors as DynColor>::fmt_raw_ansi_fg(&fg, f)?;
-                        semicolon = true;
-                    }
-
-                    if let Some(bg) = s.bg {
-                        if s.fg.is_some() {
-                            f.write_str(";")?;
-                        }
-                        <DynColors as DynColor>::fmt_raw_ansi_bg(&bg, f)?;
-                    }
-
-                    if format_effect {
-                        if s.bold {
-                            if semicolon {
-                                f.write_str(";")?;
-                            }
-
-                            f.write_str("1")?;
-
-                            semicolon = true;
-                        }
-
-                        if format_less_important_effects {
-                            text_effect_fmt!{
-                                s, f, semicolon,
-                                (dimmed,        "2"),
-                                (italic,        "3"),
-                                (underline,     "4"),
-                                (blink,         "5"),
-                                (blink_fast,    "6"),
-                                (reversed,      "7"),
-                                (hidden,        "8"),
-                                (strikethrough, "9"),
-                            }
-                        }
-                    }
-
-                    if format_any {
-                        f.write_str("m")?;
-                    }
-
+                    self.style.fmt_prefix(f)?;
                     <T as $trait>::fmt(&self.target, f)?;
-
-                    if format_any {
-                        f.write_str("\x1b[0m")?;
-                    }
-
-                    Ok(())
+                    self.style.fmt_suffix(f)
                 }
             }
         )*
@@ -504,6 +521,20 @@ mod tests {
     use super::*;
     use crate::{AnsiColors, OwoColorize};
 
+    struct StylePrefixOnly(Style);
+    impl fmt::Display for StylePrefixOnly {
+        fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+            self.0.fmt_prefix(f)
+        }
+    }
+
+    struct StyleSuffixOnly(Style);
+    impl fmt::Display for StyleSuffixOnly {
+        fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+            self.0.fmt_suffix(f)
+        }
+    }
+
     #[test]
     fn test_it() {
         let style = Style::new()
@@ -522,6 +553,12 @@ mod tests {
         let s2 = format!("{}", &s);
         println!("{}", &s2);
         assert_eq!(&s2, "\u{1b}[97;44;1;2;3;4;5;9mTEST\u{1b}[0m");
+
+        let prefix = format!("{}", StylePrefixOnly(style));
+        assert_eq!(&prefix, "\u{1b}[97;44;1;2;3;4;5;9m");
+
+        let suffix = format!("{}", StyleSuffixOnly(style));
+        assert_eq!(&suffix, "\u{1b}[0m");
     }
 
     #[test]
@@ -576,5 +613,19 @@ mod tests {
         let s2 = format!("{}", &s);
         println!("{}", &s2);
         assert_eq!(&s2, "\u{1b}[97;44mTEST\u{1b}[0m");
+    }
+
+    #[test]
+    fn test_is_plain() {
+        let style = Style::new().bright_white().on_blue();
+
+        assert!(!style.is_plain());
+        assert!(Style::default().is_plain());
+
+        let string = String::from("TEST");
+        let s = Style::default().style(&string);
+        let s2 = format!("{}", &s);
+
+        assert_eq!(string, s2)
     }
 }
