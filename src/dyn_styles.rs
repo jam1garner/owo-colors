@@ -58,8 +58,10 @@ const _: () = (); // workaround for syntax highlighting bug
 
 /// A wrapper type which applies a [`Style`] when displaying the inner type
 pub struct Styled<T> {
+    /// The target value to be styled
     target: T,
-    style: Style,
+    /// The style to apply to target
+    pub style: Style,
 }
 
 /// A pre-computed style that can be applied to a struct using [`OwoColorize::style`]. Its
@@ -489,6 +491,18 @@ pub fn style() -> Style {
     Style::new()
 }
 
+impl<T> Styled<T> {
+    /// Returns a reference to the inner value to be styled
+    pub fn inner(&self) -> &T {
+        &self.target
+    }
+
+    /// Returns a mutable reference to the inner value to be styled
+    pub fn inner_mut(&mut self) -> &mut T {
+        &mut self.target
+    }
+}
+
 macro_rules! impl_fmt {
     ($($trait:path),* $(,)?) => {
         $(
@@ -627,5 +641,17 @@ mod tests {
         let s2 = format!("{}", &s);
 
         assert_eq!(string, s2)
+    }
+
+    fn test_inner() {
+        let style = Style::default();
+
+        let mut s = "TEST".style(style);
+
+        assert_eq!(&&"TEST", s.inner());
+
+        *s.inner_mut() = &"changed";
+        assert_eq!(&&"changed", s.inner());
+        assert_eq!("changed", format!("{}", s));
     }
 }
