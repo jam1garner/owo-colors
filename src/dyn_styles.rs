@@ -59,7 +59,7 @@ const _: () = (); // workaround for syntax highlighting bug
 /// A wrapper type which applies a [`Style`] when displaying the inner type
 pub struct Styled<T> {
     /// The target value to be styled
-    target: T,
+    pub(crate) target: T,
     /// The style to apply to target
     pub style: Style,
 }
@@ -80,15 +80,15 @@ pub struct Styled<T> {
 /// ```
 #[derive(Debug, Default, Copy, Clone, PartialEq)]
 pub struct Style {
-    fg: Option<DynColors>,
-    bg: Option<DynColors>,
-    bold: bool,
-    style_flags: StyleFlags,
+    pub(crate) fg: Option<DynColors>,
+    pub(crate) bg: Option<DynColors>,
+    pub(crate) bold: bool,
+    pub(crate) style_flags: StyleFlags,
 }
 
 #[repr(transparent)]
 #[derive(Debug, Default, Copy, Clone, PartialEq)]
-struct StyleFlags(u8);
+pub(crate) struct StyleFlags(pub(crate) u8);
 
 const DIMMED_SHIFT: u8 = 0;
 const ITALIC_SHIFT: u8 = 1;
@@ -643,6 +643,7 @@ mod tests {
         assert_eq!(string, s2)
     }
 
+    #[test]
     fn test_inner() {
         let style = Style::default();
 
