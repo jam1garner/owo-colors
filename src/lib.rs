@@ -77,6 +77,7 @@ pub mod colors;
 mod combo;
 mod dyn_colors;
 mod dyn_styles;
+mod styled_list;
 pub mod styles;
 
 #[cfg(feature = "supports-colors")]
@@ -500,6 +501,10 @@ pub mod colored {
         pub use crate::{set_override, unset_override};
     }
 }
+
+pub use styled_list::StyledList;
+#[cfg(feature = "alloc")]
+pub use styled_list::StyledVec;
 
 #[cfg(test)]
 mod tests;
