@@ -1,3 +1,8 @@
+//! |**Quick Links**|[`OwoColorize`](OwoColorize)|[`Style`]|[`StyledList`]|[`github`](https://github.com/jam1garner/owo-colors)|
+//! |-|-|-|-|-|
+//!
+//! ---
+//!
 //! This crate provides [`OwoColorize`](OwoColorize), an extension trait for colorizing a
 //! given type.
 //!
