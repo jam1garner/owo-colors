@@ -22,7 +22,7 @@ A zero-allocation no_std-compatible zero-cost way to add color to your Rust term
     * [x] Enabled for CI
     * [x] Disabled by default for non-terminal outputs
     * [x] Overridable by `NO_COLOR`/`FORCE_COLOR` environment variables
-    * [x] Overridable programatically via [`set_override`](https://docs.rs/owo-colors/3.1.0/owo_colors/fn.set_override.html)
+    * [x] Overridable programatically via [`set_override`](https://docs.rs/owo-colors/latest/owo_colors/fn.set_override.html)
 * [x] Dependency-less by default
 * [x] Hand picked names for all ANSI (4-bit) and Xterm (8-bit) colors
 * [x] Support for RGB colors
