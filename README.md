@@ -33,7 +33,7 @@ A zero-allocation no_std-compatible zero-cost way to add color to your Rust term
     * [x] Truecolor support (modern, 48-bit color)
 * [x] Styling (underline, strikethrough, etc)
 
-owo-colors is also more-or-less a drop-in replacement for [colored](https://crates.io/crates/colored), allowing colored to work in a no_std environment. No allocations, unsafe, or dependencies required because embedded systems deserve to be pretty too uwu.
+owo-colors is also more-or-less a drop-in replacement for [colored](https://crates.io/crates/colored), allowing colored to work in a no_std environment. No allocations or dependencies required because embedded systems deserve to be pretty too uwu.
 
 To add to your Cargo.toml:
 ```toml
