@@ -16,7 +16,7 @@ macro_rules! colors {
             /// Available standard ANSI colors for use with [`OwoColorize::color`](OwoColorize::color)
             /// or [`OwoColorize::on_color`](OwoColorize::on_color)
             #[allow(missing_docs)]
-            #[derive(Copy, Clone, Debug, PartialEq)]
+            #[derive(Copy, Clone, Debug, PartialEq, Eq)]
             pub enum AnsiColors {
                 $(
                     $color,

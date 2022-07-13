@@ -12,7 +12,7 @@ macro_rules! css_color_types {
             /// Available CSS colors for use with [`OwoColorize::color`](OwoColorize::color)
             /// or [`OwoColorize::on_color`](OwoColorize::on_color)
             #[allow(missing_docs)]
-            #[derive(Copy, Clone, Debug, PartialEq)]
+            #[derive(Copy, Clone, Debug, PartialEq, Eq)]
             pub enum CssColors {
                 $($name,)*
             }

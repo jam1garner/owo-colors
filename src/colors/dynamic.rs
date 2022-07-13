@@ -6,7 +6,7 @@ use crate::OwoColorize;
 
 /// Available RGB colors for use with [`OwoColorize::color`](OwoColorize::color)
 /// or [`OwoColorize::on_color`](OwoColorize::on_color)
-#[derive(Copy, Clone, Debug, PartialEq)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub struct Rgb(pub u8, pub u8, pub u8);
 
 impl DynColor for Rgb {

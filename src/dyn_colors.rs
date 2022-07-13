@@ -8,7 +8,7 @@ use core::fmt;
 /// or [`BgDynColorDisplay`](BgDynColorDisplay), allowing for multiple types of colors to be used
 /// at runtime.
 #[allow(missing_docs)]
-#[derive(Copy, Clone, PartialEq, Debug)]
+#[derive(Copy, Clone, PartialEq, Eq, Debug)]
 pub enum DynColors {
     Ansi(AnsiColors),
     Css(CssColors),

@@ -11,7 +11,7 @@ macro_rules! xterm_colors {
 
             /// Available Xterm colors for use with [`OwoColorize::color`](OwoColorize::color)
             /// or [`OwoColorize::on_color`](OwoColorize::on_color)
-            #[derive(Copy, Clone, Debug, PartialEq)]
+            #[derive(Copy, Clone, Debug, PartialEq, Eq)]
             pub enum XtermColors {
                 $(
                     #[allow(missing_docs)]
