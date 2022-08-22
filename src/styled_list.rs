@@ -61,7 +61,7 @@ impl<T: Display> IsStyled for Styled<T> {
 ///
 /// assert!(styled_length < normal_length);
 /// ```
-pub struct StyledList<T, U>(T, PhantomData<fn(U)>)
+pub struct StyledList<T, U>(pub T, PhantomData<fn(U)>)
 where
     T: AsRef<[U]>,
     U: IsStyled;
