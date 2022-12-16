@@ -294,7 +294,7 @@ impl Style {
 
     fn set_effects(&mut self, effects: &[Effect], to: bool) {
         for e in effects {
-            self.set_effect(*e, to)
+            self.set_effect(*e, to);
         }
     }
 
