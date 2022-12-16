@@ -12,7 +12,7 @@ use core::sync::atomic::{AtomicU8, Ordering};
 /// inferring if colors are supported.
 #[cfg(feature = "supports-colors")]
 pub fn set_override(enabled: bool) {
-    OVERRIDE.set_force(enabled)
+    OVERRIDE.set_force(enabled);
 }
 
 /// Remove any override value for whether or not colors are supported. This means
@@ -22,7 +22,7 @@ pub fn set_override(enabled: bool) {
 /// This override can be set using [`set_override`].
 #[cfg(feature = "supports-colors")]
 pub fn unset_override() {
-    OVERRIDE.unset()
+    OVERRIDE.unset();
 }
 
 pub(crate) static OVERRIDE: Override = Override::none();
@@ -50,7 +50,7 @@ impl Override {
     }
 
     fn set_force(&self, enable: bool) {
-        self.0.store(FORCE_MASK | (enable as u8), Ordering::SeqCst)
+        self.0.store(FORCE_MASK | (enable as u8), Ordering::SeqCst);
     }
 
     fn unset(&self) {
