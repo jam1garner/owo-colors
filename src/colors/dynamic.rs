@@ -77,14 +77,14 @@ impl DynColor for str {
 /// Implemented for drop-in replacement support for `colored`
 impl<'a> From<&'a str> for AnsiColors {
     fn from(color: &'a str) -> Self {
+        #[allow(clippy::match_same_arms)] // defaults to white color
         match color {
             "black" => AnsiColors::Black,
             "red" => AnsiColors::Red,
             "green" => AnsiColors::Green,
             "yellow" => AnsiColors::Yellow,
             "blue" => AnsiColors::Blue,
-            "magenta" => AnsiColors::Magenta,
-            "purple" => AnsiColors::Magenta,
+            "magenta" | "purple" => AnsiColors::Magenta,
             "cyan" => AnsiColors::Cyan,
             "white" => AnsiColors::White,
             "bright black" => AnsiColors::BrightBlack,
