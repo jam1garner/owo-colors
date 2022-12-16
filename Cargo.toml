@@ -8,7 +8,6 @@ documentation = "https://docs.rs/owo-colors"
 repository = "https://github.com/jam1garner/owo-colors"
 description = "Zero-allocation terminal colors that'll make people go owo"
 license = "MIT"
-license-file = "LICENSE"
 readme = "README.md"
 keywords = ["cli", "color", "no-std", "terminal", "ansi_term"]
 categories = ["command-line-interface"]
