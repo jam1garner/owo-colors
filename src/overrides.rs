@@ -1,5 +1,17 @@
 use core::sync::atomic::{AtomicU8, Ordering};
 
+#[cfg(feature = "supports-colors")]
+pub fn with_override<T, F: FnOnce() -> T>(enabled: bool, f: F) -> T {
+    let previous = OVERRIDE.inner();
+    OVERRIDE.set_force(enabled);
+
+    let value = f();
+
+    OVERRIDE.set_unchecked(previous);
+
+    value
+}
+
 /// Set an override value for whether or not colors are supported.
 ///
 /// If `true` is passed, [`if_supports_color`](crate::OwoColorize::if_supports_color) will always
@@ -50,10 +62,14 @@ impl Override {
     }
 
     fn set_force(&self, enable: bool) {
-        self.0.store(FORCE_MASK | (enable as u8), Ordering::SeqCst);
+        self.set_unchecked(FORCE_MASK | (enable as u8));
     }
 
     fn unset(&self) {
-        self.0.store(0, Ordering::SeqCst);
+        self.set_unchecked(0);
+    }
+
+    fn set_unchecked(&self, value: u8) {
+        self.0.store(value, Ordering::SeqCst);
     }
 }

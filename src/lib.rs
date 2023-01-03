@@ -467,7 +467,7 @@ mod supports_colors;
 
 #[cfg(feature = "supports-colors")]
 pub use {
-    overrides::{set_override, unset_override},
+    overrides::{set_override, unset_override, with_override},
     supports_color::Stream,
     supports_colors::SupportsColorsDisplay,
 };
