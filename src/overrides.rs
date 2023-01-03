@@ -1,5 +1,29 @@
 use core::sync::atomic::{AtomicU8, Ordering};
 
+/// Set an override value for whether or not colors are supported using
+/// [`set_override`] while executing the closure provided.
+///
+/// Once the function has executed the value will be reset to the previous set
+/// (or unset) override.
+///
+/// This is especially useful in use-cases where one would like to temporarily
+/// override the supported color set, without impacting previous configurations.
+///
+/// ```
+/// # use supports_color::Stream;
+/// # use owo_colors::{OwoColorize, set_override, unset_override, with_override};
+/// # use owo_colors::colors::Black;
+/// #
+/// set_override(false);
+/// assert_eq!("example".if_supports_color(Stream::Stdout, |value| value.bg::<Black>()).to_string(), "example");
+///
+/// with_override(true, || {
+///     assert_eq!("example".if_supports_color(Stream::Stdout, |value| value.bg::<Black>()).to_string(), "\x1b[40mexample\x1b[49m");
+/// });
+///
+/// assert_eq!("example".if_supports_color(Stream::Stdout, |value| value.bg::<Black>()).to_string(), "example");
+/// # unset_override() // make sure that other doc tests are not impacted
+/// ```
 #[cfg(feature = "supports-colors")]
 pub fn with_override<T, F: FnOnce() -> T>(enabled: bool, f: F) -> T {
     let previous = OVERRIDE.inner();
@@ -14,22 +38,25 @@ pub fn with_override<T, F: FnOnce() -> T>(enabled: bool, f: F) -> T {
 
 /// Set an override value for whether or not colors are supported.
 ///
-/// If `true` is passed, [`if_supports_color`](crate::OwoColorize::if_supports_color) will always
-/// act as if colors are supported.
+/// If `true` is passed,
+/// [`if_supports_color`](crate::OwoColorize::if_supports_color) will always act
+/// as if colors are supported.
 ///
-/// If `false` is passed, [`if_supports_color`](crate::OwoColorize::if_supports_color) will always
-/// act as if colors are **not** supported.
+/// If `false` is passed,
+/// [`if_supports_color`](crate::OwoColorize::if_supports_color) will always act
+/// as if colors are **not** supported.
 ///
-/// This behavior can be disabled using [`unset_override`], allowing `owo-colors` to return to
-/// inferring if colors are supported.
+/// This behavior can be disabled using [`unset_override`], allowing
+/// `owo-colors` to return to inferring if colors are supported.
 #[cfg(feature = "supports-colors")]
 pub fn set_override(enabled: bool) {
     OVERRIDE.set_force(enabled);
 }
 
-/// Remove any override value for whether or not colors are supported. This means
-/// [`if_supports_color`](crate::OwoColorize::if_supports_color) will resume checking if the given
-/// terminal output ([`Stream`](crate::Stream)) supports colors.
+/// Remove any override value for whether or not colors are supported. This
+/// means [`if_supports_color`](crate::OwoColorize::if_supports_color) will
+/// resume checking if the given terminal output ([`Stream`](crate::Stream))
+/// supports colors.
 ///
 /// This override can be set using [`set_override`].
 #[cfg(feature = "supports-colors")]
