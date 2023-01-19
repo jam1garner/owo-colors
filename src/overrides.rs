@@ -81,16 +81,39 @@ pub fn unset_override() {
     OVERRIDE.unset();
 }
 
-pub(crate) static OVERRIDE: Override = Override::none();
+pub enum ColorOverride {
+    None,
+    Enable,
+    Disable,
+}
 
-pub(crate) struct Override(AtomicU8);
+pub struct Override {
+    /// Support for basic ANSI escape codes
+    ///
+    /// 16 color codes with bold/italic and background
+    ansi: ColorOverride,
+
+    /// Support for 256 colors
+    ///
+    /// 256 color palette: 216 colors + 16 ANSI + 24 gray (colors are 24-bit)
+    xterm: ColorOverride,
+
+    /// Support for 16 million colors
+    ///
+    /// 24-bit truecolor: "888" colors (aka 16 million)
+    truecolor: ColorOverride,
+}
+
+pub(crate) static OVERRIDE: AtomicOverride = AtomicOverride::none();
+
+pub(crate) struct AtomicOverride(AtomicU8);
 
 const FORCE_MASK: u8 = 0b10;
 const FORCE_ENABLE: u8 = 0b11;
 const FORCE_DISABLE: u8 = 0b10;
 const NO_FORCE: u8 = 0b00;
 
-impl Override {
+impl AtomicOverride {
     const fn none() -> Self {
         Self(AtomicU8::new(NO_FORCE))
     }
