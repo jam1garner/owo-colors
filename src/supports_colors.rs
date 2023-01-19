@@ -1,8 +1,8 @@
 use core::fmt;
 
-#[cfg(feature = "supports-colors")]
-/// A display wrapper which applies a transformation based on if the given stream supports
-/// colored terminal output
+#[cfg(feature = "override")]
+/// A display wrapper which applies a transformation based on if the given
+/// stream supports colored terminal output
 pub struct SupportsColorsDisplay<'a, InVal, Out, ApplyFn>(
     pub(crate) &'a InVal,
     pub(crate) ApplyFn,
@@ -23,6 +23,7 @@ macro_rules! impl_fmt_for {
                       F: Fn(&'a In) -> Out,
             {
                 #[inline(always)]
+                #[cfg(feature = "supports-colors")]
                 fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
                     let (force_enabled, force_disabled) = OVERRIDE.is_force_enabled_or_disabled();
                     if force_enabled || (
@@ -31,6 +32,17 @@ macro_rules! impl_fmt_for {
                             .unwrap_or(false)
                         && !force_disabled
                     ) {
+                        <Out as $trait>::fmt(&self.1(self.0), f)
+                    } else {
+                        <In as $trait>::fmt(self.0, f)
+                    }
+                }
+
+                #[inline(always)]
+                #[cfg(not(feature = "supports-colors"))]
+                fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+                    let (force_enabled, force_disabled) = OVERRIDE.is_force_enabled_or_disabled();
+                    if force_enabled || && !force_disabled {
                         <Out as $trait>::fmt(&self.1(self.0), f)
                     } else {
                         <In as $trait>::fmt(self.0, f)

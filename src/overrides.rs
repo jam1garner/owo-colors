@@ -1,5 +1,22 @@
 use core::sync::atomic::{AtomicU8, Ordering};
 
+/// possible stream sources
+#[derive(Debug, Copy, Clone)]
+pub enum Stream {
+    Stdout,
+    Stderr,
+}
+
+#[cfg(feature = "supports-colors")]
+impl From<supports_color::Stream> for Stream {
+    fn from(value: supports_color::Stream) -> Self {
+        match value {
+            supports_color::Stream::Stdout => Self::Stdout,
+            supports_color::Stream::Stderr => Self::Stderr,
+        }
+    }
+}
+
 /// Set an override value for whether or not colors are supported using
 /// [`set_override`] while executing the closure provided.
 ///
@@ -10,7 +27,7 @@ use core::sync::atomic::{AtomicU8, Ordering};
 /// override the supported color set, without impacting previous configurations.
 ///
 /// ```
-/// # use supports_color::Stream;
+/// # use owo_colors::Stream;
 /// # use owo_colors::{OwoColorize, set_override, unset_override, with_override};
 /// # use owo_colors::colors::Black;
 /// #
@@ -24,7 +41,7 @@ use core::sync::atomic::{AtomicU8, Ordering};
 /// assert_eq!("example".if_supports_color(Stream::Stdout, |value| value.bg::<Black>()).to_string(), "example");
 /// # unset_override() // make sure that other doc tests are not impacted
 /// ```
-#[cfg(feature = "supports-colors")]
+#[cfg(feature = "override")]
 pub fn with_override<T, F: FnOnce() -> T>(enabled: bool, f: F) -> T {
     let previous = OVERRIDE.inner();
     OVERRIDE.set_force(enabled);
@@ -48,7 +65,7 @@ pub fn with_override<T, F: FnOnce() -> T>(enabled: bool, f: F) -> T {
 ///
 /// This behavior can be disabled using [`unset_override`], allowing
 /// `owo-colors` to return to inferring if colors are supported.
-#[cfg(feature = "supports-colors")]
+#[cfg(feature = "override")]
 pub fn set_override(enabled: bool) {
     OVERRIDE.set_force(enabled);
 }
@@ -59,7 +76,7 @@ pub fn set_override(enabled: bool) {
 /// supports colors.
 ///
 /// This override can be set using [`set_override`].
-#[cfg(feature = "supports-colors")]
+#[cfg(feature = "override")]
 pub fn unset_override() {
     OVERRIDE.unset();
 }
