@@ -1,5 +1,22 @@
 use core::sync::atomic::{AtomicU8, Ordering};
 
+/// possible stream sources
+#[derive(Debug, Copy, Clone)]
+pub enum Stream {
+    Stdout,
+    Stderr,
+}
+
+#[cfg(feature = "supports-colors")]
+impl From<supports_color::Stream> for Stream {
+    fn from(value: supports_color::Stream) -> Self {
+        match value {
+            supports_color::Stream::Stdout => Self::Stdout,
+            supports_color::Stream::Stderr => Self::Stderr,
+        }
+    }
+}
+
 /// Set an override value for whether or not colors are supported using
 /// [`set_override`] while executing the closure provided.
 ///
@@ -10,7 +27,7 @@ use core::sync::atomic::{AtomicU8, Ordering};
 /// override the supported color set, without impacting previous configurations.
 ///
 /// ```
-/// # use supports_color::Stream;
+/// # use owo_colors::Stream;
 /// # use owo_colors::{OwoColorize, set_override, unset_override, with_override};
 /// # use owo_colors::colors::Black;
 /// #
@@ -24,14 +41,14 @@ use core::sync::atomic::{AtomicU8, Ordering};
 /// assert_eq!("example".if_supports_color(Stream::Stdout, |value| value.bg::<Black>()).to_string(), "example");
 /// # unset_override() // make sure that other doc tests are not impacted
 /// ```
-#[cfg(feature = "supports-colors")]
-pub fn with_override<T, F: FnOnce() -> T>(enabled: bool, f: F) -> T {
-    let previous = OVERRIDE.inner();
-    OVERRIDE.set_force(enabled);
+#[cfg(feature = "override")]
+pub fn with_override<T, F: FnOnce() -> T>(value: Override, f: F) -> T {
+    let previous = OVERRIDE.load();
+    OVERRIDE.store(value);
 
     let value = f();
 
-    OVERRIDE.set_unchecked(previous);
+    OVERRIDE.store(previous);
 
     value
 }
@@ -48,9 +65,17 @@ pub fn with_override<T, F: FnOnce() -> T>(enabled: bool, f: F) -> T {
 ///
 /// This behavior can be disabled using [`unset_override`], allowing
 /// `owo-colors` to return to inferring if colors are supported.
-#[cfg(feature = "supports-colors")]
+#[cfg(feature = "override")]
+#[deprecated(
+    since = "4.0.0",
+    note = "use `override_ansi(ColorOverride::Enable)` or `override_ansi(ColorOverride::Disable)` instead"
+)]
 pub fn set_override(enabled: bool) {
-    OVERRIDE.set_force(enabled);
+    OVERRIDE.store_ansi(if enabled {
+        ColorOverride::Enable
+    } else {
+        ColorOverride::Disable
+    });
 }
 
 /// Remove any override value for whether or not colors are supported. This
@@ -59,44 +84,263 @@ pub fn set_override(enabled: bool) {
 /// supports colors.
 ///
 /// This override can be set using [`set_override`].
-#[cfg(feature = "supports-colors")]
+#[cfg(feature = "override")]
+#[deprecated(
+    since = "4.0.0",
+    note = "use `override_ansi(ColorOverride::None)` instead"
+)]
 pub fn unset_override() {
-    OVERRIDE.unset();
+    OVERRIDE.store_ansi(ColorOverride::None);
 }
 
-pub(crate) static OVERRIDE: Override = Override::none();
+pub fn override_ansi(value: ColorOverride) {
+    OVERRIDE.store_ansi(value)
+}
 
-pub(crate) struct Override(AtomicU8);
+pub fn override_xterm(value: ColorOverride) {
+    OVERRIDE.store_xterm(value)
+}
 
-const FORCE_MASK: u8 = 0b10;
-const FORCE_ENABLE: u8 = 0b11;
-const FORCE_DISABLE: u8 = 0b10;
-const NO_FORCE: u8 = 0b00;
+pub fn override_truecolor(value: ColorOverride) {
+    OVERRIDE.store_xterm(value)
+}
+
+pub fn override_set(value: Override) {
+    OVERRIDE.store(value)
+}
+
+pub fn override_status() -> Override {
+    OVERRIDE.load()
+}
+
+#[cfg(not(feature = "supports-colors"))]
+pub fn supports(stream: Stream) -> ColorLevel {
+    OVERRIDE.load().to_level(false)
+}
+
+#[cfg(feature = "supports-colors")]
+pub fn supports(stream: Stream) -> ColorLevel {
+    let default = supports_color::on_cached(stream.into())
+        .map(Into::into)
+        .unwrap_or_else(ColorLevel::none);
+
+    let level = OVERRIDE.load();
+
+    ColorLevel {
+        ansi: level.ansi.to_bool(default.ansi),
+        xterm: level.xterm.to_bool(default.xterm),
+        truecolor: level.truecolor.to_bool(default.truecolor),
+    }
+}
+
+#[derive(Debug, Copy, Clone)]
+#[non_exhaustive]
+pub struct ColorLevel {
+    ansi: bool,
+    xterm: bool,
+    truecolor: bool,
+}
+
+impl ColorLevel {
+    pub const fn none() -> Self {
+        Self {
+            ansi: false,
+            xterm: false,
+            truecolor: false,
+        }
+    }
+
+    pub const fn ansi(&self) -> bool {
+        self.ansi
+    }
+
+    pub const fn xterm(&self) -> bool {
+        self.xterm
+    }
+
+    pub const fn truecolor(&self) -> bool {
+        self.truecolor
+    }
+}
+
+impl From<supports_color::ColorLevel> for ColorLevel {
+    fn from(value: supports_color::ColorLevel) -> Self {
+        Self {
+            ansi: value.has_basic,
+            xterm: value.has_256,
+            truecolor: value.has_16m,
+        }
+    }
+}
+
+#[derive(Debug, Copy, Clone)]
+#[non_exhaustive]
+pub enum ColorOverride {
+    None,
+    Enable,
+    Disable,
+}
+
+impl ColorOverride {
+    const fn to_num(self) -> u8 {
+        match self {
+            Self::None => 0b00,
+            Self::Enable => 0b01,
+            Self::Disable => 0b10,
+        }
+    }
+
+    const fn to_bool(self, default: bool) -> bool {
+        match self {
+            Self::None => default,
+            Self::Enable => true,
+            Self::Disable => false,
+        }
+    }
+
+    const fn from_num(value: u8) -> Self {
+        match value {
+            0b01 => Self::Enable,
+            0b10 => Self::Disable,
+            _ => Self::None,
+        }
+    }
+}
+
+#[derive(Debug, Copy, Clone)]
+pub struct Override {
+    /// Support for basic ANSI escape codes
+    ///
+    /// 16 color codes with bold/italic and background
+    ansi: ColorOverride,
+
+    /// Support for 256 colors
+    ///
+    /// 256 color palette: 216 colors + 16 ANSI + 24 gray (colors are 24-bit)
+    xterm: ColorOverride,
+
+    /// Support for 16 million colors
+    ///
+    /// 24-bit truecolor: "888" colors (aka 16 million)
+    truecolor: ColorOverride,
+}
 
 impl Override {
+    pub const fn enable() -> Self {
+        Self {
+            ansi: ColorOverride::Enable,
+            xterm: ColorOverride::Enable,
+            truecolor: ColorOverride::Enable,
+        }
+    }
+
+    pub const fn disable() -> Self {
+        Self {
+            ansi: ColorOverride::Disable,
+            xterm: ColorOverride::Disable,
+            truecolor: ColorOverride::Disable,
+        }
+    }
+
+    pub const fn none() -> Self {
+        Self {
+            ansi: ColorOverride::None,
+            xterm: ColorOverride::None,
+            truecolor: ColorOverride::None,
+        }
+    }
+
+    pub const fn with_ansi(mut self, value: ColorOverride) -> Self {
+        self.ansi = value;
+        self
+    }
+
+    pub const fn with_xterm(mut self, value: ColorOverride) -> Self {
+        self.xterm = value;
+        self
+    }
+
+    pub const fn with_truecolor(mut self, value: ColorOverride) -> Self {
+        self.truecolor = value;
+        self
+    }
+
+    const fn to_num(self) -> u8 {
+        self.truecolor.to_num() | (self.xterm.to_num() << 2) | (self.ansi.to_num() << 4)
+    }
+
+    const fn from_num(value: u8) -> Self {
+        let truecolor = ColorOverride::from_num(value & 0b11);
+        let xterm = ColorOverride::from_num((value >> 2) & 0b11);
+        let ansi = ColorOverride::from_num((value >> 4) & 0b11);
+
+        Self {
+            truecolor,
+            xterm,
+            ansi,
+        }
+    }
+
+    const fn to_level(self, default: bool) -> ColorLevel {
+        ColorLevel {
+            ansi: self.ansi.to_bool(default),
+            xterm: self.xterm.to_bool(default),
+            truecolor: self.truecolor.to_bool(default),
+        }
+    }
+}
+
+impl Default for Override {
+    fn default() -> Self {
+        Self::none()
+    }
+}
+
+pub(crate) static OVERRIDE: AtomicOverride = AtomicOverride::none();
+
+/// Stores global [`Override`], the type layout is:
+///
+/// `__ AA XX TT`
+///
+/// The first two bits are unused, while `AA` is for ansi, `XX` for xterm, `TT`
+/// for truecolor
+pub(crate) struct AtomicOverride(AtomicU8);
+
+impl AtomicOverride {
     const fn none() -> Self {
-        Self(AtomicU8::new(NO_FORCE))
+        Self(AtomicU8::new(Override::none().to_num()))
     }
 
-    fn inner(&self) -> u8 {
-        self.0.load(Ordering::SeqCst)
+    fn load(&self) -> Override {
+        let value = self.0.load(Ordering::SeqCst);
+
+        Override::from_num(value)
     }
 
-    pub(crate) fn is_force_enabled_or_disabled(&self) -> (bool, bool) {
-        let inner = self.inner();
+    fn store(&self, value: Override) {
+        let value = value.to_num();
 
-        (inner == FORCE_ENABLE, inner == FORCE_DISABLE)
-    }
-
-    fn set_force(&self, enable: bool) {
-        self.set_unchecked(FORCE_MASK | (enable as u8));
-    }
-
-    fn unset(&self) {
-        self.set_unchecked(0);
-    }
-
-    fn set_unchecked(&self, value: u8) {
         self.0.store(value, Ordering::SeqCst);
+    }
+
+    fn store_ansi(&self, value: ColorOverride) {
+        let mut base = self.load();
+        base.ansi = value;
+
+        self.store(base);
+    }
+
+    fn store_xterm(&self, value: ColorOverride) {
+        let mut base = self.load();
+        base.xterm = value;
+
+        self.store(base);
+    }
+
+    fn store_truecolor(&self, value: ColorOverride) {
+        let mut base = self.load();
+        base.truecolor = value;
+
+        self.store(base);
     }
 }
