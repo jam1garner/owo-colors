@@ -79,6 +79,8 @@
 #![doc(html_logo_url = "https://jam1.re/img/rust_owo.svg")]
 #![warn(missing_docs)]
 
+extern crate core;
+
 pub mod colors;
 mod combo;
 mod dyn_colors;
@@ -484,7 +486,7 @@ pub use colors::dynamic::Rgb;
 pub use colors::xterm::dynamic::XtermColors;
 #[cfg(feature = "override")]
 pub use overrides::{set_override, unset_override, with_override, Stream};
-#[cfg(feature = "supports-colors")]
+#[cfg(feature = "override")]
 pub use supports_colors::SupportsColorsDisplay;
 
 // TODO: figure out some wait to only implement for fmt::Display | fmt::Debug |

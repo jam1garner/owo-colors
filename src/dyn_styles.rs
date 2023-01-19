@@ -1,8 +1,8 @@
-use crate::{AnsiColors, Color, DynColor, DynColors};
 use core::fmt;
 
 #[cfg(doc)]
 use crate::OwoColorize;
+use crate::{AnsiColors, Color, DynColor, DynColors};
 
 /// A runtime-configurable text effect for use with [`Style`]
 #[allow(missing_docs)]
@@ -64,9 +64,10 @@ pub struct Styled<T> {
     pub style: Style,
 }
 
-/// A pre-computed style that can be applied to a struct using [`OwoColorize::style`]. Its
-/// interface mimics that of [`OwoColorize`], but instead of chaining methods on your
-/// object, you instead chain them on the `Style` object before applying it.
+/// A pre-computed style that can be applied to a struct using
+/// [`OwoColorize::style`]. Its interface mimics that of [`OwoColorize`], but
+/// instead of chaining methods on your object, you instead chain them on the
+/// `Style` object before applying it.
 ///
 /// ```rust
 /// use owo_colors::{OwoColorize, Style};
@@ -127,68 +128,6 @@ impl StyleFlags {
 }
 
 impl Style {
-    /// Create a new style to be applied later
-    #[must_use]
-    pub fn new() -> Self {
-        Self::default()
-    }
-
-    /// Apply the style to a given struct to output
-    pub fn style<T>(&self, target: T) -> Styled<T> {
-        Styled {
-            target,
-            style: *self,
-        }
-    }
-
-    /// Set the foreground color generically
-    ///
-    /// ```rust
-    /// use owo_colors::{OwoColorize, colors::*};
-    ///
-    /// println!("{}", "red foreground".fg::<Red>());
-    /// ```
-    #[must_use]
-    pub fn fg<C: Color>(mut self) -> Self {
-        self.fg = Some(C::into_dyncolors());
-        self
-    }
-
-    /// Set the background color generically.
-    ///
-    /// ```rust
-    /// use owo_colors::{OwoColorize, colors::*};
-    ///
-    /// println!("{}", "black background".bg::<Black>());
-    /// ```
-    #[must_use]
-    pub fn bg<C: Color>(mut self) -> Self {
-        self.bg = Some(C::into_dyncolors());
-        self
-    }
-
-    /// Removes the foreground color from the style. Note that this does not apply
-    /// the default color, but rather represents not changing the current terminal color.
-    ///
-    /// If you wish to actively change the terminal color back to the default, see
-    /// [`Style::default_color`].
-    #[must_use]
-    pub fn remove_fg(mut self) -> Self {
-        self.fg = None;
-        self
-    }
-
-    /// Removes the background color from the style. Note that this does not apply
-    /// the default color, but rather represents not changing the current terminal color.
-    ///
-    /// If you wish to actively change the terminal color back to the default, see
-    /// [`Style::on_default_color`].
-    #[must_use]
-    pub fn remove_bg(mut self) -> Self {
-        self.bg = None;
-        self
-    }
-
     color_methods! {
         /// Change the foreground color to black
         /// Change the background color to black
@@ -251,13 +190,6 @@ impl Style {
         BrightWhite    bright_white    on_bright_white,
     }
 
-    /// Make the text bold
-    #[must_use]
-    pub fn bold(mut self) -> Self {
-        self.bold = true;
-        self
-    }
-
     style_methods! {
         /// Make the text dim
         (dimmed, set_dimmed),
@@ -275,6 +207,77 @@ impl Style {
         (hidden, set_hidden),
         /// Cross out the text
         (strikethrough, set_strikethrough),
+    }
+
+    /// Create a new style to be applied later
+    #[must_use]
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    /// Apply the style to a given struct to output
+    pub fn style<T>(&self, target: T) -> Styled<T> {
+        Styled {
+            target,
+            style: *self,
+        }
+    }
+
+    /// Set the foreground color generically
+    ///
+    /// ```rust
+    /// use owo_colors::{OwoColorize, colors::*};
+    ///
+    /// println!("{}", "red foreground".fg::<Red>());
+    /// ```
+    #[must_use]
+    pub fn fg<C: Color>(mut self) -> Self {
+        self.fg = Some(C::into_dyncolors());
+        self
+    }
+
+    /// Set the background color generically.
+    ///
+    /// ```rust
+    /// use owo_colors::{OwoColorize, colors::*};
+    ///
+    /// println!("{}", "black background".bg::<Black>());
+    /// ```
+    #[must_use]
+    pub fn bg<C: Color>(mut self) -> Self {
+        self.bg = Some(C::into_dyncolors());
+        self
+    }
+
+    /// Removes the foreground color from the style. Note that this does not
+    /// apply the default color, but rather represents not changing the
+    /// current terminal color.
+    ///
+    /// If you wish to actively change the terminal color back to the default,
+    /// see [`Style::default_color`].
+    #[must_use]
+    pub fn remove_fg(mut self) -> Self {
+        self.fg = None;
+        self
+    }
+
+    /// Removes the background color from the style. Note that this does not
+    /// apply the default color, but rather represents not changing the
+    /// current terminal color.
+    ///
+    /// If you wish to actively change the terminal color back to the default,
+    /// see [`Style::on_default_color`].
+    #[must_use]
+    pub fn remove_bg(mut self) -> Self {
+        self.bg = None;
+        self
+    }
+
+    /// Make the text bold
+    #[must_use]
+    pub fn bold(mut self) -> Self {
+        self.bold = true;
+        self
     }
 
     fn set_effect(&mut self, effect: Effect, to: bool) {
@@ -334,9 +337,11 @@ impl Style {
         self
     }
 
-    /// Set the foreground color at runtime. Only use if you do not know which color will be used at
-    /// compile-time. If the color is constant, use either [`OwoColorize::fg`](crate::OwoColorize::fg) or
-    /// a color-specific method, such as [`OwoColorize::green`](crate::OwoColorize::green),
+    /// Set the foreground color at runtime. Only use if you do not know which
+    /// color will be used at compile-time. If the color is constant, use
+    /// either [`OwoColorize::fg`](crate::OwoColorize::fg) or
+    /// a color-specific method, such as
+    /// [`OwoColorize::green`](crate::OwoColorize::green),
     ///
     /// ```rust
     /// use owo_colors::{OwoColorize, AnsiColors};
@@ -349,9 +354,11 @@ impl Style {
         self
     }
 
-    /// Set the background color at runtime. Only use if you do not know what color to use at
-    /// compile-time. If the color is constant, use either [`OwoColorize::bg`](crate::OwoColorize::bg) or
-    /// a color-specific method, such as [`OwoColorize::on_yellow`](crate::OwoColorize::on_yellow),
+    /// Set the background color at runtime. Only use if you do not know what
+    /// color to use at compile-time. If the color is constant, use either
+    /// [`OwoColorize::bg`](crate::OwoColorize::bg) or a color-specific
+    /// method, such as
+    /// [`OwoColorize::on_yellow`](crate::OwoColorize::on_yellow),
     ///
     /// ```rust
     /// use owo_colors::{OwoColorize, AnsiColors};
@@ -533,6 +540,7 @@ impl_fmt! {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::tests::assert_str;
     use crate::{AnsiColors, OwoColorize};
 
     struct StylePrefixOnly(Style);
@@ -564,15 +572,13 @@ mod tests {
             //.hidden()
             .strikethrough();
         let s = style.style("TEST");
-        let s2 = format!("{}", &s);
-        println!("{}", &s2);
-        assert_eq!(&s2, "\u{1b}[97;44;1;2;3;4;5;9mTEST\u{1b}[0m");
+        assert_str(s, "\u{1b}[97;44;1;2;3;4;5;9mTEST\u{1b}[0m");
 
-        let prefix = format!("{}", StylePrefixOnly(style));
-        assert_eq!(&prefix, "\u{1b}[97;44;1;2;3;4;5;9m");
+        let prefix = StylePrefixOnly(style);
+        assert_str(prefix, "\u{1b}[97;44;1;2;3;4;5;9m");
 
-        let suffix = format!("{}", StyleSuffixOnly(style));
-        assert_eq!(&suffix, "\u{1b}[0m");
+        let suffix = StyleSuffixOnly(style);
+        assert_str(suffix, "\u{1b}[0m");
     }
 
     #[test]
@@ -581,9 +587,7 @@ mod tests {
         let style = Style::new().effects(&[Strikethrough, Underline]);
 
         let s = style.style("TEST");
-        let s2 = format!("{}", &s);
-        println!("{}", &s2);
-        assert_eq!(&s2, "\u{1b}[4;9mTEST\u{1b}[0m");
+        assert_str(s, "\u{1b}[4;9mTEST\u{1b}[0m");
     }
 
     #[test]
@@ -593,9 +597,7 @@ mod tests {
             .on_color(AnsiColors::Black);
 
         let s = style.style("TEST");
-        let s2 = format!("{}", &s);
-        println!("{}", &s2);
-        assert_eq!(&s2, "\u{1b}[37;40mTEST\u{1b}[0m");
+        assert_str(s, "\u{1b}[37;40mTEST\u{1b}[0m");
     }
 
     #[test]
@@ -603,20 +605,16 @@ mod tests {
         let style = Style::new().truecolor(255, 255, 255).on_truecolor(0, 0, 0);
 
         let s = style.style("TEST");
-        let s2 = format!("{}", &s);
-        println!("{}", &s2);
-        assert_eq!(&s2, "\u{1b}[38;2;255;255;255;48;2;0;0;0mTEST\u{1b}[0m");
+        assert_str(s, "\u{1b}[38;2;255;255;255;48;2;0;0;0mTEST\u{1b}[0m");
     }
 
     #[test]
     fn test_string_reference() {
         let style = Style::new().truecolor(255, 255, 255).on_truecolor(0, 0, 0);
 
-        let string = String::from("TEST");
-        let s = style.style(&string);
-        let s2 = format!("{}", &s);
-        println!("{}", &s2);
-        assert_eq!(&s2, "\u{1b}[38;2;255;255;255;48;2;0;0;0mTEST\u{1b}[0m");
+        let string = "TEST";
+        let s = style.style(string);
+        assert_str(s, "\u{1b}[38;2;255;255;255;48;2;0;0;0mTEST\u{1b}[0m");
     }
 
     #[test]
@@ -624,9 +622,7 @@ mod tests {
         let style = Style::new().bright_white().on_blue();
 
         let s = "TEST".style(style);
-        let s2 = format!("{}", &s);
-        println!("{}", &s2);
-        assert_eq!(&s2, "\u{1b}[97;44mTEST\u{1b}[0m");
+        assert_str(s, "\u{1b}[97;44mTEST\u{1b}[0m");
     }
 
     #[test]
@@ -636,11 +632,10 @@ mod tests {
         assert!(!style.is_plain());
         assert!(Style::default().is_plain());
 
-        let string = String::from("TEST");
-        let s = Style::default().style(&string);
-        let s2 = format!("{}", &s);
+        let target = "TEST";
+        let s = Style::default().style(target);
 
-        assert_eq!(string, s2)
+        assert_str(s, target)
     }
 
     #[test]
@@ -653,6 +648,6 @@ mod tests {
 
         *s.inner_mut() = &"changed";
         assert_eq!(&&"changed", s.inner());
-        assert_eq!("changed", format!("{}", s));
+        assert_str(s, "changed");
     }
 }

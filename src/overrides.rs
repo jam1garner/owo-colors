@@ -2,8 +2,12 @@ use core::sync::atomic::{AtomicU8, Ordering};
 
 /// possible stream sources
 #[derive(Debug, Copy, Clone)]
+#[non_exhaustive]
 pub enum Stream {
+    /// Standard output (stdout)
     Stdout,
+
+    /// Standard error (stderr)
     Stderr,
 }
 
@@ -13,6 +17,16 @@ impl From<supports_color::Stream> for Stream {
         match value {
             supports_color::Stream::Stdout => Self::Stdout,
             supports_color::Stream::Stderr => Self::Stderr,
+        }
+    }
+}
+
+#[cfg(feature = "supports-colors")]
+impl From<Stream> for supports_color::Stream {
+    fn from(value: Stream) -> Self {
+        match value {
+            Stream::Stdout => Self::Stdout,
+            Stream::Stderr => Self::Stderr,
         }
     }
 }

@@ -1,8 +1,8 @@
-use crate::{dyn_styles::StyleFlags, Style, Styled};
-use core::{
-    fmt::{self, Display},
-    marker::PhantomData,
-};
+use core::fmt::{self, Display};
+use core::marker::PhantomData;
+
+use crate::dyn_styles::StyleFlags;
+use crate::{Style, Styled};
 
 #[cfg(feature = "alloc")]
 extern crate alloc;
@@ -43,8 +43,8 @@ impl<T: Display> IsStyled for Styled<T> {
     }
 }
 
-/// A collection of [`Styled`] items that are displayed in such a way as to minimize the amount of characters
-/// that are written when displayed.
+/// A collection of [`Styled`] items that are displayed in such a way as to
+/// minimize the amount of characters that are written when displayed.
 ///
 /// ```rust
 /// use owo_colors::{Style, Styled, StyledList};
@@ -111,7 +111,8 @@ where
 }
 
 impl<'a> Style {
-    /// Returns an enum that indicates how the transition from one style to this style should be printed
+    /// Returns an enum that indicates how the transition from one style to this
+    /// style should be printed
     fn transition_from(&'a self, from: &Style) -> Transition<'a> {
         if self == from {
             return Transition::Noop;
@@ -183,6 +184,7 @@ pub type StyledVec<T> = StyledList<alloc::vec::Vec<Styled<T>>, Styled<T>>;
 #[cfg(test)]
 mod test {
     use super::*;
+    use crate::tests::assert_str;
 
     #[test]
     fn test_styled_list() {
@@ -194,9 +196,9 @@ mod test {
 
         let list = StyledList::from(list);
 
-        assert_eq!(
-            format!("{}", list),
-            "\x1b[31mred\x1b[32;3mgreen italic\x1b[0m\x1b[31;1mred bold\x1b[0m"
+        assert_str(
+            list,
+            "\x1b[31mred\x1b[32;3mgreen italic\x1b[0m\x1b[31;1mred bold\x1b[0m",
         );
     }
 
@@ -210,10 +212,7 @@ mod test {
 
         let list = StyledList::from(list);
 
-        assert_eq!(
-            format!("{}", list),
-            "\x1b[31mred\x1b[32;3mgreen italic\x1b[0mplain"
-        );
+        assert_str(list, "\x1b[31mred\x1b[32;3mgreen italic\x1b[0mplain");
     }
 
     #[test]
