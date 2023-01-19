@@ -6,13 +6,14 @@ use core::fmt;
 pub struct SupportsColorsDisplay<'a, InVal, Out, ApplyFn>(
     pub(crate) &'a InVal,
     pub(crate) ApplyFn,
-    pub(crate) supports_color::Stream,
+    pub(crate) Stream,
 )
 where
     InVal: ?Sized,
     ApplyFn: Fn(&'a InVal) -> Out;
 
-use crate::OVERRIDE;
+use crate::overrides::supports;
+use crate::Stream;
 
 macro_rules! impl_fmt_for {
     ($($trait:path),* $(,)?) => {
@@ -23,26 +24,8 @@ macro_rules! impl_fmt_for {
                       F: Fn(&'a In) -> Out,
             {
                 #[inline(always)]
-                #[cfg(feature = "supports-colors")]
                 fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-                    let (force_enabled, force_disabled) = OVERRIDE.is_force_enabled_or_disabled();
-                    if force_enabled || (
-                        supports_color::on_cached(self.2)
-                            .map(|level| level.has_basic)
-                            .unwrap_or(false)
-                        && !force_disabled
-                    ) {
-                        <Out as $trait>::fmt(&self.1(self.0), f)
-                    } else {
-                        <In as $trait>::fmt(self.0, f)
-                    }
-                }
-
-                #[inline(always)]
-                #[cfg(not(feature = "supports-colors"))]
-                fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-                    let (force_enabled, force_disabled) = OVERRIDE.is_force_enabled_or_disabled();
-                    if force_enabled && !force_disabled {
+                    if supports(self.2).ansi() {
                         <Out as $trait>::fmt(&self.1(self.0), f)
                     } else {
                         <In as $trait>::fmt(self.0, f)
