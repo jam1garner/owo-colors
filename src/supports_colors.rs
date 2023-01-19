@@ -42,7 +42,7 @@ macro_rules! impl_fmt_for {
                 #[cfg(not(feature = "supports-colors"))]
                 fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
                     let (force_enabled, force_disabled) = OVERRIDE.is_force_enabled_or_disabled();
-                    if force_enabled || && !force_disabled {
+                    if force_enabled && !force_disabled {
                         <Out as $trait>::fmt(&self.1(self.0), f)
                     } else {
                         <In as $trait>::fmt(self.0, f)
