@@ -50,7 +50,7 @@ jobs:
         uses: actions/checkout@v3.2.0
 
       - name: Restore cargo cache
-        uses: actions/cache@v3.2.1
+        uses: actions/cache@v3.2.4
         env:
           cache-name: ci
         with:
