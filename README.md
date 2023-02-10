@@ -1,4 +1,4 @@
-# <img src="https://jam1.re/img/rust_owo.svg" height="100"> Colors
+# <img style="background:white" src="https://jam1.re/img/rust_owo.svg" height="100"> Colors
 
 [![Current Crates.io Version](https://img.shields.io/crates/v/owo-colors.svg)](https://crates.io/crates/owo-colors)
 [![docs-rs](https://docs.rs/owo-colors/badge.svg)](https://docs.rs/owo-colors)
