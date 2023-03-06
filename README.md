@@ -92,5 +92,5 @@ println!(
 ```
 
 Supports `NO_COLOR`/`FORCE_COLOR` environment variables, checks if it's a tty,
-checks if it's running in CI (and thus likely supports color), and checks which
+checks if it's running in CI (and thus unlikely supports color), and checks which
 terminal is being used. (Note: requires `supports-colors` feature)
