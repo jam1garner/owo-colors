@@ -2,7 +2,7 @@
 
 [![Current Crates.io Version](https://img.shields.io/crates/v/owo-colors.svg)](https://crates.io/crates/owo-colors)
 [![docs-rs](https://docs.rs/owo-colors/badge.svg)](https://docs.rs/owo-colors)
-![MSRV 1.51+](https://img.shields.io/badge/rustc-1.51+-blue.svg)
+![MSRV 1.56+](https://img.shields.io/badge/rustc-1.56+-blue.svg)
 ![Downloads](https://img.shields.io/crates/d/owo-colors)
 
 A zero-allocation no_std-compatible zero-cost way to add color to your Rust
