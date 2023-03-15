@@ -172,7 +172,7 @@ macro_rules! style_methods {
             #[$meta]
             #[must_use]
             #[inline(always)]
-            fn $name<'a>(&'a self) -> styles::$ty<'a, Self> {
+            fn $name(&self) -> styles::$ty<'_, Self> {
                 styles::$ty(self)
             }
          )*
@@ -189,14 +189,14 @@ macro_rules! color_methods {
             #[$fg_meta]
             #[must_use]
             #[inline(always)]
-            fn $fg_method<'a>(&'a self) -> FgColorDisplay<'a, colors::$color, Self> {
+            fn $fg_method(&self) -> FgColorDisplay<'_, colors::$color, Self> {
                 FgColorDisplay(self, PhantomData)
             }
 
             #[$bg_meta]
             #[must_use]
             #[inline(always)]
-            fn $bg_method<'a>(&'a self) -> BgColorDisplay<'a, colors::$color, Self> {
+            fn $bg_method(&self) -> BgColorDisplay<'_, colors::$color, Self> {
                 BgColorDisplay(self, PhantomData)
             }
          )*
