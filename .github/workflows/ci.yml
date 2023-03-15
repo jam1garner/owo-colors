@@ -49,18 +49,6 @@ jobs:
       - name: Checkout sources
         uses: actions/checkout@v3
 
-      - name: Restore cargo cache
-        uses: actions/cache@v3.2.1
-        env:
-          cache-name: ci
-        with:
-          path: |
-            ~/.cargo/registry
-            ~/.cargo/git
-            ~/.cargo/bin
-            target
-          key: ${{ matrix.os }}-${{ env.cache-name }}-${{ matrix.rust }}-${{ hashFiles('Cargo.lock') }}
-
       - name: Install Rust toolchain
         uses: actions-rs/toolchain@v1
         with:
@@ -68,6 +56,9 @@ jobs:
           toolchain: ${{ matrix.rust }}
           override: true
           components: clippy
+
+      - name: Restore cargo cache
+        uses: Swatinem/rust-cache@v2
 
       - name: Run lints
         uses: actions-rs/cargo@v1
