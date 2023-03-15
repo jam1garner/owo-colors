@@ -30,10 +30,7 @@ jobs:
           components: rustfmt
 
       - name: Check formatting
-        uses: actions-rs/cargo@v1
-        with:
-          command: fmt
-          args: -- --check
+        run: cargo fmt --check
 
   build:
     name: Lint and test check
@@ -61,13 +58,7 @@ jobs:
         uses: Swatinem/rust-cache@v2
 
       - name: Run lints
-        uses: actions-rs/cargo@v1
-        with:
-          command: clippy
-          args: -- -D warnings
+        run: cargo clippy -- -D warnings
 
       - name: Run tests
-        uses: actions-rs/cargo@v1
-        with:
-          command: test
-          args: --all-features --example all_xterm_colors --example colors --example dyn_colors --example override --example custom_colors --example extra_colors --example supports_color
+        run: cargo test --all-features --all-targets
