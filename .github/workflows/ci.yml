@@ -7,11 +7,8 @@ on:
   pull_request:
     branches:
       - master
-    paths:
-      - "**.rs"
-      - "Cargo.toml"
-      - "Cargo.lock"
-      - ".github/workflows/*"
+    paths-ignore:
+      - "README.md"
 
 jobs:
   fmt:
