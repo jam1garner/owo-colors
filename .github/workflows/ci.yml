@@ -42,7 +42,7 @@ jobs:
       fail-fast: false
       matrix:
         rust:
-          - 1.51.0
+          - 1.56.0
           - stable
           - nightly
     steps:
