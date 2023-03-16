@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v3.2.0
+        uses: actions/checkout@v3.4.0
 
       - name: Install Rust toolchain
         uses: actions-rs/toolchain@v1
@@ -47,7 +47,7 @@ jobs:
           - nightly
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v3.2.0
+        uses: actions/checkout@v3.4.0
 
       - name: Restore cargo cache
         uses: actions/cache@v3.2.1
