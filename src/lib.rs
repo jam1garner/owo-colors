@@ -95,7 +95,7 @@ use core::fmt;
 use core::marker::PhantomData;
 
 /// A trait for describing a type which can be used with [`FgColorDisplay`](FgColorDisplay) or
-/// [`BgCBgColorDisplay`](BgColorDisplay)
+/// [`BgColorDisplay`](BgColorDisplay)
 pub trait Color {
     /// The ANSI format code for setting this color as the foreground
     const ANSI_FG: &'static str;
