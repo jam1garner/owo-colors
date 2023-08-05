@@ -61,7 +61,7 @@ impl_fmt_for_combo! {
     fmt::Pointer,
 }
 
-/// implement specialized color methods for FgColorDisplay BgColorDisplay, ComboColorDisplay
+/// implement specialized color methods for `FgColorDisplay`, `BgColorDisplay` and `ComboColorDisplay`
 macro_rules! color_methods {
     ($(
         #[$fg_meta:meta] #[$bg_meta:meta] $color:ident $fg_method:ident $bg_method:ident
