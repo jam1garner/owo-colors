@@ -81,7 +81,7 @@ macro_rules! color_methods {
             ///
             /// println!("{}", "green".color(AnsiColors::Green));
             /// ```
-            pub fn color<NewFg: DynColor>(
+            pub const fn color<NewFg: DynColor>(
                 self,
                 fg: NewFg,
             ) -> FgDynColorDisplay<'a, NewFg, T> {
@@ -97,7 +97,7 @@ macro_rules! color_methods {
             ///
             /// println!("{}", "yellow background".on_color(AnsiColors::BrightYellow));
             /// ```
-            pub fn on_color<NewBg: DynColor>(
+            pub const fn on_color<NewBg: DynColor>(
                 self,
                 bg: NewBg,
             ) -> ComboDynColorDisplay<'a, Fg::DynEquivelant, NewBg, T> {
@@ -111,7 +111,7 @@ macro_rules! color_methods {
             ///
             /// println!("{}", "red foreground".fg::<Red>());
             /// ```
-            pub fn fg<C: Color>(self) -> FgColorDisplay<'a, C, T> {
+            pub const fn fg<C: Color>(self) -> FgColorDisplay<'a, C, T> {
                 FgColorDisplay(self.0, PhantomData)
             }
 
@@ -122,20 +122,20 @@ macro_rules! color_methods {
             ///
             /// println!("{}", "black background".bg::<Black>());
             /// ```
-            pub fn bg<C: Color>(self) -> ComboColorDisplay<'a, Fg, C, T> {
+            pub const fn bg<C: Color>(self) -> ComboColorDisplay<'a, Fg, C, T> {
                 ComboColorDisplay(self.0, PhantomData)
             }
 
             $(
                 #[$fg_meta]
                 #[inline(always)]
-                pub fn $fg_method(self) -> FgColorDisplay<'a, colors::$color, T> {
+                pub const fn $fg_method(self) -> FgColorDisplay<'a, colors::$color, T> {
                     FgColorDisplay(self.0, PhantomData)
                 }
 
                 #[$bg_meta]
                 #[inline(always)]
-                pub fn $bg_method(self) -> ComboColorDisplay<'a, Fg, colors::$color, T> {
+                pub const fn $bg_method(self) -> ComboColorDisplay<'a, Fg, colors::$color, T> {
                     ComboColorDisplay(self.0, PhantomData)
                 }
              )*
@@ -156,7 +156,7 @@ macro_rules! color_methods {
             ///
             /// println!("{}", "green".color(AnsiColors::Green));
             /// ```
-            pub fn color<NewFg: DynColor>(
+            pub const fn color<NewFg: DynColor>(
                 self,
                 fg: NewFg,
             ) -> ComboDynColorDisplay<'a, NewFg, Bg::DynEquivelant, T> {
@@ -172,7 +172,7 @@ macro_rules! color_methods {
             ///
             /// println!("{}", "yellow background".on_color(AnsiColors::BrightYellow));
             /// ```
-            pub fn on_color<NewBg: DynColor>(
+            pub const fn on_color<NewBg: DynColor>(
                 self,
                 bg: NewBg,
             ) -> BgDynColorDisplay<'a, NewBg, T> {
@@ -186,7 +186,7 @@ macro_rules! color_methods {
             ///
             /// println!("{}", "red foreground".fg::<Red>());
             /// ```
-            pub fn fg<C: Color>(self) -> ComboColorDisplay<'a, C, Bg, T> {
+            pub const fn fg<C: Color>(self) -> ComboColorDisplay<'a, C, Bg, T> {
                 ComboColorDisplay(self.0, PhantomData)
             }
 
@@ -197,20 +197,20 @@ macro_rules! color_methods {
             ///
             /// println!("{}", "black background".bg::<Black>());
             /// ```
-            pub fn bg<C: Color>(self) -> BgColorDisplay<'a, C, T> {
+            pub const fn bg<C: Color>(self) -> BgColorDisplay<'a, C, T> {
                 BgColorDisplay(self.0, PhantomData)
             }
 
             $(
                 #[$bg_meta]
                 #[inline(always)]
-                pub fn $bg_method(self) -> BgColorDisplay<'a, colors::$color, T> {
+                pub const fn $bg_method(self) -> BgColorDisplay<'a, colors::$color, T> {
                     BgColorDisplay(self.0, PhantomData)
                 }
 
                 #[$fg_meta]
                 #[inline(always)]
-                pub fn $fg_method(self) -> ComboColorDisplay<'a, colors::$color, Bg, T> {
+                pub const fn $fg_method(self) -> ComboColorDisplay<'a, colors::$color, Bg, T> {
                     ComboColorDisplay(self.0, PhantomData)
                 }
              )*
@@ -232,7 +232,7 @@ macro_rules! color_methods {
             ///
             /// println!("{}", "yellow background".on_color(AnsiColors::BrightYellow));
             /// ```
-            pub fn on_color<NewBg: DynColor>(
+            pub const fn on_color<NewBg: DynColor>(
                 self,
                 bg: NewBg,
             ) -> ComboDynColorDisplay<'a, Fg::DynEquivelant, NewBg, T> {
@@ -248,7 +248,7 @@ macro_rules! color_methods {
             ///
             /// println!("{}", "green".color(AnsiColors::Green));
             /// ```
-            pub fn color<NewFg: DynColor>(
+            pub const fn color<NewFg: DynColor>(
                 self,
                 fg: NewFg,
             ) -> ComboDynColorDisplay<'a, NewFg, Bg::DynEquivelant, T> {
@@ -262,7 +262,7 @@ macro_rules! color_methods {
             ///
             /// println!("{}", "red foreground".fg::<Red>());
             /// ```
-            pub fn fg<C: Color>(self) -> ComboColorDisplay<'a, C, Bg, T> {
+            pub const fn fg<C: Color>(self) -> ComboColorDisplay<'a, C, Bg, T> {
                 ComboColorDisplay(self.0, PhantomData)
             }
 
@@ -273,20 +273,20 @@ macro_rules! color_methods {
             ///
             /// println!("{}", "black background".bg::<Black>());
             /// ```
-            pub fn bg<C: Color>(self) -> ComboColorDisplay<'a, Fg, C, T> {
+            pub const fn bg<C: Color>(self) -> ComboColorDisplay<'a, Fg, C, T> {
                 ComboColorDisplay(self.0, PhantomData)
             }
 
             $(
                 #[$bg_meta]
                 #[inline(always)]
-                pub fn $bg_method(self) -> ComboColorDisplay<'a, Fg, colors::$color, T> {
+                pub const fn $bg_method(self) -> ComboColorDisplay<'a, Fg, colors::$color, T> {
                     ComboColorDisplay(self.0, PhantomData)
                 }
 
                 #[$fg_meta]
                 #[inline(always)]
-                pub fn $fg_method(self) -> ComboColorDisplay<'a, colors::$color, Bg, T> {
+                pub const fn $fg_method(self) -> ComboColorDisplay<'a, colors::$color, Bg, T> {
                     ComboColorDisplay(self.0, PhantomData)
                 }
             )*
