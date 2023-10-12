@@ -85,17 +85,17 @@ mod dyn_styles;
 mod styled_list;
 pub mod styles;
 
-#[cfg(feature = "supports-colors")]
+#[cfg(any(feature = "supports-colors", feature = "supports-colors-2"))]
 mod overrides;
 
-#[cfg(feature = "supports-colors")]
+#[cfg(any(feature = "supports-colors", feature = "supports-colors-2"))]
 pub(crate) use overrides::OVERRIDE;
 
 use core::fmt;
 use core::marker::PhantomData;
 
 /// A trait for describing a type which can be used with [`FgColorDisplay`](FgColorDisplay) or
-/// [`BgCBgColorDisplay`](BgColorDisplay)
+/// [`BgColorDisplay`](BgColorDisplay)
 pub trait Color {
     /// The ANSI format code for setting this color as the foreground
     const ANSI_FG: &'static str;
@@ -437,40 +437,65 @@ pub trait OwoColorize: Sized {
     /// supports at least basic ANSI colors, allowing you to conditionally apply
     /// given styles/colors.
     ///
-    /// Requires the `supports-colors` feature.
+    /// Requires the `supports-colors-2` feature, or the deprecated `supports-colors` feature.
     ///
     /// ```rust
-    /// use owo_colors::{OwoColorize, Stream};
+    /// use owo_colors::{OutputStream, OwoColorize};
     ///
     /// println!(
     ///     "{}",
     ///     "woah! error! if this terminal supports colors, it's blue"
-    ///         .if_supports_color(Stream::Stdout, |text| text.bright_blue())
+    ///         .if_supports_color(OutputStream::Stdout, |text| text.bright_blue())
     /// );
     /// ```
+    ///
+    /// This function also accepts `supports_color` version 2's `Stream`, and also the deprecated
+    /// `supports_color` version 1's `Stream`.
+    ///
+    /// ```rust
+    /// use owo_colors::OwoColorize;
+    /// #[cfg(feature = "supports-colors-2")]
+    /// use supports_color_2::Stream;
+    /// #[cfg(all(feature = "supports-colors", not(feature = "supports-colors-2")))]
+    /// use supports_color::Stream;
+    ///
+    /// println!(
+    ///    "{}",
+    ///    "woah! error! if this terminal supports colors, it's blue"
+    ///       .if_supports_color(Stream::Stdout, |text| text.bright_blue())
+    /// );
     #[must_use]
-    #[cfg(feature = "supports-colors")]
+    #[cfg(any(feature = "supports-colors", feature = "supports-colors-2"))]
     fn if_supports_color<'a, Out, ApplyFn>(
         &'a self,
-        stream: Stream,
+        stream: impl Into<OutputStream>,
         apply: ApplyFn,
     ) -> SupportsColorsDisplay<'a, Self, Out, ApplyFn>
     where
         ApplyFn: Fn(&'a Self) -> Out,
     {
-        SupportsColorsDisplay(self, apply, stream)
+        SupportsColorsDisplay(self, apply, stream.into())
     }
 }
 
-#[cfg(feature = "supports-colors")]
+#[cfg(any(feature = "supports-colors", feature = "supports-colors-2"))]
 mod supports_colors;
 
-#[cfg(feature = "supports-colors")]
+#[cfg(any(feature = "supports-colors", feature = "supports-colors-2"))]
 pub use {
     overrides::{set_override, unset_override, with_override},
-    supports_color::Stream,
-    supports_colors::SupportsColorsDisplay,
+    supports_colors::{OutputStream, SupportsColorsDisplay},
 };
+
+/// Exports cannot be deprecated yet: https://github.com/rust-lang/rust/issues/30827 but this is put
+/// in here to enable deprecations as soon as that is enabled.
+#[cfg(feature = "supports-colors")]
+#[deprecated(
+    since = "3.7.0",
+    note = "Use supports-colors-2 and OutputStream instead of Stream"
+)]
+#[doc(no_inline)]
+pub use supports_color::Stream;
 
 pub use colors::{
     ansi_colors::AnsiColors, css::dynamic::CssColors, dynamic::Rgb, xterm::dynamic::XtermColors,

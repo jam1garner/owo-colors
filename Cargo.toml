@@ -1,7 +1,7 @@
 [package]
 name = "owo-colors"
 version = "3.6.0"
-rust-version = "1.51"
+rust-version = "1.56"
 authors = ["jam1garner <8260240+jam1garner@users.noreply.github.com>"]
 edition = "2018"
 documentation = "https://docs.rs/owo-colors"
@@ -26,7 +26,9 @@ required-features = ["supports-colors"]
 
 [features]
 supports-colors = ["supports-color"]
+supports-colors-2 = ["supports-color-2"]
 alloc = []
 
 [dependencies]
-supports-color = { version = "2.0", optional = true }
+supports-color = { version = "1.3", optional = true }
+supports-color-2 = { package = "supports-color", version = "2.0", optional = true }
