@@ -1,58 +1,17 @@
 use core::fmt;
+use supports_color::Stream;
 
 mod private {
     pub(super) trait Sealed {}
 }
 
-/// A possible stream source.
-///
-/// This can be used
-#[derive(Clone, Copy, Debug)]
-pub enum OutputStream {
-    /// Standard output.
-    Stdout,
-
-    /// Standard error.
-    Stderr,
-
-    /// Standard input. Only used to retain compatibility with supports-colors v1.
-    #[doc(hidden)]
-    #[deprecated(
-        since = "3.7.0",
-        note = "This is only used to retain compatibility with supports-colors v1."
-    )]
-    Stdin,
-}
-
 #[cfg(feature = "supports-colors")]
-impl From<supports_color::Stream> for OutputStream {
-    fn from(stream: supports_color::Stream) -> Self {
-        match stream {
-            supports_color::Stream::Stdout => OutputStream::Stdout,
-            supports_color::Stream::Stderr => OutputStream::Stderr,
-            #[allow(deprecated)]
-            supports_color::Stream::Stdin => OutputStream::Stdin,
-        }
-    }
-}
-
-#[cfg(feature = "supports-colors-2")]
-impl From<supports_color_2::Stream> for OutputStream {
-    fn from(stream: supports_color_2::Stream) -> Self {
-        match stream {
-            supports_color_2::Stream::Stdout => OutputStream::Stdout,
-            supports_color_2::Stream::Stderr => OutputStream::Stderr,
-        }
-    }
-}
-
-#[cfg(any(feature = "supports-colors", feature = "supports-colors-2"))]
 /// A display wrapper which applies a transformation based on if the given stream supports
 /// colored terminal output
 pub struct SupportsColorsDisplay<'a, InVal, Out, ApplyFn>(
     pub(crate) &'a InVal,
     pub(crate) ApplyFn,
-    pub(crate) OutputStream,
+    pub(crate) Stream,
 )
 where
     InVal: ?Sized,
@@ -82,31 +41,7 @@ macro_rules! impl_fmt_for {
     };
 }
 
-/// Use supports-colors v2 if it is enabled.
-#[cfg(feature = "supports-colors-2")]
-fn on_cached(stream: OutputStream) -> bool {
-    let stream = match stream {
-        OutputStream::Stdout => supports_color_2::Stream::Stdout,
-        OutputStream::Stderr => supports_color_2::Stream::Stderr,
-        #[allow(deprecated)]
-        OutputStream::Stdin => {
-            panic!("stdin is not supported if supports-colors-2 is enabled")
-        }
-    };
-    supports_color_2::on_cached(stream)
-        .map(|level| level.has_basic)
-        .unwrap_or(false)
-}
-
-/// Use supports-colors v1 if v2 is not enabled.
-#[cfg(all(feature = "supports-color", not(feature = "supports-colors-2")))]
-fn on_cached(stream: OutputStream) -> bool {
-    let stream = match stream {
-        OutputStream::Stdout => supports_color::Stream::Stdout,
-        OutputStream::Stderr => supports_color::Stream::Stderr,
-        #[allow(deprecated)]
-        OutputStream::Stdin => supports_color::Stream::Stdin,
-    };
+fn on_cached(stream: Stream) -> bool {
     supports_color::on_cached(stream)
         .map(|level| level.has_basic)
         .unwrap_or(false)

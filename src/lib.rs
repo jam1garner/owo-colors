@@ -85,10 +85,10 @@ mod dyn_styles;
 mod styled_list;
 pub mod styles;
 
-#[cfg(any(feature = "supports-colors", feature = "supports-colors-2"))]
+#[cfg(feature = "supports-colors")]
 mod overrides;
 
-#[cfg(any(feature = "supports-colors", feature = "supports-colors-2"))]
+#[cfg(feature = "supports-colors")]
 pub(crate) use overrides::OVERRIDE;
 
 use core::fmt;
@@ -437,15 +437,15 @@ pub trait OwoColorize: Sized {
     /// supports at least basic ANSI colors, allowing you to conditionally apply
     /// given styles/colors.
     ///
-    /// Requires the `supports-colors-2` feature, or the deprecated `supports-colors` feature.
+    /// Requires the `supports-colors` feature.
     ///
     /// ```rust
-    /// use owo_colors::{OutputStream, OwoColorize};
+    /// use owo_colors::{Stream, OwoColorize};
     ///
     /// println!(
     ///     "{}",
     ///     "woah! error! if this terminal supports colors, it's blue"
-    ///         .if_supports_color(OutputStream::Stdout, |text| text.bright_blue())
+    ///         .if_supports_color(Stream::Stdout, |text| text.bright_blue())
     /// );
     /// ```
     ///
@@ -454,9 +454,7 @@ pub trait OwoColorize: Sized {
     ///
     /// ```rust
     /// use owo_colors::OwoColorize;
-    /// #[cfg(feature = "supports-colors-2")]
-    /// use supports_color_2::Stream;
-    /// #[cfg(all(feature = "supports-colors", not(feature = "supports-colors-2")))]
+    /// #[cfg(feature = "supports-colors")]
     /// use supports_color::Stream;
     ///
     /// println!(
@@ -465,10 +463,10 @@ pub trait OwoColorize: Sized {
     ///       .if_supports_color(Stream::Stdout, |text| text.bright_blue())
     /// );
     #[must_use]
-    #[cfg(any(feature = "supports-colors", feature = "supports-colors-2"))]
+    #[cfg(feature = "supports-colors")]
     fn if_supports_color<'a, Out, ApplyFn>(
         &'a self,
-        stream: impl Into<OutputStream>,
+        stream: Stream,
         apply: ApplyFn,
     ) -> SupportsColorsDisplay<'a, Self, Out, ApplyFn>
     where
@@ -478,22 +476,16 @@ pub trait OwoColorize: Sized {
     }
 }
 
-#[cfg(any(feature = "supports-colors", feature = "supports-colors-2"))]
+#[cfg(feature = "supports-colors")]
 mod supports_colors;
 
-#[cfg(any(feature = "supports-colors", feature = "supports-colors-2"))]
+#[cfg(feature = "supports-colors")]
 pub use {
     overrides::{set_override, unset_override, with_override},
-    supports_colors::{OutputStream, SupportsColorsDisplay},
+    supports_colors::SupportsColorsDisplay,
 };
 
-/// Exports cannot be deprecated yet: https://github.com/rust-lang/rust/issues/30827 but this is put
-/// in here to enable deprecations as soon as that is enabled.
 #[cfg(feature = "supports-colors")]
-#[deprecated(
-    since = "3.7.0",
-    note = "Use supports-colors-2 and OutputStream instead of Stream"
-)]
 #[doc(no_inline)]
 pub use supports_color::Stream;
 

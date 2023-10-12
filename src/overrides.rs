@@ -10,20 +10,20 @@ use core::sync::atomic::{AtomicU8, Ordering};
 /// override the supported color set, without impacting previous configurations.
 ///
 /// ```
-/// # use owo_colors::{OutputStream, OwoColorize, set_override, unset_override, with_override};
+/// # use owo_colors::{Stream, OwoColorize, set_override, unset_override, with_override};
 /// # use owo_colors::colors::Black;
 /// #
 /// set_override(false);
-/// assert_eq!("example".if_supports_color(OutputStream::Stdout, |value| value.bg::<Black>()).to_string(), "example");
+/// assert_eq!("example".if_supports_color(Stream::Stdout, |value| value.bg::<Black>()).to_string(), "example");
 ///
 /// with_override(true, || {
-///     assert_eq!("example".if_supports_color(OutputStream::Stdout, |value| value.bg::<Black>()).to_string(), "\x1b[40mexample\x1b[49m");
+///     assert_eq!("example".if_supports_color(Stream::Stdout, |value| value.bg::<Black>()).to_string(), "\x1b[40mexample\x1b[49m");
 /// });
 ///
-/// assert_eq!("example".if_supports_color(OutputStream::Stdout, |value| value.bg::<Black>()).to_string(), "example");
+/// assert_eq!("example".if_supports_color(Stream::Stdout, |value| value.bg::<Black>()).to_string(), "example");
 /// # unset_override() // make sure that other doc tests are not impacted
 /// ```
-#[cfg(any(feature = "supports-colors", feature = "supports-colors-2"))]
+#[cfg(feature = "supports-colors")]
 pub fn with_override<T, F: FnOnce() -> T>(enabled: bool, f: F) -> T {
     let previous = OVERRIDE.inner();
     OVERRIDE.set_force(enabled);
@@ -47,7 +47,7 @@ pub fn with_override<T, F: FnOnce() -> T>(enabled: bool, f: F) -> T {
 ///
 /// This behavior can be disabled using [`unset_override`], allowing
 /// `owo-colors` to return to inferring if colors are supported.
-#[cfg(any(feature = "supports-colors", feature = "supports-colors-2"))]
+#[cfg(feature = "supports-colors")]
 pub fn set_override(enabled: bool) {
     OVERRIDE.set_force(enabled);
 }
@@ -58,7 +58,7 @@ pub fn set_override(enabled: bool) {
 /// supports colors.
 ///
 /// This override can be set using [`set_override`].
-#[cfg(any(feature = "supports-colors", feature = "supports-colors-2"))]
+#[cfg(feature = "supports-colors")]
 pub fn unset_override() {
     OVERRIDE.unset();
 }
