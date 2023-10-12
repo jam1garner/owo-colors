@@ -100,7 +100,7 @@ macro_rules! color_methods {
             pub fn on_color<NewBg: DynColor>(
                 self,
                 bg: NewBg,
-            ) -> ComboDynColorDisplay<'a, Fg::DynEquivelant, NewBg, T> {
+            ) -> ComboDynColorDisplay<'a, Fg::DynEquivalent, NewBg, T> {
                 ComboDynColorDisplay(self.0, Fg::DYN_EQUIVELANT, bg)
             }
 
@@ -159,7 +159,7 @@ macro_rules! color_methods {
             pub fn color<NewFg: DynColor>(
                 self,
                 fg: NewFg,
-            ) -> ComboDynColorDisplay<'a, NewFg, Bg::DynEquivelant, T> {
+            ) -> ComboDynColorDisplay<'a, NewFg, Bg::DynEquivalent, T> {
                 ComboDynColorDisplay(self.0, fg, Bg::DYN_EQUIVELANT)
             }
 
@@ -235,7 +235,7 @@ macro_rules! color_methods {
             pub fn on_color<NewBg: DynColor>(
                 self,
                 bg: NewBg,
-            ) -> ComboDynColorDisplay<'a, Fg::DynEquivelant, NewBg, T> {
+            ) -> ComboDynColorDisplay<'a, Fg::DynEquivalent, NewBg, T> {
                 ComboDynColorDisplay(self.0, Fg::DYN_EQUIVELANT, bg)
             }
 
@@ -251,7 +251,7 @@ macro_rules! color_methods {
             pub fn color<NewFg: DynColor>(
                 self,
                 fg: NewFg,
-            ) -> ComboDynColorDisplay<'a, NewFg, Bg::DynEquivelant, T> {
+            ) -> ComboDynColorDisplay<'a, NewFg, Bg::DynEquivalent, T> {
                 ComboDynColorDisplay(self.0, fg, Bg::DYN_EQUIVELANT)
             }
 

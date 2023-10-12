@@ -112,10 +112,10 @@ pub trait Color {
     const RAW_ANSI_BG: &'static str;
 
     #[doc(hidden)]
-    type DynEquivelant: DynColor;
+    type DynEquivalent: DynColor;
 
     #[doc(hidden)]
-    const DYN_EQUIVELANT: Self::DynEquivelant;
+    const DYN_EQUIVELANT: Self::DynEquivalent;
 
     #[doc(hidden)]
     fn into_dyncolors() -> crate::DynColors;

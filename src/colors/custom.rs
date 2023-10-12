@@ -92,10 +92,10 @@ impl<const R: u8, const G: u8, const B: u8> Color for CustomColor<R, G, B> {
         unsafe { core::mem::transmute(&rgb_to_ansi_color(R, G, B, false) as &[u8]) };
 
     #[doc(hidden)]
-    type DynEquivelant = crate::Rgb;
+    type DynEquivalent = crate::Rgb;
 
     #[doc(hidden)]
-    const DYN_EQUIVELANT: Self::DynEquivelant = crate::Rgb(R, G, B);
+    const DYN_EQUIVELANT: Self::DynEquivalent = crate::Rgb(R, G, B);
 
     #[doc(hidden)]
     fn into_dyncolors() -> crate::DynColors {
