@@ -42,7 +42,7 @@ jobs:
       fail-fast: false
       matrix:
         rust:
-          - 1.51.0
+          - 1.56.0
           - stable
           - nightly
     steps:
@@ -80,3 +80,12 @@ jobs:
         with:
           command: test
           args: --all-features --example all_xterm_colors --example colors --example dyn_colors --example override --example custom_colors --example extra_colors --example supports_color
+
+      - name: Install cargo-hack
+        uses: taiki-e/install-action@cargo-hack
+
+      - name: Run tests with feature powerset
+        # Note: you might think that we can also pass in `--exclude-all-features` here, but that
+        # isn't the case because if you pass in a --example, it doesn't run doctests. The below
+        # expression will run doctests as well.
+        run: cargo hack --feature-powerset
