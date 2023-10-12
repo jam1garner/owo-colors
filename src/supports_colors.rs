@@ -1,5 +1,4 @@
 use core::fmt;
-use supports_color::Stream;
 
 mod private {
     pub(super) trait Sealed {}
@@ -17,7 +16,28 @@ where
     InVal: ?Sized,
     ApplyFn: Fn(&'a InVal) -> Out;
 
+/// A possible stream source.
+///
+/// This can be used
+#[derive(Clone, Copy, Debug)]
+pub enum Stream {
+    /// Standard output.
+    Stdout,
+
+    /// Standard error.
+    Stderr,
+}
+
 use crate::OVERRIDE;
+
+impl From<supports_color::Stream> for Stream {
+    fn from(stream: supports_color::Stream) -> Self {
+        match stream {
+            supports_color::Stream::Stdout => Self::Stdout,
+            supports_color::Stream::Stderr => Self::Stderr,
+        }
+    }
+}
 
 macro_rules! impl_fmt_for {
     ($($trait:path),* $(,)?) => {
@@ -42,6 +62,10 @@ macro_rules! impl_fmt_for {
 }
 
 fn on_cached(stream: Stream) -> bool {
+    let stream = match stream {
+        Stream::Stdout => supports_color::Stream::Stdout,
+        Stream::Stderr => supports_color::Stream::Stderr,
+    };
     supports_color::on_cached(stream)
         .map(|level| level.has_basic)
         .unwrap_or(false)

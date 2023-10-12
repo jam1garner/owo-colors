@@ -466,7 +466,7 @@ pub trait OwoColorize: Sized {
     #[cfg(feature = "supports-colors")]
     fn if_supports_color<'a, Out, ApplyFn>(
         &'a self,
-        stream: Stream,
+        stream: impl Into<Stream>,
         apply: ApplyFn,
     ) -> SupportsColorsDisplay<'a, Self, Out, ApplyFn>
     where
@@ -487,7 +487,7 @@ pub use {
 
 #[cfg(feature = "supports-colors")]
 #[doc(no_inline)]
-pub use supports_color::Stream;
+pub use supports_colors::Stream;
 
 pub use colors::{
     ansi_colors::AnsiColors, css::dynamic::CssColors, dynamic::Rgb, xterm::dynamic::XtermColors,
