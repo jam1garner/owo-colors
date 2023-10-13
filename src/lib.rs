@@ -115,7 +115,7 @@ pub trait Color {
     type DynEquivalent: DynColor;
 
     #[doc(hidden)]
-    const DYN_EQUIVELANT: Self::DynEquivalent;
+    const DYN_EQUIVALENT: Self::DynEquivalent;
 
     #[doc(hidden)]
     fn into_dyncolors() -> crate::DynColors;

@@ -95,7 +95,7 @@ impl<const R: u8, const G: u8, const B: u8> Color for CustomColor<R, G, B> {
     type DynEquivalent = crate::Rgb;
 
     #[doc(hidden)]
-    const DYN_EQUIVELANT: Self::DynEquivalent = crate::Rgb(R, G, B);
+    const DYN_EQUIVALENT: Self::DynEquivalent = crate::Rgb(R, G, B);
 
     #[doc(hidden)]
     fn into_dyncolors() -> crate::DynColors {
