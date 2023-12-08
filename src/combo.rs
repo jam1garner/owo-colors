@@ -473,19 +473,19 @@ mod tests {
     }
 
     #[test]
-    fn fg_overide() {
+    fn fg_override() {
         let test = "test".green().yellow().red().on_blue();
         assert_eq!(test.to_string(), "\x1b[31;44mtest\x1b[0m");
     }
 
     #[test]
-    fn bg_overide() {
+    fn bg_override() {
         let test = "test".on_green().on_yellow().on_blue().red();
         assert_eq!(test.to_string(), "\x1b[31;44mtest\x1b[0m");
     }
 
     #[test]
-    fn multiple_overide() {
+    fn multiple_override() {
         let test = "test"
             .on_green()
             .on_yellow()
