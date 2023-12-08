@@ -263,7 +263,7 @@ impl Style {
         (dimmed, set_dimmed),
         /// Make the text italicized
         (italic, set_italic),
-        /// Make the text italicized
+        /// Make the text underlined
         (underline, set_underline),
         /// Make the text blink
         (blink, set_blink),

@@ -353,7 +353,7 @@ pub trait OwoColorize: Sized {
         dimmed DimDisplay,
         /// Make the text italicized
         italic ItalicDisplay,
-        /// Make the text italicized
+        /// Make the text underlined
         underline UnderlineDisplay,
         /// Make the text blink
         blink BlinkDisplay,
