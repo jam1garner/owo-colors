@@ -1,9 +1,9 @@
-//! |**Quick Links**|[`OwoColorize`](OwoColorize)|[`Style`]|[`StyledList`]|[`github`](https://github.com/jam1garner/owo-colors)|
+//! |**Quick Links**|[`OwoColorize`]|[`Style`]|[`StyledList`]|[`github`](https://github.com/jam1garner/owo-colors)|
 //! |-|-|-|-|-|
 //!
 //! ---
 //!
-//! This crate provides [`OwoColorize`](OwoColorize), an extension trait for colorizing a
+//! This crate provides [`OwoColorize`], an extension trait for colorizing a
 //! given type.
 //!
 //! ## Example
@@ -11,12 +11,10 @@
 //! ```rust
 //! use owo_colors::OwoColorize;
 //!
-//! fn main() {
-//!     // Foreground colors
-//!     println!("My number is {:#x}!", 10.green());
-//!     // Background colors
-//!     println!("My number is not {}!", 4.on_red());
-//! }
+//! // Foreground colors
+//! println!("My number is {:#x}!", 10.green());
+//! // Background colors
+//! println!("My number is not {}!", 4.on_red());
 //! ```
 //!
 //! ## Generically color
@@ -25,10 +23,8 @@
 //! use owo_colors::OwoColorize;
 //! use owo_colors::colors::*;
 //!
-//! fn main() {
-//!     // Generically color
-//!     println!("My number might be {}!", 4.fg::<Black>().bg::<Yellow>());
-//! }
+//! // Generically color
+//! println!("My number might be {}!", 4.fg::<Black>().bg::<Yellow>());
 //! ```
 //!
 //! ## Stylize
@@ -94,8 +90,8 @@ pub(crate) use overrides::OVERRIDE;
 use core::fmt;
 use core::marker::PhantomData;
 
-/// A trait for describing a type which can be used with [`FgColorDisplay`](FgColorDisplay) or
-/// [`BgColorDisplay`](BgColorDisplay)
+/// A trait for describing a type which can be used with [`FgColorDisplay`] or
+/// [`BgColorDisplay`]
 pub trait Color {
     /// The ANSI format code for setting this color as the foreground
     const ANSI_FG: &'static str;
@@ -121,8 +117,8 @@ pub trait Color {
     fn into_dyncolors() -> crate::DynColors;
 }
 
-/// A trait describing a runtime-configurable color which can displayed using [`FgDynColorDisplay`](FgDynColorDisplay)
-/// or [`BgDynColorDisplay`](BgDynColorDisplay). If your color will be known at compile time it
+/// A trait describing a runtime-configurable color which can displayed using [`FgDynColorDisplay`]
+/// or [`BgDynColorDisplay`]. If your color will be known at compile time it
 /// is recommended you avoid this.
 pub trait DynColor {
     /// A function to output a ANSI code to a formatter to set the foreground to this color
@@ -146,13 +142,13 @@ pub trait DynColor {
 
 /// Transparent wrapper around a type which implements all the formatters the wrapped type does,
 /// with the addition of changing the foreground color. Recommended to be constructed using
-/// [`OwoColorize`](OwoColorize).
+/// [`OwoColorize`].
 #[repr(transparent)]
 pub struct FgColorDisplay<'a, C: Color, T>(&'a T, PhantomData<C>);
 
 /// Transparent wrapper around a type which implements all the formatters the wrapped type does,
 /// with the addition of changing the background color. Recommended to be constructed using
-/// [`OwoColorize`](OwoColorize).
+/// [`OwoColorize`].
 #[repr(transparent)]
 pub struct BgColorDisplay<'a, C: Color, T>(&'a T, PhantomData<C>);
 
@@ -368,8 +364,8 @@ pub trait OwoColorize: Sized {
     }
 
     /// Set the foreground color at runtime. Only use if you do not know which color will be used at
-    /// compile-time. If the color is constant, use either [`OwoColorize::fg`](OwoColorize::fg) or
-    /// a color-specific method, such as [`OwoColorize::green`](OwoColorize::green),
+    /// compile-time. If the color is constant, use either [`OwoColorize::fg`] or
+    /// a color-specific method, such as [`OwoColorize::green`],
     ///
     /// ```rust
     /// use owo_colors::{OwoColorize, AnsiColors};
@@ -383,8 +379,8 @@ pub trait OwoColorize: Sized {
     }
 
     /// Set the background color at runtime. Only use if you do not know what color to use at
-    /// compile-time. If the color is constant, use either [`OwoColorize::bg`](OwoColorize::bg) or
-    /// a color-specific method, such as [`OwoColorize::on_yellow`](OwoColorize::on_yellow),
+    /// compile-time. If the color is constant, use either [`OwoColorize::bg`] or
+    /// a color-specific method, such as [`OwoColorize::on_yellow`],
     ///
     /// ```rust
     /// use owo_colors::{OwoColorize, AnsiColors};
