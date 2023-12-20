@@ -1,6 +1,6 @@
 [package]
 name = "owo-colors"
-version = "4.0.0-rc.1"
+version = "4.0.0"
 rust-version = "1.56"
 authors = ["jam1garner <8260240+jam1garner@users.noreply.github.com>"]
 edition = "2018"
