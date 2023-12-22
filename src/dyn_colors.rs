@@ -19,37 +19,37 @@ pub enum DynColors {
 impl DynColor for DynColors {
     fn fmt_ansi_fg(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            DynColors::Ansi(ansi) => ansi.fmt_ansi_fg(f),
-            DynColors::Css(css) => css.fmt_ansi_fg(f),
-            DynColors::Xterm(xterm) => xterm.fmt_ansi_fg(f),
-            &DynColors::Rgb(r, g, b) => Rgb(r, g, b).fmt_ansi_fg(f),
+            Self::Ansi(ansi) => ansi.fmt_ansi_fg(f),
+            Self::Css(css) => css.fmt_ansi_fg(f),
+            Self::Xterm(xterm) => xterm.fmt_ansi_fg(f),
+            &Self::Rgb(r, g, b) => Rgb(r, g, b).fmt_ansi_fg(f),
         }
     }
 
     fn fmt_ansi_bg(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            DynColors::Ansi(ansi) => ansi.fmt_ansi_bg(f),
-            DynColors::Css(css) => css.fmt_ansi_bg(f),
-            DynColors::Xterm(xterm) => xterm.fmt_ansi_bg(f),
-            &DynColors::Rgb(r, g, b) => Rgb(r, g, b).fmt_ansi_bg(f),
+            Self::Ansi(ansi) => ansi.fmt_ansi_bg(f),
+            Self::Css(css) => css.fmt_ansi_bg(f),
+            Self::Xterm(xterm) => xterm.fmt_ansi_bg(f),
+            &Self::Rgb(r, g, b) => Rgb(r, g, b).fmt_ansi_bg(f),
         }
     }
 
     fn fmt_raw_ansi_fg(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            DynColors::Ansi(ansi) => ansi.fmt_raw_ansi_fg(f),
-            DynColors::Css(css) => css.fmt_raw_ansi_fg(f),
-            DynColors::Xterm(xterm) => xterm.fmt_raw_ansi_fg(f),
-            &DynColors::Rgb(r, g, b) => Rgb(r, g, b).fmt_raw_ansi_fg(f),
+            Self::Ansi(ansi) => ansi.fmt_raw_ansi_fg(f),
+            Self::Css(css) => css.fmt_raw_ansi_fg(f),
+            Self::Xterm(xterm) => xterm.fmt_raw_ansi_fg(f),
+            &Self::Rgb(r, g, b) => Rgb(r, g, b).fmt_raw_ansi_fg(f),
         }
     }
 
     fn fmt_raw_ansi_bg(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            DynColors::Ansi(ansi) => ansi.fmt_raw_ansi_bg(f),
-            DynColors::Css(css) => css.fmt_raw_ansi_bg(f),
-            DynColors::Xterm(xterm) => xterm.fmt_raw_ansi_bg(f),
-            &DynColors::Rgb(r, g, b) => Rgb(r, g, b).fmt_raw_ansi_bg(f),
+            Self::Ansi(ansi) => ansi.fmt_raw_ansi_bg(f),
+            Self::Css(css) => css.fmt_raw_ansi_bg(f),
+            Self::Xterm(xterm) => xterm.fmt_raw_ansi_bg(f),
+            &Self::Rgb(r, g, b) => Rgb(r, g, b).fmt_raw_ansi_bg(f),
         }
     }
 

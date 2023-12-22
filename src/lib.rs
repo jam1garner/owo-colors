@@ -172,6 +172,7 @@ macro_rules! style_methods {
             #[$meta]
             #[must_use]
             #[inline(always)]
+
             fn $name(&self) -> styles::$ty<'_, Self> {
                 styles::$ty(self)
             }
