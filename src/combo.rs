@@ -73,8 +73,8 @@ macro_rules! color_methods {
             Fg: Color,
         {
             /// Set the foreground color at runtime. Only use if you do not know which color will be used at
-            /// compile-time. If the color is constant, use either [`OwoColorize::fg`](OwoColorize::fg) or
-            /// a color-specific method, such as [`OwoColorize::green`](OwoColorize::green),
+            /// compile-time. If the color is constant, use either [`OwoColorize::fg`] or
+            /// a color-specific method, such as [`OwoColorize::green`],
             ///
             /// ```rust
             /// use owo_colors::{OwoColorize, AnsiColors};
@@ -89,8 +89,8 @@ macro_rules! color_methods {
             }
 
             /// Set the background color at runtime. Only use if you do not know what color to use at
-            /// compile-time. If the color is constant, use either [`OwoColorize::bg`](OwoColorize::bg) or
-            /// a color-specific method, such as [`OwoColorize::on_yellow`](OwoColorize::on_yellow),
+            /// compile-time. If the color is constant, use either [`OwoColorize::bg`] or
+            /// a color-specific method, such as [`OwoColorize::on_yellow`],
             ///
             /// ```rust
             /// use owo_colors::{OwoColorize, AnsiColors};
@@ -148,8 +148,8 @@ macro_rules! color_methods {
             Bg: Color,
         {
             /// Set the foreground color at runtime. Only use if you do not know which color will be used at
-            /// compile-time. If the color is constant, use either [`OwoColorize::fg`](OwoColorize::fg) or
-            /// a color-specific method, such as [`OwoColorize::green`](OwoColorize::green),
+            /// compile-time. If the color is constant, use either [`OwoColorize::fg`] or
+            /// a color-specific method, such as [`OwoColorize::green`],
             ///
             /// ```rust
             /// use owo_colors::{OwoColorize, AnsiColors};
@@ -164,8 +164,8 @@ macro_rules! color_methods {
             }
 
             /// Set the background color at runtime. Only use if you do not know what color to use at
-            /// compile-time. If the color is constant, use either [`OwoColorize::bg`](OwoColorize::bg) or
-            /// a color-specific method, such as [`OwoColorize::on_yellow`](OwoColorize::on_yellow),
+            /// compile-time. If the color is constant, use either [`OwoColorize::bg`] or
+            /// a color-specific method, such as [`OwoColorize::on_yellow`],
             ///
             /// ```rust
             /// use owo_colors::{OwoColorize, AnsiColors};
@@ -224,8 +224,8 @@ macro_rules! color_methods {
             Bg: Color,
         {
             /// Set the background color at runtime. Only use if you do not know what color to use at
-            /// compile-time. If the color is constant, use either [`OwoColorize::bg`](OwoColorize::bg) or
-            /// a color-specific method, such as [`OwoColorize::on_yellow`](OwoColorize::on_yellow),
+            /// compile-time. If the color is constant, use either [`OwoColorize::bg`] or
+            /// a color-specific method, such as [`OwoColorize::on_yellow`],
             ///
             /// ```rust
             /// use owo_colors::{OwoColorize, AnsiColors};
@@ -240,8 +240,8 @@ macro_rules! color_methods {
             }
 
             /// Set the foreground color at runtime. Only use if you do not know which color will be used at
-            /// compile-time. If the color is constant, use either [`OwoColorize::fg`](OwoColorize::fg) or
-            /// a color-specific method, such as [`OwoColorize::green`](OwoColorize::green),
+            /// compile-time. If the color is constant, use either [`OwoColorize::fg`] or
+            /// a color-specific method, such as [`OwoColorize::green`],
             ///
             /// ```rust
             /// use owo_colors::{OwoColorize, AnsiColors};
@@ -356,8 +356,8 @@ color_methods! {
 
 impl<'a, Fg: DynColor, T> FgDynColorDisplay<'a, Fg, T> {
     /// Set the background color at runtime. Only use if you do not know what color to use at
-    /// compile-time. If the color is constant, use either [`OwoColorize::bg`](OwoColorize::bg) or
-    /// a color-specific method, such as [`OwoColorize::on_yellow`](OwoColorize::on_yellow),
+    /// compile-time. If the color is constant, use either [`OwoColorize::bg`] or
+    /// a color-specific method, such as [`OwoColorize::on_yellow`],
     ///
     /// ```rust
     /// use owo_colors::{OwoColorize, AnsiColors};
@@ -370,8 +370,8 @@ impl<'a, Fg: DynColor, T> FgDynColorDisplay<'a, Fg, T> {
     }
 
     /// Set the foreground color at runtime. Only use if you do not know which color will be used at
-    /// compile-time. If the color is constant, use either [`OwoColorize::fg`](OwoColorize::fg) or
-    /// a color-specific method, such as [`OwoColorize::green`](OwoColorize::green),
+    /// compile-time. If the color is constant, use either [`OwoColorize::fg`] or
+    /// a color-specific method, such as [`OwoColorize::green`],
     ///
     /// ```rust
     /// use owo_colors::{OwoColorize, AnsiColors};
@@ -386,8 +386,8 @@ impl<'a, Fg: DynColor, T> FgDynColorDisplay<'a, Fg, T> {
 
 impl<'a, Bg: DynColor, T> BgDynColorDisplay<'a, Bg, T> {
     /// Set the background color at runtime. Only use if you do not know what color to use at
-    /// compile-time. If the color is constant, use either [`OwoColorize::bg`](OwoColorize::bg) or
-    /// a color-specific method, such as [`OwoColorize::on_yellow`](OwoColorize::on_yellow),
+    /// compile-time. If the color is constant, use either [`OwoColorize::bg`] or
+    /// a color-specific method, such as [`OwoColorize::on_yellow`],
     ///
     /// ```rust
     /// use owo_colors::{OwoColorize, AnsiColors};
@@ -400,8 +400,8 @@ impl<'a, Bg: DynColor, T> BgDynColorDisplay<'a, Bg, T> {
     }
 
     /// Set the foreground color at runtime. Only use if you do not know which color will be used at
-    /// compile-time. If the color is constant, use either [`OwoColorize::fg`](OwoColorize::fg) or
-    /// a color-specific method, such as [`OwoColorize::green`](OwoColorize::green),
+    /// compile-time. If the color is constant, use either [`OwoColorize::fg`] or
+    /// a color-specific method, such as [`OwoColorize::green`],
     ///
     /// ```rust
     /// use owo_colors::{OwoColorize, AnsiColors};
@@ -416,8 +416,8 @@ impl<'a, Bg: DynColor, T> BgDynColorDisplay<'a, Bg, T> {
 
 impl<'a, Fg: DynColor, Bg: DynColor, T> ComboDynColorDisplay<'a, Fg, Bg, T> {
     /// Set the background color at runtime. Only use if you do not know what color to use at
-    /// compile-time. If the color is constant, use either [`OwoColorize::bg`](OwoColorize::bg) or
-    /// a color-specific method, such as [`OwoColorize::on_yellow`](OwoColorize::on_yellow),
+    /// compile-time. If the color is constant, use either [`OwoColorize::bg`] or
+    /// a color-specific method, such as [`OwoColorize::on_yellow`],
     ///
     /// ```rust
     /// use owo_colors::{OwoColorize, AnsiColors};
@@ -430,8 +430,8 @@ impl<'a, Fg: DynColor, Bg: DynColor, T> ComboDynColorDisplay<'a, Fg, Bg, T> {
     }
 
     /// Set the foreground color at runtime. Only use if you do not know which color will be used at
-    /// compile-time. If the color is constant, use either [`OwoColorize::fg`](OwoColorize::fg) or
-    /// a color-specific method, such as [`OwoColorize::green`](OwoColorize::green),
+    /// compile-time. If the color is constant, use either [`OwoColorize::fg`] or
+    /// a color-specific method, such as [`OwoColorize::green`],
     ///
     /// ```rust
     /// use owo_colors::{OwoColorize, AnsiColors};
