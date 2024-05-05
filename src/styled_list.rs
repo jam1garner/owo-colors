@@ -112,7 +112,7 @@ where
 
 impl<'a> Style {
     /// Returns an enum that indicates how the transition from one style to this style should be printed
-    fn transition_from(&'a self, from: &Style) -> Transition<'a> {
+    fn transition_from(&'a self, from: &Self) -> Transition<'a> {
         if self == from {
             return Transition::Noop;
         }
@@ -141,7 +141,7 @@ impl<'a> Style {
             _ => None,
         };
 
-        let new_style = Style {
+        let new_style = Self {
             fg,
             bg,
             bold: from.bold ^ self.bold,
