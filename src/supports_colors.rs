@@ -1,9 +1,5 @@
 use core::fmt;
 
-mod private {
-    pub(super) trait Sealed {}
-}
-
 #[cfg(feature = "supports-colors")]
 /// A display wrapper which applies a transformation based on if the given stream supports
 /// colored terminal output
@@ -35,6 +31,15 @@ impl From<supports_color::Stream> for Stream {
         match stream {
             supports_color::Stream::Stdout => Self::Stdout,
             supports_color::Stream::Stderr => Self::Stderr,
+        }
+    }
+}
+
+impl From<supports_color_2::Stream> for Stream {
+    fn from(stream: supports_color_2::Stream) -> Self {
+        match stream {
+            supports_color_2::Stream::Stdout => Self::Stdout,
+            supports_color_2::Stream::Stderr => Self::Stderr,
         }
     }
 }
@@ -81,4 +86,25 @@ impl_fmt_for! {
     fmt::LowerExp,
     fmt::Octal,
     fmt::Pointer,
+}
+
+#[cfg(test)]
+mod test {
+    use crate::OwoColorize;
+
+    use super::*;
+
+    #[test]
+    fn test_supports_color_versions() {
+        println!(
+            "{}",
+            "This might be green"
+                .if_supports_color(supports_color_2::Stream::Stdout, |x| x.green())
+        );
+
+        println!(
+            "{}",
+            "This might be red".if_supports_color(supports_color::Stream::Stdout, |x| x.red())
+        );
+    }
 }
