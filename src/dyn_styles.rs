@@ -64,7 +64,7 @@ pub struct Styled<T> {
     pub style: Style,
 }
 
-/// A pre-computed style that can be applied to a struct using [`OwoColorize::style`]. 
+/// A pre-computed style that can be applied to a struct using [`OwoColorize::style`].
 ///
 /// Its interface mimics that of [`OwoColorize`], but instead of chaining methods on your
 /// object, you instead chain them on the `Style` object before applying it.
