@@ -31,43 +31,40 @@ pub struct BoldDisplay<'a, T>(pub &'a T);
 pub struct DimDisplay<'a, T>(pub &'a T);
 
 /// Transparent wrapper around a type which implements all the formatters the wrapped type does,
-/// with the addition of italicizing it. Recommended to be constructed using
+/// with the addition of italics. Recommended to be constructed using
 /// [`OwoColorize`](OwoColorize::italic).
 #[repr(transparent)]
 pub struct ItalicDisplay<'a, T>(pub &'a T);
 
 /// Transparent wrapper around a type which implements all the formatters the wrapped type does,
-/// with the addition of underlining it. Recommended to be constructed using
+/// while underlining it. Recommended to be constructed using
 /// [`OwoColorize`](OwoColorize::underline).
 #[repr(transparent)]
 pub struct UnderlineDisplay<'a, T>(pub &'a T);
 
 /// Transparent wrapper around a type which implements all the formatters the wrapped type does,
-/// with the addition of making it blink. Recommended to be constructed using
+/// while blinking. Recommended to be constructed using
 /// [`OwoColorize`](OwoColorize::blink).
 #[repr(transparent)]
 pub struct BlinkDisplay<'a, T>(pub &'a T);
 
 /// Transparent wrapper around a type which implements all the formatters the wrapped type does,
-/// with the addition of making it blink fast. Recommended to be constructed using
-/// [`OwoColorize`](OwoColorize::blink_fast).
+/// with the addition of making it blink fast. Use [`OwoColorize`](OwoColorize::blink_fast)
 #[repr(transparent)]
 pub struct BlinkFastDisplay<'a, T>(pub &'a T);
 
 /// Transparent wrapper around a type which implements all the formatters the wrapped type does,
-/// with the addition of swapping foreground and background colors. Recommended to be constructed
-/// using [`OwoColorize`](OwoColorize::reversed).
+/// with the addition of swapping fg and bg colors. Use [`OwoColorize`](OwoColorize::reversed)
 #[repr(transparent)]
 pub struct ReversedDisplay<'a, T>(pub &'a T);
 
 /// Transparent wrapper around a type which implements all the formatters the wrapped type does,
-/// with the addition of hiding the text. Recommended to be constructed
-/// using [`OwoColorize`](OwoColorize::reversed).
+/// with the addition of hiding the text. Use [`OwoColorize`](OwoColorize::hidden).
 #[repr(transparent)]
 pub struct HiddenDisplay<'a, T>(pub &'a T);
 
 /// Transparent wrapper around a type which implements all the formatters the wrapped type does,
-/// with the addition of crossing out the given text. Recommended to be constructed using
+/// crossed out. Recommended to be constructed using
 /// [`OwoColorize`](OwoColorize::strikethrough).
 #[repr(transparent)]
 pub struct StrikeThroughDisplay<'a, T>(pub &'a T);
