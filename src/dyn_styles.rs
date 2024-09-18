@@ -91,6 +91,12 @@ pub struct Style {
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub(crate) struct StyleFlags(pub(crate) u8);
 
+impl StyleFlags {
+    pub const fn new() -> Self {
+        Self(0)
+    }
+}
+
 const DIMMED_SHIFT: u8 = 0;
 const ITALIC_SHIFT: u8 = 1;
 const UNDERLINE_SHIFT: u8 = 2;
@@ -103,7 +109,7 @@ const STRIKETHROUGH_SHIFT: u8 = 7;
 macro_rules! style_flags_methods {
     ($(($shift:ident, $name:ident, $set_name:ident)),* $(,)?) => {
         $(
-            fn $name(&self) -> bool {
+            const fn $name(&self) -> bool {
                 ((self.0 >> $shift) & 1) != 0
             }
 
@@ -150,7 +156,7 @@ impl Style {
     }
 
     /// Apply the style to a given struct to output
-    pub fn style<T>(&self, target: T) -> Styled<T> {
+    pub const fn style<T>(&self, target: T) -> Styled<T> {
         Styled {
             target,
             style: *self,
@@ -189,7 +195,7 @@ impl Style {
     /// If you wish to actively change the terminal color back to the default, see
     /// [`Style::default_color`].
     #[must_use]
-    pub fn remove_fg(mut self) -> Self {
+    pub const fn remove_fg(mut self) -> Self {
         self.fg = None;
         self
     }
@@ -200,7 +206,7 @@ impl Style {
     /// If you wish to actively change the terminal color back to the default, see
     /// [`Style::on_default_color`].
     #[must_use]
-    pub fn remove_bg(mut self) -> Self {
+    pub const fn remove_bg(mut self) -> Self {
         self.bg = None;
         self
     }
@@ -269,7 +275,7 @@ impl Style {
 
     /// Make the text bold
     #[must_use]
-    pub fn bold(mut self) -> Self {
+    pub const fn bold(mut self) -> Self {
         self.bold = true;
         self
     }
@@ -382,30 +388,28 @@ impl Style {
 
     /// Set the foreground color to a specific RGB value.
     #[must_use]
-    pub fn fg_rgb<const R: u8, const G: u8, const B: u8>(mut self) -> Self {
+    pub const fn fg_rgb<const R: u8, const G: u8, const B: u8>(mut self) -> Self {
         self.fg = Some(DynColors::Rgb(R, G, B));
-
         self
     }
 
     /// Set the background color to a specific RGB value.
     #[must_use]
-    pub fn bg_rgb<const R: u8, const G: u8, const B: u8>(mut self) -> Self {
+    pub const fn bg_rgb<const R: u8, const G: u8, const B: u8>(mut self) -> Self {
         self.bg = Some(DynColors::Rgb(R, G, B));
-
         self
     }
 
     /// Sets the foreground color to an RGB value.
     #[must_use]
-    pub fn truecolor(mut self, r: u8, g: u8, b: u8) -> Self {
+    pub const fn truecolor(mut self, r: u8, g: u8, b: u8) -> Self {
         self.fg = Some(DynColors::Rgb(r, g, b));
         self
     }
 
     /// Sets the background color to an RGB value.
     #[must_use]
-    pub fn on_truecolor(mut self, r: u8, g: u8, b: u8) -> Self {
+    pub const fn on_truecolor(mut self, r: u8, g: u8, b: u8) -> Self {
         self.bg = Some(DynColors::Rgb(r, g, b));
         self
     }
@@ -515,7 +519,7 @@ pub const fn style() -> Style {
 
 impl<T> Styled<T> {
     /// Returns a reference to the inner value to be styled
-    pub fn inner(&self) -> &T {
+    pub const fn inner(&self) -> &T {
         &self.target
     }
 

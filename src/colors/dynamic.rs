@@ -11,28 +11,28 @@ pub struct Rgb(pub u8, pub u8, pub u8);
 
 impl DynColor for Rgb {
     fn fmt_ansi_fg(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let Rgb(r, g, b) = self;
+        let Self(r, g, b) = self;
         write!(f, "\x1b[38;2;{};{};{}m", r, g, b)
     }
 
     fn fmt_ansi_bg(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let Rgb(r, g, b) = self;
+        let Self(r, g, b) = self;
         write!(f, "\x1b[48;2;{};{};{}m", r, g, b)
     }
 
     fn fmt_raw_ansi_fg(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let Rgb(r, g, b) = self;
+        let Self(r, g, b) = self;
         write!(f, "38;2;{};{};{}", r, g, b)
     }
 
     fn fmt_raw_ansi_bg(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let Rgb(r, g, b) = self;
+        let Self(r, g, b) = self;
         write!(f, "48;2;{};{};{}", r, g, b)
     }
 
     #[doc(hidden)]
     fn get_dyncolors_fg(&self) -> crate::DynColors {
-        let Rgb(r, g, b) = self;
+        let Self(r, g, b) = self;
         crate::DynColors::Rgb(*r, *g, *b)
     }
 
@@ -79,23 +79,23 @@ impl<'a> From<&'a str> for AnsiColors {
     fn from(color: &'a str) -> Self {
         #[allow(clippy::match_same_arms)] // defaults to white color
         match color {
-            "black" => AnsiColors::Black,
-            "red" => AnsiColors::Red,
-            "green" => AnsiColors::Green,
-            "yellow" => AnsiColors::Yellow,
-            "blue" => AnsiColors::Blue,
-            "magenta" | "purple" => AnsiColors::Magenta,
-            "cyan" => AnsiColors::Cyan,
-            "white" => AnsiColors::White,
-            "bright black" => AnsiColors::BrightBlack,
-            "bright red" => AnsiColors::BrightRed,
-            "bright green" => AnsiColors::BrightGreen,
-            "bright yellow" => AnsiColors::BrightYellow,
-            "bright blue" => AnsiColors::BrightBlue,
-            "bright magenta" => AnsiColors::BrightMagenta,
-            "bright cyan" => AnsiColors::BrightCyan,
-            "bright white" => AnsiColors::BrightWhite,
-            _ => AnsiColors::White,
+            "black" => Self::Black,
+            "red" => Self::Red,
+            "green" => Self::Green,
+            "yellow" => Self::Yellow,
+            "blue" => Self::Blue,
+            "magenta" | "purple" => Self::Magenta,
+            "cyan" => Self::Cyan,
+            "white" => Self::White,
+            "bright black" => Self::BrightBlack,
+            "bright red" => Self::BrightRed,
+            "bright green" => Self::BrightGreen,
+            "bright yellow" => Self::BrightYellow,
+            "bright blue" => Self::BrightBlue,
+            "bright magenta" => Self::BrightMagenta,
+            "bright cyan" => Self::BrightCyan,
+            "bright white" => Self::BrightWhite,
+            _ => Self::White,
         }
     }
 }
