@@ -92,8 +92,6 @@ impl_fmt_for! {
 mod test {
     use crate::OwoColorize;
 
-    use super::*;
-
     #[test]
     fn test_supports_color_versions() {
         println!(
