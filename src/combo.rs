@@ -8,18 +8,18 @@ use core::marker::PhantomData;
 use crate::OwoColorize;
 
 /// A wrapper type which applies both a foreground and background color
-pub struct ComboColorDisplay<'a, Fg: Color, Bg: Color, T>(&'a T, PhantomData<(Fg, Bg)>);
+pub struct ComboColorDisplay<'a, Fg: Color, Bg: Color, T: ?Sized>(&'a T, PhantomData<(Fg, Bg)>);
 
 /// Wrapper around a type which implements all the formatters the wrapped type does, with the
 /// addition of changing the foreground and background color.
 ///
 /// If compile-time coloring is an option, consider using [`ComboColorDisplay`] instead.
-pub struct ComboDynColorDisplay<'a, Fg: DynColor, Bg: DynColor, T>(&'a T, Fg, Bg);
+pub struct ComboDynColorDisplay<'a, Fg: DynColor, Bg: DynColor, T: ?Sized>(&'a T, Fg, Bg);
 
 macro_rules! impl_fmt_for_combo {
     ($($trait:path),* $(,)?) => {
         $(
-            impl<'a, Fg: Color, Bg: Color, T: $trait> $trait for ComboColorDisplay<'a, Fg, Bg, T> {
+            impl<'a, Fg: Color, Bg: Color, T: ?Sized + $trait> $trait for ComboColorDisplay<'a, Fg, Bg, T> {
                 #[inline(always)]
                 fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
                     f.write_str("\x1b[")?;
@@ -34,7 +34,7 @@ macro_rules! impl_fmt_for_combo {
         )*
 
         $(
-            impl<'a, Fg: DynColor, Bg: DynColor, T: $trait> $trait for ComboDynColorDisplay<'a, Fg, Bg, T> {
+            impl<'a, Fg: DynColor, Bg: DynColor, T: ?Sized + $trait> $trait for ComboDynColorDisplay<'a, Fg, Bg, T> {
                 #[inline(always)]
                 fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
                     f.write_str("\x1b[")?;
@@ -69,10 +69,32 @@ macro_rules! color_methods {
     ),* $(,)?) => {
         const _: () = (); // workaround for syntax highlighting bug
 
-        impl<'a, Fg, T> FgColorDisplay<'a, Fg, T>
+        impl<'a, Fg, T: ?Sized> FgColorDisplay<'a, Fg, T>
         where
             Fg: Color,
         {
+            /// Create a new [`FgColorDisplay`], from a reference to a type which implements
+            /// [`Color`].
+            ///
+            /// This is a const function: in non-const contexts, [`OwoColorize::fg`] or one of the
+            /// other methods on it may be more convenient.
+            ///
+            /// # Example
+            ///
+            /// Usage in const contexts:
+            ///
+            /// ```rust
+            /// use owo_colors::{colors::Green, FgColorDisplay};
+            ///
+            /// const GREEN_TEXT: FgColorDisplay<Green, str> = FgColorDisplay::new("green");
+            ///
+            /// println!("{}", GREEN_TEXT);
+            /// # assert_eq!(format!("{}", GREEN_TEXT), "\x1b[32mgreen\x1b[39m");
+            /// ```
+            pub const fn new(thing: &'a T) -> Self {
+                Self(thing, PhantomData)
+            }
+
             /// Set the foreground color at runtime. Only use if you do not know which color will be used at
             /// compile-time. If the color is constant, use either [`OwoColorize::fg`] or
             /// a color-specific method, such as [`OwoColorize::green`],
@@ -82,7 +104,7 @@ macro_rules! color_methods {
             ///
             /// println!("{}", "green".color(AnsiColors::Green));
             /// ```
-            pub fn color<NewFg: DynColor>(
+            pub const fn color<NewFg: DynColor>(
                 self,
                 fg: NewFg,
             ) -> FgDynColorDisplay<'a, NewFg, T> {
@@ -98,7 +120,7 @@ macro_rules! color_methods {
             ///
             /// println!("{}", "yellow background".on_color(AnsiColors::BrightYellow));
             /// ```
-            pub fn on_color<NewBg: DynColor>(
+            pub const fn on_color<NewBg: DynColor>(
                 self,
                 bg: NewBg,
             ) -> ComboDynColorDisplay<'a, Fg::DynEquivalent, NewBg, T> {
@@ -112,7 +134,7 @@ macro_rules! color_methods {
             ///
             /// println!("{}", "red foreground".fg::<Red>());
             /// ```
-            pub fn fg<C: Color>(self) -> FgColorDisplay<'a, C, T> {
+            pub const fn fg<C: Color>(self) -> FgColorDisplay<'a, C, T> {
                 FgColorDisplay(self.0, PhantomData)
             }
 
@@ -123,20 +145,20 @@ macro_rules! color_methods {
             ///
             /// println!("{}", "black background".bg::<Black>());
             /// ```
-            pub fn bg<C: Color>(self) -> ComboColorDisplay<'a, Fg, C, T> {
+            pub const fn bg<C: Color>(self) -> ComboColorDisplay<'a, Fg, C, T> {
                 ComboColorDisplay(self.0, PhantomData)
             }
 
             $(
                 #[$fg_meta]
                 #[inline(always)]
-                pub fn $fg_method(self) -> FgColorDisplay<'a, colors::$color, T> {
+                pub const fn $fg_method(self) -> FgColorDisplay<'a, colors::$color, T> {
                     FgColorDisplay(self.0, PhantomData)
                 }
 
                 #[$bg_meta]
                 #[inline(always)]
-                pub fn $bg_method(self) -> ComboColorDisplay<'a, Fg, colors::$color, T> {
+                pub const fn $bg_method(self) -> ComboColorDisplay<'a, Fg, colors::$color, T> {
                     ComboColorDisplay(self.0, PhantomData)
                 }
              )*
@@ -144,10 +166,32 @@ macro_rules! color_methods {
 
         const _: () = (); // workaround for syntax highlighting bug
 
-        impl<'a, Bg, T> BgColorDisplay<'a, Bg, T>
+        impl<'a, Bg, T: ?Sized> BgColorDisplay<'a, Bg, T>
         where
             Bg: Color,
         {
+            /// Create a new [`BgColorDisplay`], from a reference to a type which implements
+            /// [`Color`].
+            ///
+            /// This is a const function: in non-const contexts, [`OwoColorize::bg`] may be more
+            /// convenient.
+            ///
+            /// # Example
+            ///
+            /// Usage in const contexts:
+            ///
+            /// ```rust
+            /// use owo_colors::{colors::Red, BgColorDisplay};
+            ///
+            /// const RED_BG_TEXT: BgColorDisplay<Red, str> = BgColorDisplay::new("red background");
+            ///
+            /// println!("{}", RED_BG_TEXT);
+            /// # assert_eq!(format!("{}", RED_BG_TEXT), "\x1b[41mred background\x1b[49m");
+            /// ```
+            pub const fn new(thing: &'a T) -> Self {
+                Self(thing, PhantomData)
+            }
+
             /// Set the foreground color at runtime. Only use if you do not know which color will be used at
             /// compile-time. If the color is constant, use either [`OwoColorize::fg`] or
             /// a color-specific method, such as [`OwoColorize::green`],
@@ -157,7 +201,7 @@ macro_rules! color_methods {
             ///
             /// println!("{}", "green".color(AnsiColors::Green));
             /// ```
-            pub fn color<NewFg: DynColor>(
+            pub const fn color<NewFg: DynColor>(
                 self,
                 fg: NewFg,
             ) -> ComboDynColorDisplay<'a, NewFg, Bg::DynEquivalent, T> {
@@ -173,7 +217,7 @@ macro_rules! color_methods {
             ///
             /// println!("{}", "yellow background".on_color(AnsiColors::BrightYellow));
             /// ```
-            pub fn on_color<NewBg: DynColor>(
+            pub const fn on_color<NewBg: DynColor>(
                 self,
                 bg: NewBg,
             ) -> BgDynColorDisplay<'a, NewBg, T> {
@@ -187,7 +231,7 @@ macro_rules! color_methods {
             ///
             /// println!("{}", "red foreground".fg::<Red>());
             /// ```
-            pub fn fg<C: Color>(self) -> ComboColorDisplay<'a, C, Bg, T> {
+            pub const fn fg<C: Color>(self) -> ComboColorDisplay<'a, C, Bg, T> {
                 ComboColorDisplay(self.0, PhantomData)
             }
 
@@ -198,20 +242,20 @@ macro_rules! color_methods {
             ///
             /// println!("{}", "black background".bg::<Black>());
             /// ```
-            pub fn bg<C: Color>(self) -> BgColorDisplay<'a, C, T> {
+            pub const fn bg<C: Color>(self) -> BgColorDisplay<'a, C, T> {
                 BgColorDisplay(self.0, PhantomData)
             }
 
             $(
                 #[$bg_meta]
                 #[inline(always)]
-                pub fn $bg_method(self) -> BgColorDisplay<'a, colors::$color, T> {
+                pub const fn $bg_method(self) -> BgColorDisplay<'a, colors::$color, T> {
                     BgColorDisplay(self.0, PhantomData)
                 }
 
                 #[$fg_meta]
                 #[inline(always)]
-                pub fn $fg_method(self) -> ComboColorDisplay<'a, colors::$color, Bg, T> {
+                pub const fn $fg_method(self) -> ComboColorDisplay<'a, colors::$color, Bg, T> {
                     ComboColorDisplay(self.0, PhantomData)
                 }
              )*
@@ -219,11 +263,34 @@ macro_rules! color_methods {
 
         const _: () = (); // workaround for syntax highlighting bug
 
-        impl<'a, Fg, Bg, T> ComboColorDisplay<'a, Fg, Bg, T>
+        impl<'a, Fg, Bg, T: ?Sized> ComboColorDisplay<'a, Fg, Bg, T>
         where
             Fg: Color,
             Bg: Color,
         {
+            /// Create a new [`ComboColorDisplay`], from a pair of foreground and background types
+            /// which implement [`Color`].
+            ///
+            /// This is a const function: in non-const contexts, calling the [`OwoColorize`]
+            /// functions may be more convenient.
+            ///
+            /// # Example
+            ///
+            /// Usage in const contexts:
+            ///
+            /// ```rust
+            /// use owo_colors::{colors::{Blue, White}, ComboColorDisplay};
+            ///
+            /// const COMBO_TEXT: ComboColorDisplay<Blue, White, str> =
+            ///    ComboColorDisplay::new("blue text on white background");
+            ///
+            /// println!("{}", COMBO_TEXT);
+            /// # assert_eq!(format!("{}", COMBO_TEXT), "\x1b[34;47mblue text on white background\x1b[0m");
+            /// ```
+            pub const fn new(thing: &'a T) -> Self {
+                Self(thing, PhantomData)
+            }
+
             /// Set the background color at runtime. Only use if you do not know what color to use at
             /// compile-time. If the color is constant, use either [`OwoColorize::bg`] or
             /// a color-specific method, such as [`OwoColorize::on_yellow`],
@@ -233,7 +300,7 @@ macro_rules! color_methods {
             ///
             /// println!("{}", "yellow background".on_color(AnsiColors::BrightYellow));
             /// ```
-            pub fn on_color<NewBg: DynColor>(
+            pub const fn on_color<NewBg: DynColor>(
                 self,
                 bg: NewBg,
             ) -> ComboDynColorDisplay<'a, Fg::DynEquivalent, NewBg, T> {
@@ -249,7 +316,7 @@ macro_rules! color_methods {
             ///
             /// println!("{}", "green".color(AnsiColors::Green));
             /// ```
-            pub fn color<NewFg: DynColor>(
+            pub const fn color<NewFg: DynColor>(
                 self,
                 fg: NewFg,
             ) -> ComboDynColorDisplay<'a, NewFg, Bg::DynEquivalent, T> {
@@ -263,7 +330,7 @@ macro_rules! color_methods {
             ///
             /// println!("{}", "red foreground".fg::<Red>());
             /// ```
-            pub fn fg<C: Color>(self) -> ComboColorDisplay<'a, C, Bg, T> {
+            pub const fn fg<C: Color>(self) -> ComboColorDisplay<'a, C, Bg, T> {
                 ComboColorDisplay(self.0, PhantomData)
             }
 
@@ -274,20 +341,20 @@ macro_rules! color_methods {
             ///
             /// println!("{}", "black background".bg::<Black>());
             /// ```
-            pub fn bg<C: Color>(self) -> ComboColorDisplay<'a, Fg, C, T> {
+            pub const fn bg<C: Color>(self) -> ComboColorDisplay<'a, Fg, C, T> {
                 ComboColorDisplay(self.0, PhantomData)
             }
 
             $(
                 #[$bg_meta]
                 #[inline(always)]
-                pub fn $bg_method(self) -> ComboColorDisplay<'a, Fg, colors::$color, T> {
+                pub const fn $bg_method(self) -> ComboColorDisplay<'a, Fg, colors::$color, T> {
                     ComboColorDisplay(self.0, PhantomData)
                 }
 
                 #[$fg_meta]
                 #[inline(always)]
-                pub fn $fg_method(self) -> ComboColorDisplay<'a, colors::$color, Bg, T> {
+                pub const fn $fg_method(self) -> ComboColorDisplay<'a, colors::$color, Bg, T> {
                     ComboColorDisplay(self.0, PhantomData)
                 }
             )*
@@ -355,7 +422,30 @@ color_methods! {
     BrightWhite    bright_white    on_bright_white,
 }
 
-impl<'a, Fg: DynColor, T> FgDynColorDisplay<'a, Fg, T> {
+impl<'a, Fg: DynColor, T: ?Sized> FgDynColorDisplay<'a, Fg, T> {
+    /// Create a new [`FgDynColorDisplay`], from a reference to a type which implements
+    /// [`DynColor`].
+    ///
+    /// This is a const function: in non-const contexts, [`OwoColorize::color`] may be more
+    /// convenient.
+    ///
+    /// # Example
+    ///
+    /// Usage in const contexts:
+    ///
+    /// ```rust
+    /// use owo_colors::{AnsiColors, FgDynColorDisplay};
+    ///
+    /// const DYN_RED_TEXT: FgDynColorDisplay<AnsiColors, str> =
+    ///    FgDynColorDisplay::new("red text (dynamic)", AnsiColors::Red);
+    ///
+    /// println!("{}", DYN_RED_TEXT);
+    /// # assert_eq!(format!("{}", DYN_RED_TEXT), "\x1b[31mred text (dynamic)\x1b[39m");
+    /// ```
+    pub const fn new(thing: &'a T, color: Fg) -> Self {
+        Self(thing, color)
+    }
+
     /// Set the background color at runtime. Only use if you do not know what color to use at
     /// compile-time. If the color is constant, use either [`OwoColorize::bg`] or
     /// a color-specific method, such as [`OwoColorize::on_yellow`],
@@ -366,6 +456,7 @@ impl<'a, Fg: DynColor, T> FgDynColorDisplay<'a, Fg, T> {
     /// println!("{}", "yellow background".on_color(AnsiColors::BrightYellow));
     /// ```
     pub fn on_color<Bg: DynColor>(self, bg: Bg) -> ComboDynColorDisplay<'a, Fg, Bg, T> {
+        // TODO: Make this const after https://github.com/rust-lang/rust/issues/73255 is stabilized.
         let Self(inner, fg) = self;
         ComboDynColorDisplay(inner, fg, bg)
     }
@@ -380,12 +471,36 @@ impl<'a, Fg: DynColor, T> FgDynColorDisplay<'a, Fg, T> {
     /// println!("{}", "green".color(AnsiColors::Green));
     /// ```
     pub fn color<NewFg: DynColor>(self, fg: NewFg) -> FgDynColorDisplay<'a, NewFg, T> {
+        // TODO: Make this const after https://github.com/rust-lang/rust/issues/73255 is stabilized.
         let Self(inner, _) = self;
         FgDynColorDisplay(inner, fg)
     }
 }
 
-impl<'a, Bg: DynColor, T> BgDynColorDisplay<'a, Bg, T> {
+impl<'a, Bg: DynColor, T: ?Sized> BgDynColorDisplay<'a, Bg, T> {
+    /// Create a new [`BgDynColorDisplay`], from a reference to a type which implements
+    /// [`DynColor`].
+    ///
+    /// This is a const function: in non-const contexts, [`OwoColorize::on_color`] may be more
+    /// convenient.
+    ///
+    /// # Example
+    ///
+    /// Usage in const contexts:
+    ///
+    /// ```rust
+    /// use owo_colors::{AnsiColors, BgDynColorDisplay};
+    ///
+    /// const DYN_GREEN_BG_TEXT: BgDynColorDisplay<AnsiColors, str> =
+    ///    BgDynColorDisplay::new("green background (dynamic)", AnsiColors::Green);
+    ///
+    /// println!("{}", DYN_GREEN_BG_TEXT);
+    /// # assert_eq!(format!("{}", DYN_GREEN_BG_TEXT), "\x1b[42mgreen background (dynamic)\x1b[49m");
+    /// ```
+    pub const fn new(thing: &'a T, color: Bg) -> Self {
+        Self(thing, color)
+    }
+
     /// Set the background color at runtime. Only use if you do not know what color to use at
     /// compile-time. If the color is constant, use either [`OwoColorize::bg`] or
     /// a color-specific method, such as [`OwoColorize::on_yellow`],
@@ -396,6 +511,7 @@ impl<'a, Bg: DynColor, T> BgDynColorDisplay<'a, Bg, T> {
     /// println!("{}", "yellow background".on_color(AnsiColors::BrightYellow));
     /// ```
     pub fn on_color<NewBg: DynColor>(self, bg: NewBg) -> BgDynColorDisplay<'a, NewBg, T> {
+        // TODO: Make this const after https://github.com/rust-lang/rust/issues/73255 is stabilized.
         let Self(inner, _) = self;
         BgDynColorDisplay(inner, bg)
     }
@@ -410,12 +526,39 @@ impl<'a, Bg: DynColor, T> BgDynColorDisplay<'a, Bg, T> {
     /// println!("{}", "green".color(AnsiColors::Green));
     /// ```
     pub fn color<Fg: DynColor>(self, fg: Fg) -> ComboDynColorDisplay<'a, Fg, Bg, T> {
+        // TODO: Make this const after https://github.com/rust-lang/rust/issues/73255 is stabilized.
         let Self(inner, bg) = self;
         ComboDynColorDisplay(inner, fg, bg)
     }
 }
 
-impl<'a, Fg: DynColor, Bg: DynColor, T> ComboDynColorDisplay<'a, Fg, Bg, T> {
+impl<'a, Fg: DynColor, Bg: DynColor, T: ?Sized> ComboDynColorDisplay<'a, Fg, Bg, T> {
+    /// Create a new [`ComboDynColorDisplay`], from a pair of types which implement
+    /// [`DynColor`].
+    ///
+    /// This is a const function: in non-const contexts, other functions may be more convenient.
+    ///
+    /// # Example
+    ///
+    /// Usage in const contexts:
+    ///
+    /// ```rust
+    /// use owo_colors::{ComboDynColorDisplay, XtermColors};
+    ///
+    /// const COMBO_DYN_TEXT: ComboDynColorDisplay<XtermColors, XtermColors, str> =
+    ///     ComboDynColorDisplay::new(
+    ///         "blue text on lilac background (dynamic)",
+    ///         XtermColors::BlueRibbon,
+    ///         XtermColors::WistfulLilac,
+    ///     );
+    ///
+    /// println!("{}", COMBO_DYN_TEXT);
+    /// # assert_eq!(format!("{}", COMBO_DYN_TEXT), "\x1b[38;5;27;48;5;146mblue text on lilac background (dynamic)\x1b[0m");
+    /// ```
+    pub const fn new(thing: &'a T, fg: Fg, bg: Bg) -> Self {
+        Self(thing, fg, bg)
+    }
+
     /// Set the background color at runtime. Only use if you do not know what color to use at
     /// compile-time. If the color is constant, use either [`OwoColorize::bg`] or
     /// a color-specific method, such as [`OwoColorize::on_yellow`],
@@ -426,6 +569,7 @@ impl<'a, Fg: DynColor, Bg: DynColor, T> ComboDynColorDisplay<'a, Fg, Bg, T> {
     /// println!("{}", "yellow background".on_color(AnsiColors::BrightYellow));
     /// ```
     pub fn on_color<NewBg: DynColor>(self, bg: NewBg) -> ComboDynColorDisplay<'a, Fg, NewBg, T> {
+        // TODO: Make this const after https://github.com/rust-lang/rust/issues/73255 is stabilized.
         let Self(inner, fg, _) = self;
         ComboDynColorDisplay(inner, fg, bg)
     }
@@ -440,6 +584,7 @@ impl<'a, Fg: DynColor, Bg: DynColor, T> ComboDynColorDisplay<'a, Fg, Bg, T> {
     /// println!("{}", "green".color(AnsiColors::Green));
     /// ```
     pub fn color<NewFg: DynColor>(self, fg: NewFg) -> ComboDynColorDisplay<'a, NewFg, Bg, T> {
+        // TODO: Make this const after https://github.com/rust-lang/rust/issues/73255 is stabilized.
         let Self(inner, _, bg) = self;
         ComboDynColorDisplay(inner, fg, bg)
     }
