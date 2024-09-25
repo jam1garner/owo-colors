@@ -46,8 +46,8 @@ macro_rules! style_methods {
         $(
             #[$meta]
             #[must_use]
-            pub fn $name(mut self) -> Self {
-                self.style_flags.$set_name(true);
+            pub const fn $name(mut self) -> Self {
+                self.style_flags = self.style_flags.$set_name(true);
                 self
             }
         )*
@@ -91,6 +91,14 @@ pub struct Style {
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub(crate) struct StyleFlags(pub(crate) u8);
 
+impl StyleFlags {
+    #[must_use]
+    #[inline]
+    const fn is_plain(&self) -> bool {
+        self.0 == 0
+    }
+}
+
 const DIMMED_SHIFT: u8 = 0;
 const ITALIC_SHIFT: u8 = 1;
 const UNDERLINE_SHIFT: u8 = 2;
@@ -103,12 +111,15 @@ const STRIKETHROUGH_SHIFT: u8 = 7;
 macro_rules! style_flags_methods {
     ($(($shift:ident, $name:ident, $set_name:ident)),* $(,)?) => {
         $(
-            fn $name(&self) -> bool {
+            #[must_use]
+            const fn $name(&self) -> bool {
                 ((self.0 >> $shift) & 1) != 0
             }
 
-            fn $set_name(&mut self, $name: bool) {
+            #[must_use]
+            const fn $set_name(mut self, $name: bool) -> Self {
                 self.0 = (self.0 & !(1 << $shift)) | (($name as u8) << $shift);
+                self
             }
         )*
     };
@@ -149,8 +160,21 @@ impl Style {
         }
     }
 
-    /// Apply the style to a given struct to output
-    pub fn style<T>(&self, target: T) -> Styled<T> {
+    /// Apply the style to a given struct to output.
+    ///
+    /// # Example
+    ///
+    /// Usage in const contexts:
+    ///
+    /// ```rust
+    /// use owo_colors::{OwoColorize, Style, Styled};
+    ///
+    /// const STYLED_TEXT: Styled<&'static str> = Style::new().bold().italic().style("bold and italic text");
+    ///
+    /// println!("{}", STYLED_TEXT);
+    /// # assert_eq!(format!("{}", STYLED_TEXT), "\u{1b}[1;3mbold and italic text\u{1b}[0m");
+    /// ```
+    pub const fn style<T>(&self, target: T) -> Styled<T> {
         Styled {
             target,
             style: *self,
@@ -166,6 +190,7 @@ impl Style {
     /// ```
     #[must_use]
     pub fn fg<C: Color>(mut self) -> Self {
+        // Can't be const because `into_dyncolors` is a trait method.
         self.fg = Some(C::into_dyncolors());
         self
     }
@@ -179,6 +204,7 @@ impl Style {
     /// ```
     #[must_use]
     pub fn bg<C: Color>(mut self) -> Self {
+        // Can't be const because `into_dyncolors` is a trait method.
         self.bg = Some(C::into_dyncolors());
         self
     }
@@ -189,7 +215,7 @@ impl Style {
     /// If you wish to actively change the terminal color back to the default, see
     /// [`Style::default_color`].
     #[must_use]
-    pub fn remove_fg(mut self) -> Self {
+    pub const fn remove_fg(mut self) -> Self {
         self.fg = None;
         self
     }
@@ -200,7 +226,7 @@ impl Style {
     /// If you wish to actively change the terminal color back to the default, see
     /// [`Style::on_default_color`].
     #[must_use]
-    pub fn remove_bg(mut self) -> Self {
+    pub const fn remove_bg(mut self) -> Self {
         self.bg = None;
         self
     }
@@ -269,7 +295,7 @@ impl Style {
 
     /// Make the text bold
     #[must_use]
-    pub fn bold(mut self) -> Self {
+    pub const fn bold(mut self) -> Self {
         self.bold = true;
         self
     }
@@ -293,60 +319,82 @@ impl Style {
         (strikethrough, set_strikethrough),
     }
 
-    fn set_effect(&mut self, effect: Effect, to: bool) {
+    #[must_use]
+    const fn set_effect(mut self, effect: Effect, to: bool) -> Self {
         use Effect::*;
         match effect {
-            Bold => self.bold = to,
-            Dimmed => self.style_flags.set_dimmed(to),
-            Italic => self.style_flags.set_italic(to),
-            Underline => self.style_flags.set_underline(to),
-            Blink => self.style_flags.set_blink(to),
-            BlinkFast => self.style_flags.set_blink_fast(to),
-            Reversed => self.style_flags.set_reversed(to),
-            Hidden => self.style_flags.set_hidden(to),
-            Strikethrough => self.style_flags.set_strikethrough(to),
+            Bold => {
+                self.bold = to;
+            }
+            Dimmed => {
+                // This somewhat contorted construction is required because const fns can't take
+                // mutable refs as of Rust 1.81.
+                self.style_flags = self.style_flags.set_dimmed(to);
+            }
+            Italic => {
+                self.style_flags = self.style_flags.set_italic(to);
+            }
+            Underline => {
+                self.style_flags = self.style_flags.set_underline(to);
+            }
+            Blink => {
+                self.style_flags = self.style_flags.set_blink(to);
+            }
+            BlinkFast => {
+                self.style_flags = self.style_flags.set_blink_fast(to);
+            }
+            Reversed => {
+                self.style_flags = self.style_flags.set_reversed(to);
+            }
+            Hidden => {
+                self.style_flags = self.style_flags.set_hidden(to);
+            }
+            Strikethrough => {
+                self.style_flags = self.style_flags.set_strikethrough(to);
+            }
         }
+        self
     }
 
-    fn set_effects(&mut self, effects: &[Effect], to: bool) {
-        for e in effects {
-            self.set_effect(*e, to);
+    #[must_use]
+    const fn set_effects(mut self, mut effects: &[Effect], to: bool) -> Self {
+        // This is basically a for loop that also works in const contexts.
+        while let [first, rest @ ..] = effects {
+            self = self.set_effect(*first, to);
+            effects = rest;
         }
+        self
     }
 
     /// Apply a given effect from the style
     #[must_use]
-    pub fn effect(mut self, effect: Effect) -> Self {
-        self.set_effect(effect, true);
-        self
+    pub const fn effect(self, effect: Effect) -> Self {
+        self.set_effect(effect, true)
     }
 
     /// Remove a given effect from the style
     #[must_use]
-    pub fn remove_effect(mut self, effect: Effect) -> Self {
-        self.set_effect(effect, false);
-        self
+    pub const fn remove_effect(self, effect: Effect) -> Self {
+        self.set_effect(effect, false)
     }
 
     /// Apply a given set of effects to the style
     #[must_use]
-    pub fn effects(mut self, effects: &[Effect]) -> Self {
-        self.set_effects(effects, true);
-        self
+    pub const fn effects(self, effects: &[Effect]) -> Self {
+        self.set_effects(effects, true)
     }
 
     /// Remove a given set of effects from the style
     #[must_use]
-    pub fn remove_effects(mut self, effects: &[Effect]) -> Self {
-        self.set_effects(effects, false);
-        self
+    pub const fn remove_effects(self, effects: &[Effect]) -> Self {
+        self.set_effects(effects, false)
     }
 
     /// Disables all the given effects from the style
     #[must_use]
-    pub fn remove_all_effects(mut self) -> Self {
+    pub const fn remove_all_effects(mut self) -> Self {
         self.bold = false;
-        self.style_flags = StyleFlags::default();
+        self.style_flags = StyleFlags::new();
         self
     }
 
@@ -361,6 +409,7 @@ impl Style {
     /// ```
     #[must_use]
     pub fn color<Color: DynColor>(mut self, color: Color) -> Self {
+        // Can't be const because `get_dyncolors_fg` is a trait method.
         self.fg = Some(color.get_dyncolors_fg());
         self
     }
@@ -376,13 +425,14 @@ impl Style {
     /// ```
     #[must_use]
     pub fn on_color<Color: DynColor>(mut self, color: Color) -> Self {
+        // Can't be const because `get_dyncolors_bg` is a trait method.
         self.bg = Some(color.get_dyncolors_bg());
         self
     }
 
     /// Set the foreground color to a specific RGB value.
     #[must_use]
-    pub fn fg_rgb<const R: u8, const G: u8, const B: u8>(mut self) -> Self {
+    pub const fn fg_rgb<const R: u8, const G: u8, const B: u8>(mut self) -> Self {
         self.fg = Some(DynColors::Rgb(R, G, B));
 
         self
@@ -390,7 +440,7 @@ impl Style {
 
     /// Set the background color to a specific RGB value.
     #[must_use]
-    pub fn bg_rgb<const R: u8, const G: u8, const B: u8>(mut self) -> Self {
+    pub const fn bg_rgb<const R: u8, const G: u8, const B: u8>(mut self) -> Self {
         self.bg = Some(DynColors::Rgb(R, G, B));
 
         self
@@ -398,14 +448,14 @@ impl Style {
 
     /// Sets the foreground color to an RGB value.
     #[must_use]
-    pub fn truecolor(mut self, r: u8, g: u8, b: u8) -> Self {
+    pub const fn truecolor(mut self, r: u8, g: u8, b: u8) -> Self {
         self.fg = Some(DynColors::Rgb(r, g, b));
         self
     }
 
     /// Sets the background color to an RGB value.
     #[must_use]
-    pub fn on_truecolor(mut self, r: u8, g: u8, b: u8) -> Self {
+    pub const fn on_truecolor(mut self, r: u8, g: u8, b: u8) -> Self {
         self.bg = Some(DynColors::Rgb(r, g, b));
         self
     }
@@ -413,9 +463,9 @@ impl Style {
     /// Returns if the style does not apply any formatting
     #[must_use]
     #[inline]
-    pub fn is_plain(&self) -> bool {
+    pub const fn is_plain(&self) -> bool {
         let s = &self;
-        !(s.fg.is_some() || s.bg.is_some() || s.bold || s.style_flags != StyleFlags::default())
+        !(s.fg.is_some() || s.bg.is_some() || s.bold) && s.style_flags.is_plain()
     }
 
     /// Applies the ANSI-prefix for this style to the given formatter
@@ -515,12 +565,13 @@ pub const fn style() -> Style {
 
 impl<T> Styled<T> {
     /// Returns a reference to the inner value to be styled
-    pub fn inner(&self) -> &T {
+    pub const fn inner(&self) -> &T {
         &self.target
     }
 
     /// Returns a mutable reference to the inner value to be styled
     pub fn inner_mut(&mut self) -> &mut T {
+        // Can't be const because mutable refs aren't allowed in const contexts.
         &mut self.target
     }
 }

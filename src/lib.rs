@@ -144,23 +144,23 @@ pub trait DynColor {
 /// with the addition of changing the foreground color. Recommended to be constructed using
 /// [`OwoColorize`].
 #[repr(transparent)]
-pub struct FgColorDisplay<'a, C: Color, T>(&'a T, PhantomData<C>);
+pub struct FgColorDisplay<'a, C: Color, T: ?Sized>(&'a T, PhantomData<C>);
 
 /// Transparent wrapper around a type which implements all the formatters the wrapped type does,
 /// with the addition of changing the background color. Recommended to be constructed using
 /// [`OwoColorize`].
 #[repr(transparent)]
-pub struct BgColorDisplay<'a, C: Color, T>(&'a T, PhantomData<C>);
+pub struct BgColorDisplay<'a, C: Color, T: ?Sized>(&'a T, PhantomData<C>);
 
 /// Wrapper around a type which implements all the formatters the wrapped type does,
 /// with the addition of changing the foreground color. Is not recommended unless compile-time
 /// coloring is not an option.
-pub struct FgDynColorDisplay<'a, Color: DynColor, T>(&'a T, Color);
+pub struct FgDynColorDisplay<'a, Color: DynColor, T: ?Sized>(&'a T, Color);
 
 /// Wrapper around a type which implements all the formatters the wrapped type does,
 /// with the addition of changing the background color. Is not recommended unless compile-time
 /// coloring is not an option.
-pub struct BgDynColorDisplay<'a, Color: DynColor, T>(&'a T, Color);
+pub struct BgDynColorDisplay<'a, Color: DynColor, T: ?Sized>(&'a T, Color);
 
 macro_rules! style_methods {
     ($(#[$meta:meta] $name:ident $ty:ident),* $(,)?) => {
@@ -254,6 +254,15 @@ const _: () = (); // workaround for syntax highlighting bug
 /// Use [`style`](OwoColorize::style) to apply a [`Style`]
 ///
 pub trait OwoColorize: Sized {
+    // Implementation note: even though the "OwoColorize: Sized" condition _can_ be dropped, we
+    // currently don't do that for API compatibility reasons.
+    //
+    // For example, currently, calling `OwoColorize::fg` on a &str results in a type signature of
+    // `FgColorDisplay<'_, C, &str>`. Dropping the "OwoColorize: Sized" condition would result in a
+    // type signature of `FgColorDisplay<'_, C, str>`, which is a visible change.
+    //
+    // If we ever do a breaking change to owo-colors in the future, this would be a good candidate.
+
     /// Set the foreground color generically
     ///
     /// ```rust
@@ -490,9 +499,13 @@ pub use colors::{
 };
 
 // TODO: figure out some wait to only implement for fmt::Display | fmt::Debug | ...
-impl<D: Sized> OwoColorize for D {}
+impl<D> OwoColorize for D {}
 
-pub use {combo::ComboColorDisplay, dyn_colors::*, dyn_styles::*};
+pub use {
+    combo::{ComboColorDisplay, ComboDynColorDisplay},
+    dyn_colors::*,
+    dyn_styles::*,
+};
 
 /// Module for drop-in [`colored`](https://docs.rs/colored) support to aid in porting code from
 /// [`colored`](https://docs.rs/colored) to owo-colors.
