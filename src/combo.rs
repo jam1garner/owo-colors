@@ -10,9 +10,10 @@ use crate::OwoColorize;
 /// A wrapper type which applies both a foreground and background color
 pub struct ComboColorDisplay<'a, Fg: Color, Bg: Color, T>(&'a T, PhantomData<(Fg, Bg)>);
 
-/// Wrapper around a type which implements all the formatters the wrapped type does,
-/// with the addition of changing the foreground and background color. Is not recommended
-/// unless compile-time coloring is not an option.
+/// Wrapper around a type which implements all the formatters the wrapped type does, with the
+/// addition of changing the foreground and background color.
+///
+/// If compile-time coloring is an option, consider using [`ComboColorDisplay`] instead.
 pub struct ComboDynColorDisplay<'a, Fg: DynColor, Bg: DynColor, T>(&'a T, Fg, Bg);
 
 macro_rules! impl_fmt_for_combo {
