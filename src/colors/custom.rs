@@ -79,17 +79,26 @@ const fn rgb_to_ansi_color(r: u8, g: u8, b: u8, is_fg: bool) -> [u8; 16] {
 /// A custom RGB color, determined at compile time
 pub struct CustomColor<const R: u8, const G: u8, const B: u8>;
 
-#[allow(clippy::transmute_bytes_to_str)]
-impl<const R: u8, const G: u8, const B: u8> Color for CustomColor<R, G, B> {
-    const ANSI_FG: &'static str =
-        unsafe { core::mem::transmute(&rgb_to_ansi(R, G, B, true) as &[u8]) };
-    const ANSI_BG: &'static str =
-        unsafe { core::mem::transmute(&rgb_to_ansi(R, G, B, false) as &[u8]) };
+/// This exists since unwrap() isn't const-safe (it invokes formatting infrastructure)
+const fn bytes_to_str(bytes: &'static [u8]) -> &'static str {
+    match core::str::from_utf8(bytes) {
+        Ok(o) => o,
+        Err(_e) => panic!("Const parsing &[u8] to a string failed!")
+    }
+}
 
-    const RAW_ANSI_FG: &'static str =
-        unsafe { core::mem::transmute(&rgb_to_ansi_color(R, G, B, true) as &[u8]) };
-    const RAW_ANSI_BG: &'static str =
-        unsafe { core::mem::transmute(&rgb_to_ansi_color(R, G, B, false) as &[u8]) };
+impl<const R: u8, const G: u8, const B: u8> CustomColor<R, G, B> {
+    const ANSI_FG_U8: [u8; 19] = rgb_to_ansi(R, G, B, true);
+    const ANSI_BG_U8: [u8; 19] = rgb_to_ansi(R, G, B, true);
+    const RAW_ANSI_FG_U8: [u8; 16] = rgb_to_ansi_color(R, G, B, true);
+    const RAW_ANSI_BG_U8: [u8; 16] = rgb_to_ansi_color(R, G, B, true);
+}
+
+impl<const R: u8, const G: u8, const B: u8> Color for CustomColor<R, G, B> {
+    const ANSI_FG: &'static str = bytes_to_str(&Self::ANSI_FG_U8);
+    const ANSI_BG: &'static str = bytes_to_str(&Self::ANSI_BG_U8);
+    const RAW_ANSI_FG: &'static str = bytes_to_str(&Self::RAW_ANSI_FG_U8);
+    const RAW_ANSI_BG: &'static str = bytes_to_str(&Self::RAW_ANSI_BG_U8);
 
     #[doc(hidden)]
     type DynEquivalent = crate::Rgb;
