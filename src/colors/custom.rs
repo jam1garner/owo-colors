@@ -83,7 +83,7 @@ pub struct CustomColor<const R: u8, const G: u8, const B: u8>;
 const fn bytes_to_str(bytes: &'static [u8]) -> &'static str {
     match core::str::from_utf8(bytes) {
         Ok(o) => o,
-        Err(_e) => panic!("Const parsing &[u8] to a string failed!")
+        Err(_e) => panic!("Const parsing &[u8] to a string failed!"),
     }
 }
 
