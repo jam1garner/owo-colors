@@ -7,7 +7,7 @@ use crate::OwoColorize;
 macro_rules! impl_fmt_for_style {
     ($(($ty:ident, $trait:path, $ansi:literal)),* $(,)?) => {
         $(
-            impl<'a, T: $trait> $trait for $ty<'a, T> {
+            impl<'a, T: ?Sized + $trait> $trait for $ty<'a, T> {
                 fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
                     f.write_str($ansi)?;
                     <_ as $trait>::fmt(&self.0, f)?;
@@ -22,52 +22,52 @@ macro_rules! impl_fmt_for_style {
 /// with the addition of boldening it. Recommended to be constructed using
 /// [`OwoColorize`](OwoColorize::bold).
 #[repr(transparent)]
-pub struct BoldDisplay<'a, T>(pub &'a T);
+pub struct BoldDisplay<'a, T: ?Sized>(pub &'a T);
 
 /// Transparent wrapper around a type which implements all the formatters the wrapped type does,
 /// with the addition of dimming it. Recommended to be constructed using
 /// [`OwoColorize`](OwoColorize::dimmed).
 #[repr(transparent)]
-pub struct DimDisplay<'a, T>(pub &'a T);
+pub struct DimDisplay<'a, T: ?Sized>(pub &'a T);
 
 /// Transparent wrapper around a type which implements all the formatters the wrapped type does,
 /// with the addition of italics. Recommended to be constructed using
 /// [`OwoColorize`](OwoColorize::italic).
 #[repr(transparent)]
-pub struct ItalicDisplay<'a, T>(pub &'a T);
+pub struct ItalicDisplay<'a, T: ?Sized>(pub &'a T);
 
 /// Transparent wrapper around a type which implements all the formatters the wrapped type does,
 /// while underlining it. Recommended to be constructed using
 /// [`OwoColorize`](OwoColorize::underline).
 #[repr(transparent)]
-pub struct UnderlineDisplay<'a, T>(pub &'a T);
+pub struct UnderlineDisplay<'a, T: ?Sized>(pub &'a T);
 
 /// Transparent wrapper around a type which implements all the formatters the wrapped type does,
 /// while blinking. Recommended to be constructed using
 /// [`OwoColorize`](OwoColorize::blink).
 #[repr(transparent)]
-pub struct BlinkDisplay<'a, T>(pub &'a T);
+pub struct BlinkDisplay<'a, T: ?Sized>(pub &'a T);
 
 /// Transparent wrapper around a type which implements all the formatters the wrapped type does,
 /// with the addition of making it blink fast. Use [`OwoColorize`](OwoColorize::blink_fast)
 #[repr(transparent)]
-pub struct BlinkFastDisplay<'a, T>(pub &'a T);
+pub struct BlinkFastDisplay<'a, T: ?Sized>(pub &'a T);
 
 /// Transparent wrapper around a type which implements all the formatters the wrapped type does,
 /// with the addition of swapping fg and bg colors. Use [`OwoColorize`](OwoColorize::reversed)
 #[repr(transparent)]
-pub struct ReversedDisplay<'a, T>(pub &'a T);
+pub struct ReversedDisplay<'a, T: ?Sized>(pub &'a T);
 
 /// Transparent wrapper around a type which implements all the formatters the wrapped type does,
 /// with the addition of hiding the text. Use [`OwoColorize`](OwoColorize::hidden).
 #[repr(transparent)]
-pub struct HiddenDisplay<'a, T>(pub &'a T);
+pub struct HiddenDisplay<'a, T: ?Sized>(pub &'a T);
 
 /// Transparent wrapper around a type which implements all the formatters the wrapped type does,
 /// crossed out. Recommended to be constructed using
 /// [`OwoColorize`](OwoColorize::strikethrough).
 #[repr(transparent)]
-pub struct StrikeThroughDisplay<'a, T>(pub &'a T);
+pub struct StrikeThroughDisplay<'a, T: ?Sized>(pub &'a T);
 
 impl_fmt_for_style! {
     // Bold
