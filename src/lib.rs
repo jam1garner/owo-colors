@@ -482,7 +482,6 @@ pub use {
 };
 
 #[cfg(feature = "supports-colors")]
-#[doc(no_inline)]
 pub use supports_colors::Stream;
 
 pub use colors::{
