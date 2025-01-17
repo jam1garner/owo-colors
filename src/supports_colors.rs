@@ -13,8 +13,6 @@ where
     ApplyFn: Fn(&'a InVal) -> Out;
 
 /// A possible stream source.
-///
-/// This can be used
 #[derive(Clone, Copy, Debug)]
 pub enum Stream {
     /// Standard output.
