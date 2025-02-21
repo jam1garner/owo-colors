@@ -61,6 +61,7 @@ impl<T: Display> IsStyled for Styled<T> {
 ///
 /// assert!(styled_length < normal_length);
 /// ```
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct StyledList<T, U>(pub T, PhantomData<fn(U)>)
 where
     T: AsRef<[U]>,

@@ -32,7 +32,9 @@ required-features = ["supports-colors"]
 # the nonfunctional "supports-color" feature.
 supports-colors = ["dep:supports-color-2", "supports-color"]
 alloc = []
+serde = ["dep:serde"]
 
 [dependencies]
 supports-color-2 = { package = "supports-color", version = "2.0", optional = true }
 supports-color = { version = "3.0.0", optional = true }
+serde = { version = "1.0.218", features = ["derive"], optional = true, default-features = false }
