@@ -574,7 +574,6 @@ impl<T> Styled<T> {
     /// *This method is const on Rust 1.83+.*
     #[cfg(const_mut_refs)]
     pub const fn inner_mut(&mut self) -> &mut T {
-        // Can't be const because mutable refs aren't allowed in const contexts.
         &mut self.target
     }
 
