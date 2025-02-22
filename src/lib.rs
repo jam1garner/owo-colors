@@ -91,9 +91,15 @@ pub(crate) use overrides::OVERRIDE;
 use core::fmt;
 use core::marker::PhantomData;
 
+mod private {
+    // Not actually reachable.
+    #[doc(hidden)]
+    pub trait Sealed {}
+}
+
 /// A trait for describing a type which can be used with [`FgColorDisplay`] or
 /// [`BgColorDisplay`]
-pub trait Color {
+pub trait Color: private::Sealed {
     /// The ANSI format code for setting this color as the foreground
     const ANSI_FG: &'static str;
 
@@ -121,7 +127,7 @@ pub trait Color {
 /// A trait describing a runtime-configurable color which can displayed using [`FgDynColorDisplay`]
 /// or [`BgDynColorDisplay`]. If your color will be known at compile time it
 /// is recommended you avoid this.
-pub trait DynColor {
+pub trait DynColor: private::Sealed {
     /// A function to output a ANSI code to a formatter to set the foreground to this color
     fn fmt_ansi_fg(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result;
     /// A function to output a ANSI code to a formatter to set the background to this color

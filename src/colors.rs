@@ -23,6 +23,8 @@ macro_rules! colors {
                 )*
             }
 
+            impl crate::private::Sealed for AnsiColors {}
+
             impl crate::DynColor for AnsiColors {
                 fn fmt_ansi_fg(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
                     let color = match self {
@@ -79,6 +81,8 @@ macro_rules! colors {
         $(
             /// A color for use with [`OwoColorize`](crate::OwoColorize)'s `fg` and `bg` methods.
             pub struct $color;
+
+            impl crate::private::Sealed for $color {}
 
             impl crate::Color for $color {
                 const ANSI_FG: &'static str = concat!("\x1b[", stringify!($fg), "m");
