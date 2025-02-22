@@ -8,6 +8,8 @@ jobs:
     datatest-stable-release:
         if: github.repository_owner == 'owo-colors' && startsWith(github.ref_name, 'v')
         runs-on: ubuntu-latest
+        permissions:
+            contents: write
         steps:
             - uses: actions/checkout@v4
               with:
