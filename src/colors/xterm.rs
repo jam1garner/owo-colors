@@ -110,9 +110,7 @@ macro_rules! xterm_colors {
                 const DYN_EQUIVALENT: Self::DynEquivalent = dynamic::XtermColors::$name;
 
                 #[doc(hidden)]
-                fn into_dyncolors() -> crate::DynColors {
-                    crate::DynColors::Xterm(dynamic::XtermColors::$name)
-                }
+                const DYN_COLORS_EQUIVALENT: crate::DynColors = crate::DynColors::Xterm(Self::DYN_EQUIVALENT);
             }
         )*
     };

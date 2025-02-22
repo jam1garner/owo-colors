@@ -115,7 +115,7 @@ pub trait Color {
     const DYN_EQUIVALENT: Self::DynEquivalent;
 
     #[doc(hidden)]
-    fn into_dyncolors() -> crate::DynColors;
+    const DYN_COLORS_EQUIVALENT: crate::DynColors;
 }
 
 /// A trait describing a runtime-configurable color which can displayed using [`FgDynColorDisplay`]

@@ -94,9 +94,7 @@ macro_rules! colors {
                 const DYN_EQUIVALENT: Self::DynEquivalent = ansi_colors::AnsiColors::$color;
 
                 #[doc(hidden)]
-                fn into_dyncolors() -> crate::DynColors {
-                    crate::DynColors::Ansi(ansi_colors::AnsiColors::$color)
-                }
+                const DYN_COLORS_EQUIVALENT: crate::DynColors = crate::DynColors::Ansi(ansi_colors::AnsiColors::$color);
             }
         )*
 
