@@ -569,9 +569,20 @@ impl<T> Styled<T> {
         &self.target
     }
 
-    /// Returns a mutable reference to the inner value to be styled
-    pub fn inner_mut(&mut self) -> &mut T {
+    /// Returns a mutable reference to the inner value to be styled.
+    ///
+    /// *This method is const on Rust 1.83+.*
+    #[cfg(const_mut_refs)]
+    pub const fn inner_mut(&mut self) -> &mut T {
         // Can't be const because mutable refs aren't allowed in const contexts.
+        &mut self.target
+    }
+
+    /// Returns a mutable reference to the inner value to be styled.
+    ///
+    /// *This method is const on Rust 1.83+.*
+    #[cfg(not(const_mut_refs))]
+    pub fn inner_mut(&mut self) -> &mut T {
         &mut self.target
     }
 }
