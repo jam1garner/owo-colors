@@ -28,11 +28,21 @@ pub fn with_override<T, F: FnOnce() -> T>(enabled: bool, f: F) -> T {
     let previous = OVERRIDE.inner();
     OVERRIDE.set_force(enabled);
 
-    let value = f();
+    // Use a scope guard to ensure that if `f` panics, the override is still
+    // caught.
+    let _guard = ResetOverrideGuard { previous };
 
-    OVERRIDE.set_unchecked(previous);
+    f()
+}
 
-    value
+struct ResetOverrideGuard {
+    previous: u8,
+}
+
+impl Drop for ResetOverrideGuard {
+    fn drop(&mut self) {
+        OVERRIDE.set_unchecked(self.previous);
+    }
 }
 
 /// Set an override value for whether or not colors are supported.
@@ -97,5 +107,29 @@ impl Override {
 
     fn set_unchecked(&self, value: u8) {
         self.0.store(value, Ordering::SeqCst);
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn with_override_on_panic() {
+        set_override(false);
+
+        std::panic::catch_unwind(|| {
+            with_override(true, || {
+                assert_eq!(OVERRIDE.inner(), FORCE_ENABLE);
+                panic!("test");
+            });
+        })
+        .expect_err("test should panic");
+
+        assert_eq!(
+            OVERRIDE.inner(),
+            FORCE_DISABLE,
+            "override should have been reset"
+        );
     }
 }
