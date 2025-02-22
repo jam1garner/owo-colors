@@ -1,5 +1,5 @@
-use crate::{colors, BgDynColorDisplay, DynColor, FgDynColorDisplay};
 use crate::{BgColorDisplay, Color, FgColorDisplay};
+use crate::{BgDynColorDisplay, DynColor, FgDynColorDisplay, colors};
 
 use core::fmt;
 use core::marker::PhantomData;
@@ -592,7 +592,7 @@ impl<'a, Fg: DynColor, Bg: DynColor, T: ?Sized> ComboDynColorDisplay<'a, Fg, Bg,
 
 #[cfg(test)]
 mod tests {
-    use crate::{colors::*, AnsiColors, OwoColorize};
+    use crate::{AnsiColors, OwoColorize, colors::*};
 
     #[test]
     fn fg_bg_combo() {

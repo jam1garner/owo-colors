@@ -1,4 +1,4 @@
-use crate::{dyn_styles::StyleFlags, Style, Styled};
+use crate::{Style, Styled, dyn_styles::StyleFlags};
 use core::{
     fmt::{self, Display},
     marker::PhantomData,

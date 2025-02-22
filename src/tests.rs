@@ -1,5 +1,5 @@
-use super::colors::*;
 use super::OwoColorize;
+use super::colors::*;
 use crate::colors::css::Lavender;
 use crate::{AnsiColors, DynColors};
 
