@@ -70,9 +70,10 @@
 //! println!("{}", text.style(my_style));
 //! ```
 #![cfg_attr(not(test), no_std)]
-#![cfg_attr(doc_cfg, feature(doc_cfg))]
+#![cfg_attr(doc_cfg, feature(doc_auto_cfg))]
 #![doc(html_logo_url = "https://jam1.re/img/rust_owo.svg")]
 #![warn(missing_docs)]
+#![forbid(unsafe_code)]
 
 pub mod colors;
 mod combo;
@@ -487,11 +488,8 @@ mod supports_colors;
 #[cfg(feature = "supports-colors")]
 pub use {
     overrides::{set_override, unset_override, with_override},
-    supports_colors::SupportsColorsDisplay,
+    supports_colors::{Stream, SupportsColorsDisplay},
 };
-
-#[cfg(feature = "supports-colors")]
-pub use supports_colors::Stream;
 
 pub use colors::{
     ansi_colors::AnsiColors, css::dynamic::CssColors, dynamic::Rgb, xterm::dynamic::XtermColors,

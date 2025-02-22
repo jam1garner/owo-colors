@@ -1,0 +1,21 @@
+name: Publish releases to GitHub
+on:
+    push:
+        tags:
+            - "*"
+
+jobs:
+    datatest-stable-release:
+        if: github.repository_owner == 'jam1garner' && startsWith(github.ref_name, 'v')
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+              with:
+                  persist-credentials: false
+            - uses: taiki-e/create-gh-release-action@v1
+              with:
+                  changelog: CHANGELOG.md
+                  title: owo-colors $version
+                  branch: main
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
