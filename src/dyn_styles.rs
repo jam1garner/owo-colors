@@ -189,9 +189,8 @@ impl Style {
     /// println!("{}", "red foreground".fg::<Red>());
     /// ```
     #[must_use]
-    pub fn fg<C: Color>(mut self) -> Self {
-        // Can't be const because `into_dyncolors` is a trait method.
-        self.fg = Some(C::into_dyncolors());
+    pub const fn fg<C: Color>(mut self) -> Self {
+        self.fg = Some(C::DYN_COLORS_EQUIVALENT);
         self
     }
 
@@ -203,9 +202,8 @@ impl Style {
     /// println!("{}", "black background".bg::<Black>());
     /// ```
     #[must_use]
-    pub fn bg<C: Color>(mut self) -> Self {
-        // Can't be const because `into_dyncolors` is a trait method.
-        self.bg = Some(C::into_dyncolors());
+    pub const fn bg<C: Color>(mut self) -> Self {
+        self.bg = Some(C::DYN_COLORS_EQUIVALENT);
         self
     }
 
