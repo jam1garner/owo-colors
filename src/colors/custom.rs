@@ -94,6 +94,8 @@ impl<const R: u8, const G: u8, const B: u8> CustomColor<R, G, B> {
     const RAW_ANSI_BG_U8: [u8; 16] = rgb_to_ansi_color(R, G, B, true);
 }
 
+impl<const R: u8, const G: u8, const B: u8> crate::private::Sealed for CustomColor<R, G, B> {}
+
 impl<const R: u8, const G: u8, const B: u8> Color for CustomColor<R, G, B> {
     const ANSI_FG: &'static str = bytes_to_str(&Self::ANSI_FG_U8);
     const ANSI_BG: &'static str = bytes_to_str(&Self::ANSI_BG_U8);

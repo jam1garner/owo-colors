@@ -19,6 +19,8 @@ macro_rules! xterm_colors {
                 )*
             }
 
+            impl crate::private::Sealed for XtermColors {}
+
             impl crate::DynColor for XtermColors {
                 fn fmt_ansi_fg(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
                     let color = match self {
@@ -95,6 +97,8 @@ macro_rules! xterm_colors {
         $(
             #[allow(missing_docs)]
             pub struct $name;
+
+            impl crate::private::Sealed for $name {}
 
             impl crate::Color for $name {
                 const ANSI_FG: &'static str = concat!("\x1b[38;5;", stringify!($xterm_num), "m");

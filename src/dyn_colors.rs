@@ -17,6 +17,8 @@ pub enum DynColors {
     Rgb(u8, u8, u8),
 }
 
+impl crate::private::Sealed for DynColors {}
+
 impl DynColor for DynColors {
     fn fmt_ansi_fg(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
