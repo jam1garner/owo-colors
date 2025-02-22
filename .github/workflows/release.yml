@@ -6,12 +6,15 @@ on:
 
 jobs:
     datatest-stable-release:
-        if: github.repository_owner == 'jam1garner' && startsWith(github.ref_name, 'v')
+        if: github.repository_owner == 'owo-colors' && startsWith(github.ref_name, 'v')
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v4
               with:
                   persist-credentials: false
+            - uses: taiki-e/install-action@v2
+              with:
+                  tool: cargo-release@0.25
             - uses: taiki-e/create-gh-release-action@v1
               with:
                   changelog: CHANGELOG.md
@@ -19,3 +22,6 @@ jobs:
                   branch: main
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            - run: ./scripts/cargo-release-publish.sh
+              with:
+                  CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}

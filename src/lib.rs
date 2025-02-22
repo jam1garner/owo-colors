@@ -1,4 +1,4 @@
-//! |**Quick Links**|[`OwoColorize`]|[`Style`]|[`StyledList`]|[`github`](https://github.com/jam1garner/owo-colors)|
+//! |**Quick Links**|[`OwoColorize`]|[`Style`]|[`StyledList`]|[`github`](https://github.com/owo-colors/owo-colors)|
 //! |-|-|-|-|-|
 //!
 //! ---

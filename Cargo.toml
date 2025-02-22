@@ -10,7 +10,7 @@ description = "Zero-allocation terminal colors that'll make people go owo"
 license = "MIT"
 readme = "README.md"
 keywords = ["cli", "color", "no-std", "terminal", "ansi_term"]
-categories = ["command-line-interface"]
+categories = ["command-line-interface", "no-std::no-alloc"]
 
 [package.metadata.docs.rs]
 all-features = true
