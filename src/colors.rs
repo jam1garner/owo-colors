@@ -17,6 +17,7 @@ macro_rules! colors {
             /// or [`OwoColorize::on_color`](OwoColorize::on_color)
             #[allow(missing_docs)]
             #[derive(Copy, Clone, Debug, PartialEq, Eq)]
+            #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
             pub enum AnsiColors {
                 $(
                     $color,
@@ -80,6 +81,7 @@ macro_rules! colors {
 
         $(
             /// A color for use with [`OwoColorize`](crate::OwoColorize)'s `fg` and `bg` methods.
+            #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
             pub struct $color;
 
             impl crate::private::Sealed for $color {}

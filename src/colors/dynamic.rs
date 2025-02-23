@@ -7,6 +7,7 @@ use crate::OwoColorize;
 /// Available RGB colors for use with [`OwoColorize::color`](OwoColorize::color)
 /// or [`OwoColorize::on_color`](OwoColorize::on_color)
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Rgb(pub u8, pub u8, pub u8);
 
 impl crate::private::Sealed for Rgb {}

@@ -7,6 +7,7 @@ use crate::OwoColorize;
 /// A runtime-configurable text effect for use with [`Style`]
 #[allow(missing_docs)]
 #[derive(Debug, Copy, Clone)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum Effect {
     Bold,
     Dimmed,
@@ -57,6 +58,7 @@ macro_rules! style_methods {
 const _: () = (); // workaround for syntax highlighting bug
 
 /// A wrapper type which applies a [`Style`] when displaying the inner type
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Styled<T> {
     /// The target value to be styled
     pub(crate) target: T,
@@ -80,6 +82,7 @@ pub struct Styled<T> {
 /// println!("{}", "red text, white background, struck through".style(my_style));
 /// ```
 #[derive(Debug, Copy, Clone, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Style {
     pub(crate) fg: Option<DynColors>,
     pub(crate) bg: Option<DynColors>,
@@ -89,6 +92,7 @@ pub struct Style {
 
 #[repr(transparent)]
 #[derive(Debug, Copy, Clone, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub(crate) struct StyleFlags(pub(crate) u8);
 
 impl StyleFlags {

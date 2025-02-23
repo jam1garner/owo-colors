@@ -75,6 +75,7 @@ pub fn unset_override() {
 
 pub(crate) static OVERRIDE: Override = Override::none();
 
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub(crate) struct Override(AtomicU8);
 
 const FORCE_MASK: u8 = 0b10;

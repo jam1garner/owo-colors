@@ -13,6 +13,7 @@ macro_rules! css_color_types {
             /// or [`OwoColorize::on_color`](OwoColorize::on_color)
             #[allow(missing_docs)]
             #[derive(Copy, Clone, Debug, PartialEq, Eq)]
+            #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
             pub enum CssColors {
                 $($name,)*
             }

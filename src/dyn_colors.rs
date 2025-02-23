@@ -10,6 +10,7 @@ use core::fmt;
 /// allowing for multiple types of colors to be used at runtime.
 #[allow(missing_docs)]
 #[derive(Copy, Clone, PartialEq, Eq, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum DynColors {
     Ansi(AnsiColors),
     Css(CssColors),

@@ -12,6 +12,7 @@ macro_rules! xterm_colors {
             /// Available Xterm colors for use with [`OwoColorize::color`](OwoColorize::color)
             /// or [`OwoColorize::on_color`](OwoColorize::on_color)
             #[derive(Copy, Clone, Debug, PartialEq, Eq)]
+            #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
             pub enum XtermColors {
                 $(
                     #[allow(missing_docs)]
@@ -96,6 +97,7 @@ macro_rules! xterm_colors {
 
         $(
             #[allow(missing_docs)]
+            #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
             pub struct $name;
 
             impl crate::private::Sealed for $name {}
