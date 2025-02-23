@@ -1,5 +1,5 @@
 use crate::{BgColorDisplay, Color, FgColorDisplay};
-use crate::{BgDynColorDisplay, DynColor, FgDynColorDisplay, colors};
+use crate::{BgDynColorDisplay, DynColor, FgDynColorDisplay, Style, Styled, colors};
 
 use core::fmt;
 use core::marker::PhantomData;
@@ -93,6 +93,57 @@ macro_rules! color_methods {
             /// ```
             pub const fn new(thing: &'a T) -> Self {
                 Self(thing, PhantomData)
+            }
+
+            /// Convert self to a generic [`Styled`].
+            ///
+            /// This method erases color-related type parameters, and can be
+            /// used to unify types across branches.
+            ///
+            /// # Example
+            ///
+            /// Typical use:
+            ///
+            /// ```rust
+            /// use owo_colors::OwoColorize;
+            ///
+            /// fn is_blue() -> bool {
+            ///     // ...
+            ///     # true
+            /// }
+            ///
+            /// let styled_str = if is_blue() {
+            ///     "hello".blue().into_styled()
+            /// } else {
+            ///     "hello".green().into_styled()
+            /// };
+            ///
+            /// println!("{}", styled_str);
+            /// # assert_eq!(format!("{}", styled_str), "\x1b[34mhello\x1b[0m");
+            /// ```
+            ///
+            /// Usage in const contexts:
+            ///
+            /// ```rust
+            /// use owo_colors::{colors::{Blue, Green}, FgColorDisplay, Styled};
+            ///
+            /// const fn is_blue() -> bool {
+            ///     // ...
+            ///     # true
+            /// }
+            ///
+            /// const STYLED_STR: Styled<&str> = if is_blue() {
+            ///     FgColorDisplay::<Blue, _>::new("Hello").into_styled()
+            /// } else {
+            ///     FgColorDisplay::<Green, _>::new("Hello").into_styled()
+            /// };
+            ///
+            /// println!("{}", STYLED_STR);
+            /// # assert_eq!(format!("{}", STYLED_STR), "\x1b[34mHello\x1b[0m");
+            /// ```
+            pub const fn into_styled(self) -> Styled<&'a T> {
+                let style = Style::new().fg::<Fg>();
+                Styled { style, target: self.0 }
             }
 
             /// Set the foreground color at runtime. Only use if you do not know which color will be used at
@@ -192,6 +243,57 @@ macro_rules! color_methods {
                 Self(thing, PhantomData)
             }
 
+            /// Convert self to a generic [`Styled`].
+            ///
+            /// This method erases color-related type parameters, and can be
+            /// used to unify types across branches.
+            ///
+            /// # Example
+            ///
+            /// Typical use:
+            ///
+            /// ```rust
+            /// use owo_colors::OwoColorize;
+            ///
+            /// fn is_red() -> bool {
+            ///     // ...
+            ///     # true
+            /// }
+            ///
+            /// let styled_str = if is_red() {
+            ///     "hello".on_red().into_styled()
+            /// } else {
+            ///     "hello".on_yellow().into_styled()
+            /// };
+            ///
+            /// println!("{}", styled_str);
+            /// # assert_eq!(format!("{}", styled_str), "\x1b[41mhello\x1b[0m");
+            /// ```
+            ///
+            /// Usage in const contexts:
+            ///
+            /// ```rust
+            /// use owo_colors::{colors::{Red, Yellow}, BgColorDisplay, Styled};
+            ///
+            /// const fn is_red() -> bool {
+            ///     // ...
+            ///     # true
+            /// }
+            ///
+            /// const STYLED_STR: Styled<&str> = if is_red() {
+            ///     BgColorDisplay::<Red, _>::new("Hello").into_styled()
+            /// } else {
+            ///     BgColorDisplay::<Yellow, _>::new("Hello").into_styled()
+            /// };
+            ///
+            /// println!("{}", STYLED_STR);
+            /// # assert_eq!(format!("{}", STYLED_STR), "\x1b[41mHello\x1b[0m");
+            /// ```
+            pub const fn into_styled(self) -> Styled<&'a T> {
+                let style = Style::new().bg::<Bg>();
+                Styled { style, target: self.0 }
+            }
+
             /// Set the foreground color at runtime. Only use if you do not know which color will be used at
             /// compile-time. If the color is constant, use either [`OwoColorize::fg`] or
             /// a color-specific method, such as [`OwoColorize::green`],
@@ -289,6 +391,57 @@ macro_rules! color_methods {
             /// ```
             pub const fn new(thing: &'a T) -> Self {
                 Self(thing, PhantomData)
+            }
+
+            /// Convert self to a generic [`Styled`].
+            ///
+            /// This method erases color-related type parameters, and can be
+            /// used to unify types across branches.
+            ///
+            /// # Example
+            ///
+            /// Typical use:
+            ///
+            /// ```rust
+            /// use owo_colors::OwoColorize;
+            ///
+            /// fn is_black_on_white() -> bool {
+            ///     // ...
+            ///     # true
+            /// }
+            ///
+            /// let styled_str = if is_black_on_white() {
+            ///     "hello".black().on_white().into_styled()
+            /// } else {
+            ///     "hello".white().on_black().into_styled()
+            /// };
+            ///
+            /// println!("{}", styled_str);
+            /// # assert_eq!(format!("{}", styled_str), "\x1b[30;47mhello\x1b[0m");
+            /// ```
+            ///
+            /// Usage in const contexts:
+            ///
+            /// ```rust
+            /// use owo_colors::{colors::{Black, White}, ComboColorDisplay, Styled};
+            ///
+            /// const fn is_black_on_white() -> bool {
+            ///     // ...
+            ///     # true
+            /// }
+            ///
+            /// const STYLED_STR: Styled<&str> = if is_black_on_white() {
+            ///     ComboColorDisplay::<Black, White, _>::new("Hello").into_styled()
+            /// } else {
+            ///     ComboColorDisplay::<White, Black, _>::new("Hello").into_styled()
+            /// };
+            ///
+            /// println!("{}", STYLED_STR);
+            /// # assert_eq!(format!("{}", STYLED_STR), "\x1b[30;47mHello\x1b[0m");
+            /// ```
+            pub const fn into_styled(self) -> Styled<&'a T> {
+                let style = Style::new().fg::<Fg>().bg::<Bg>();
+                Styled { style, target: self.0 }
             }
 
             /// Set the background color at runtime. Only use if you do not know what color to use at
@@ -446,6 +599,37 @@ impl<'a, Fg: DynColor, T: ?Sized> FgDynColorDisplay<'a, Fg, T> {
         Self(thing, color)
     }
 
+    /// Convert self to a generic [`Styled`].
+    ///
+    /// This method erases color-related type parameters, and can be
+    /// used to unify types across branches.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use owo_colors::{AnsiColors, CssColors, OwoColorize};
+    ///
+    /// fn is_blue() -> bool {
+    ///     // ...
+    ///     # true
+    /// }
+    ///
+    /// let styled_str = if is_blue() {
+    ///     "hello".color(AnsiColors::Blue).into_styled()
+    /// } else {
+    ///     "hello".color(CssColors::DarkSeaGreen).into_styled()
+    /// };
+    ///
+    /// println!("{}", styled_str);
+    /// # assert_eq!(format!("{}", styled_str), "\x1b[34mhello\x1b[0m");
+    /// ```
+    pub fn into_styled(self) -> Styled<&'a T> {
+        // TODO: Make this const after https://github.com/rust-lang/rust/issues/73255 is stabilized.
+        let Self(target, fg) = self;
+        let style = Style::new().color(fg);
+        Styled { style, target }
+    }
+
     /// Set the background color at runtime. Only use if you do not know what color to use at
     /// compile-time. If the color is constant, use either [`OwoColorize::bg`] or
     /// a color-specific method, such as [`OwoColorize::on_yellow`],
@@ -499,6 +683,37 @@ impl<'a, Bg: DynColor, T: ?Sized> BgDynColorDisplay<'a, Bg, T> {
     /// ```
     pub const fn new(thing: &'a T, color: Bg) -> Self {
         Self(thing, color)
+    }
+
+    /// Convert self to a generic [`Styled`].
+    ///
+    /// This method erases color-related type parameters, and can be
+    /// used to unify types across branches.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use owo_colors::{AnsiColors, CssColors, OwoColorize};
+    ///
+    /// fn is_red() -> bool {
+    ///     // ...
+    ///     # true
+    /// }
+    ///
+    /// let styled_str = if is_red() {
+    ///     "hello".on_color(AnsiColors::Red).into_styled()
+    /// } else {
+    ///     "hello".on_color(CssColors::LightGoldenRodYellow).into_styled()
+    /// };
+    ///
+    /// println!("{}", styled_str);
+    /// # assert_eq!(format!("{}", styled_str), "\x1b[41mhello\x1b[0m");
+    /// ```
+    pub fn into_styled(self) -> Styled<&'a T> {
+        // TODO: Make this const after https://github.com/rust-lang/rust/issues/73255 is stabilized.
+        let Self(target, bg) = self;
+        let style = Style::new().on_color(bg);
+        Styled { style, target }
     }
 
     /// Set the background color at runtime. Only use if you do not know what color to use at
@@ -557,6 +772,38 @@ impl<'a, Fg: DynColor, Bg: DynColor, T: ?Sized> ComboDynColorDisplay<'a, Fg, Bg,
     /// ```
     pub const fn new(thing: &'a T, fg: Fg, bg: Bg) -> Self {
         Self(thing, fg, bg)
+    }
+
+    /// Convert self to a generic [`Styled`].
+    ///
+    /// This method erases color-related type parameters, and can be
+    /// used to unify types across branches.
+    ///
+    /// # Example
+    ///
+    /// Typical use:
+    ///
+    /// ```rust
+    /// use owo_colors::{AnsiColors, CssColors, OwoColorize};
+    ///
+    /// fn is_black_on_white() -> bool {
+    ///     // ...
+    ///     # true
+    /// }
+    ///
+    /// let styled_str = if is_black_on_white() {
+    ///     "hello".color(AnsiColors::Black).on_color(AnsiColors::White).into_styled()
+    /// } else {
+    ///     "hello".color(CssColors::White).on_color(CssColors::Black).into_styled()
+    /// };
+    ///
+    /// println!("{}", styled_str);
+    /// # assert_eq!(format!("{}", styled_str), "\x1b[30;47mhello\x1b[0m");
+    /// ```
+    pub fn into_styled(self) -> Styled<&'a T> {
+        let Self(target, fg, bg) = self;
+        let style = Style::new().color(fg).on_color(bg);
+        Styled { style, target }
     }
 
     /// Set the background color at runtime. Only use if you do not know what color to use at
