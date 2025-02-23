@@ -458,12 +458,49 @@ impl Style {
         self
     }
 
-    /// Returns if the style does not apply any formatting
+    /// Returns true if the style does not apply any formatting.
     #[must_use]
     #[inline]
     pub const fn is_plain(&self) -> bool {
         let s = &self;
         !(s.fg.is_some() || s.bg.is_some() || s.bold) && s.style_flags.is_plain()
+    }
+
+    /// Returns a formatter for the style's ANSI prefix.
+    ///
+    /// This can be used to separate out the prefix and suffix of a style.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use owo_colors::Style;
+    /// use std::fmt::Write;
+    ///
+    /// let style = Style::new().red().on_blue();
+    /// let prefix = style.prefix_formatter();
+    /// let suffix = style.suffix_formatter();
+    ///
+    /// // Write the prefix and suffix separately.
+    /// let mut output = String::new();
+    /// write!(output, "{}", prefix);
+    /// output.push_str("Hello");
+    /// write!(output, "{}", suffix);
+    ///
+    /// assert_eq!(output, "\x1b[31;44mHello\x1b[0m");
+    /// ```
+    pub const fn prefix_formatter(&self) -> StylePrefixFormatter {
+        StylePrefixFormatter(*self)
+    }
+
+    /// Returns a formatter for the style's ANSI suffix.
+    ///
+    /// This can be used to separate out the prefix and suffix of a style.
+    ///
+    /// # Example
+    ///
+    /// See [`Style::prefix_formatter`].
+    pub const fn suffix_formatter(&self) -> StyleSuffixFormatter {
+        StyleSuffixFormatter(*self)
     }
 
     /// Applies the ANSI-prefix for this style to the given formatter
@@ -550,6 +587,34 @@ impl Style {
     }
 }
 
+/// Formatter for the prefix of a [`Style`].
+///
+/// This is used to get the ANSI escape codes for the style without
+/// the suffix, which is useful for formatting the prefix separately.
+#[derive(Debug, Clone, Copy, PartialEq)]
+#[must_use = "this formatter does nothing unless displayed"]
+pub struct StylePrefixFormatter(Style);
+
+impl fmt::Display for StylePrefixFormatter {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        self.0.fmt_prefix(f)
+    }
+}
+
+/// Formatter for the suffix of a [`Style`].
+///
+/// This is used to get the ANSI escape codes for the style without
+/// the prefix, which is useful for formatting the suffix separately.
+#[derive(Debug, Clone, Copy, PartialEq)]
+#[must_use = "this formatter does nothing unless displayed"]
+pub struct StyleSuffixFormatter(Style);
+
+impl fmt::Display for StyleSuffixFormatter {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        self.0.fmt_suffix(f)
+    }
+}
+
 impl Default for Style {
     fn default() -> Self {
         Self::new()
@@ -616,18 +681,10 @@ mod tests {
     use super::*;
     use crate::{AnsiColors, OwoColorize};
 
-    struct StylePrefixOnly(Style);
-    impl fmt::Display for StylePrefixOnly {
-        fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-            self.0.fmt_prefix(f)
-        }
-    }
-
-    struct StyleSuffixOnly(Style);
-    impl fmt::Display for StyleSuffixOnly {
-        fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-            self.0.fmt_suffix(f)
-        }
+    #[test]
+    fn size_of() {
+        let size = std::mem::size_of::<Style>();
+        assert_eq!(size, 10, "size of Style should be 10 bytes");
     }
 
     #[test]
@@ -649,10 +706,10 @@ mod tests {
         println!("{}", &s2);
         assert_eq!(&s2, "\u{1b}[97;44;1;2;3;4;5;9mTEST\u{1b}[0m");
 
-        let prefix = format!("{}", StylePrefixOnly(style));
+        let prefix = format!("{}", style.prefix_formatter());
         assert_eq!(&prefix, "\u{1b}[97;44;1;2;3;4;5;9m");
 
-        let suffix = format!("{}", StyleSuffixOnly(style));
+        let suffix = format!("{}", style.suffix_formatter());
         assert_eq!(&suffix, "\u{1b}[0m");
     }
 
