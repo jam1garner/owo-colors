@@ -575,7 +575,7 @@ color_methods! {
     BrightWhite    bright_white    on_bright_white,
 }
 
-impl<'a, Fg: DynColor, T: ?Sized> FgDynColorDisplay<'a, Fg, T> {
+impl<'a, Fg: DynColor + Copy, T: ?Sized> FgDynColorDisplay<'a, Fg, T> {
     /// Create a new [`FgDynColorDisplay`], from a reference to a type which implements
     /// [`DynColor`].
     ///
@@ -624,7 +624,6 @@ impl<'a, Fg: DynColor, T: ?Sized> FgDynColorDisplay<'a, Fg, T> {
     /// # assert_eq!(format!("{}", styled_str), "\x1b[34mhello\x1b[0m");
     /// ```
     pub fn into_styled(self) -> Styled<&'a T> {
-        // TODO: Make this const after https://github.com/rust-lang/rust/issues/73255 is stabilized.
         let Self(target, fg) = self;
         let style = Style::new().color(fg);
         Styled { style, target }
@@ -639,8 +638,7 @@ impl<'a, Fg: DynColor, T: ?Sized> FgDynColorDisplay<'a, Fg, T> {
     ///
     /// println!("{}", "yellow background".on_color(AnsiColors::BrightYellow));
     /// ```
-    pub fn on_color<Bg: DynColor>(self, bg: Bg) -> ComboDynColorDisplay<'a, Fg, Bg, T> {
-        // TODO: Make this const after https://github.com/rust-lang/rust/issues/73255 is stabilized.
+    pub const fn on_color<Bg: DynColor>(self, bg: Bg) -> ComboDynColorDisplay<'a, Fg, Bg, T> {
         let Self(inner, fg) = self;
         ComboDynColorDisplay(inner, fg, bg)
     }
@@ -654,14 +652,13 @@ impl<'a, Fg: DynColor, T: ?Sized> FgDynColorDisplay<'a, Fg, T> {
     ///
     /// println!("{}", "green".color(AnsiColors::Green));
     /// ```
-    pub fn color<NewFg: DynColor>(self, fg: NewFg) -> FgDynColorDisplay<'a, NewFg, T> {
-        // TODO: Make this const after https://github.com/rust-lang/rust/issues/73255 is stabilized.
+    pub const fn color<NewFg: DynColor>(self, fg: NewFg) -> FgDynColorDisplay<'a, NewFg, T> {
         let Self(inner, _) = self;
         FgDynColorDisplay(inner, fg)
     }
 }
 
-impl<'a, Bg: DynColor, T: ?Sized> BgDynColorDisplay<'a, Bg, T> {
+impl<'a, Bg: DynColor + Copy, T: ?Sized> BgDynColorDisplay<'a, Bg, T> {
     /// Create a new [`BgDynColorDisplay`], from a reference to a type which implements
     /// [`DynColor`].
     ///
@@ -710,7 +707,6 @@ impl<'a, Bg: DynColor, T: ?Sized> BgDynColorDisplay<'a, Bg, T> {
     /// # assert_eq!(format!("{}", styled_str), "\x1b[41mhello\x1b[0m");
     /// ```
     pub fn into_styled(self) -> Styled<&'a T> {
-        // TODO: Make this const after https://github.com/rust-lang/rust/issues/73255 is stabilized.
         let Self(target, bg) = self;
         let style = Style::new().on_color(bg);
         Styled { style, target }
@@ -725,8 +721,7 @@ impl<'a, Bg: DynColor, T: ?Sized> BgDynColorDisplay<'a, Bg, T> {
     ///
     /// println!("{}", "yellow background".on_color(AnsiColors::BrightYellow));
     /// ```
-    pub fn on_color<NewBg: DynColor>(self, bg: NewBg) -> BgDynColorDisplay<'a, NewBg, T> {
-        // TODO: Make this const after https://github.com/rust-lang/rust/issues/73255 is stabilized.
+    pub const fn on_color<NewBg: DynColor>(self, bg: NewBg) -> BgDynColorDisplay<'a, NewBg, T> {
         let Self(inner, _) = self;
         BgDynColorDisplay(inner, bg)
     }
@@ -740,14 +735,13 @@ impl<'a, Bg: DynColor, T: ?Sized> BgDynColorDisplay<'a, Bg, T> {
     ///
     /// println!("{}", "green".color(AnsiColors::Green));
     /// ```
-    pub fn color<Fg: DynColor>(self, fg: Fg) -> ComboDynColorDisplay<'a, Fg, Bg, T> {
-        // TODO: Make this const after https://github.com/rust-lang/rust/issues/73255 is stabilized.
+    pub const fn color<Fg: DynColor>(self, fg: Fg) -> ComboDynColorDisplay<'a, Fg, Bg, T> {
         let Self(inner, bg) = self;
         ComboDynColorDisplay(inner, fg, bg)
     }
 }
 
-impl<'a, Fg: DynColor, Bg: DynColor, T: ?Sized> ComboDynColorDisplay<'a, Fg, Bg, T> {
+impl<'a, Fg: DynColor + Copy, Bg: DynColor + Copy, T: ?Sized> ComboDynColorDisplay<'a, Fg, Bg, T> {
     /// Create a new [`ComboDynColorDisplay`], from a pair of types which implement
     /// [`DynColor`].
     ///
@@ -815,8 +809,10 @@ impl<'a, Fg: DynColor, Bg: DynColor, T: ?Sized> ComboDynColorDisplay<'a, Fg, Bg,
     ///
     /// println!("{}", "yellow background".on_color(AnsiColors::BrightYellow));
     /// ```
-    pub fn on_color<NewBg: DynColor>(self, bg: NewBg) -> ComboDynColorDisplay<'a, Fg, NewBg, T> {
-        // TODO: Make this const after https://github.com/rust-lang/rust/issues/73255 is stabilized.
+    pub const fn on_color<NewBg: DynColor>(
+        self,
+        bg: NewBg,
+    ) -> ComboDynColorDisplay<'a, Fg, NewBg, T> {
         let Self(inner, fg, _) = self;
         ComboDynColorDisplay(inner, fg, bg)
     }
@@ -830,7 +826,7 @@ impl<'a, Fg: DynColor, Bg: DynColor, T: ?Sized> ComboDynColorDisplay<'a, Fg, Bg,
     ///
     /// println!("{}", "green".color(AnsiColors::Green));
     /// ```
-    pub fn color<NewFg: DynColor>(self, fg: NewFg) -> ComboDynColorDisplay<'a, NewFg, Bg, T> {
+    pub const fn color<NewFg: DynColor>(self, fg: NewFg) -> ComboDynColorDisplay<'a, NewFg, Bg, T> {
         // TODO: Make this const after https://github.com/rust-lang/rust/issues/73255 is stabilized.
         let Self(inner, _, bg) = self;
         ComboDynColorDisplay(inner, fg, bg)
